@@ -162,3 +162,4 @@ export function DollarTickerTape({ className }: { className?: string }) {
     </div>
   );
 }
+
