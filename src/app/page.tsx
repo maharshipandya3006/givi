@@ -14,12 +14,12 @@ import {
   ExternalLink,
   Lock,
 } from "lucide-react";
-import { DollarTapeCorner, DollarTickerTape } from "@/components/ui/dollar-tape";
+import { DollarTapeCorner, DollarTickerTape, DollarTapeCanvas } from "@/components/ui/dollar-tape";
 import { HeroPreviewCard } from "./components/hero-preview-card";
 
 export default function HomePage() {
   return (
-    <div className="flex-1 flex flex-col items-center w-full bg-black text-white selection:bg-[#118C4F] selection:text-white">
+    <DollarTapeCanvas className="flex-1 flex flex-col items-center w-full bg-black text-white selection:bg-[#118C4F] selection:text-white min-h-screen">
       {/* Infinite Dollar Ticker Tape */}
       <DollarTickerTape />
 
@@ -354,6 +354,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-    </div>
+    </DollarTapeCanvas>
   );
 }

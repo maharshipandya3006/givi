@@ -3,6 +3,7 @@
 import { ShieldCheck, MapPin, Eye, ShoppingCart, ArrowRight, ArrowUp } from "lucide-react";
 import { Cause } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { DollarTapeCorner } from "@/components/ui/dollar-tape";
 
 interface CauseCardProps {
   cause: Cause;
@@ -15,6 +16,7 @@ export function CauseCard({ cause, onInspect }: CauseCardProps) {
 
   return (
     <div className="relative w-full h-[580px] max-w-[420px] rounded-3xl bg-zinc-950 border border-[#1f1f23] shadow-2xl overflow-hidden flex flex-col justify-between text-white select-none transition-all">
+      <DollarTapeCorner corner="top-left" />
       {/* Top Header */}
       <div className="p-4 pb-3 flex items-center justify-between border-b border-[#1f1f23] bg-black/90 backdrop-blur-md z-10">
         <div className="flex flex-col">

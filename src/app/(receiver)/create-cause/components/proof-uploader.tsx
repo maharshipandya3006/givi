@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UploadCloud, CheckCircle2, ShieldCheck, Loader2, FileText } from "lucide-react";
 import { TrustScore } from "@/lib/types";
+import { DollarTapeCorner } from "@/components/ui/dollar-tape";
 
 interface ProofUploaderProps {
   onAnalysisComplete: (result: {
@@ -98,12 +99,15 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
         />
 
         {previewUrl ? (
-          <div className="flex items-center gap-4 w-full">
-            <img
-              src={previewUrl}
-              alt="Uploaded statement"
-              className="w-16 h-16 rounded-xl object-cover bg-zinc-950 border border-[#1f1f23]"
-            />
+          <div className="relative flex items-center gap-4 w-full p-2">
+            <div className="relative">
+              <DollarTapeCorner corner="top-left" className="w-12 py-0.5 -top-2 -left-2 text-[7px]" />
+              <img
+                src={previewUrl}
+                alt="Uploaded statement"
+                className="w-16 h-16 rounded-xl object-cover bg-zinc-950 border border-[#1f1f23]"
+              />
+            </div>
             <div className="flex-1 min-w-0">
               <span className="text-xs font-semibold text-zinc-200 line-clamp-1">{fileName}</span>
               <span className="text-[11px] text-zinc-400 block mt-0.5">Click to replace photo</span>
