@@ -1,0 +1,85 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Givi API",
+    "version": "1.0.0",
+    "description": "API contracts for Givi swipe-to-donate social impact platform, connecting donors and verified causes via PayPal Payouts and Google Gemini AI.",
+    "contact": {
+      "name": "Givi Developer Platform",
+      "url": "https://givi-web.onrender.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://givi-web.onrender.com",
+      "description": "Render Production Server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/api/causes": {
+      "get": {
+        "summary": "List active verified causes",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["utilities", "medical", "education", "food", "climate", "community"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of active causes for the swipe deck"
+          }
+        }
+      },
+      "post": {
+        "summary": "Enroll a verified cause or overdue bill",
+        "responses": {
+          "201": {
+            "description": "Cause enrolled successfully"
+          }
+        }
+      }
+    },
+    "/api/paypal/capture-and-payout": {
+      "post": {
+        "summary": "Execute micro-donation capture and immediate PayPal Payout",
+        "description": "Atomically captures donor payment and transfers 100% of the funds directly to the beneficiary's PayPal account with 0% platform fee.",
+        "responses": {
+          "200": {
+            "description": "Donation executed and payout disbursed"
+          }
+        }
+      }
+    },
+    "/api/agent/run": {
+      "post": {
+        "summary": "Execute autonomous giving agent",
+        "description": "Evaluates urgent causes against donor policy rules and triggers PayPal Payouts autonomously.",
+        "responses": {
+          "200": {
+            "description": "Agent run completed with execution logs"
+          }
+        }
+      }
+    },
+    "/api/transparency": {
+      "get": {
+        "summary": "Real-time audit ledger",
+        "description": "Public ledger of verified donations and PayPal settlement batch IDs for AG Grid visualization.",
+        "responses": {
+          "200": {
+            "description": "Full audit log"
+          }
+        }
+      }
+    }
+  }
+}
