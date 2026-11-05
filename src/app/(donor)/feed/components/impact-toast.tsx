@@ -73,3 +73,4 @@ export function ImpactToast({ toast, onDismiss, isFullyFunded }: ImpactToastProp
     </AnimatePresence>
   );
 }
+

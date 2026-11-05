@@ -138,3 +138,4 @@ export function CauseDetailsModal({ cause, isOpen, onClose }: CauseDetailsModalP
     </AnimatePresence>
   );
 }
+

@@ -16,3 +16,4 @@ USING (bucket_id = 'receipts-and-proofs');
 CREATE POLICY "Authenticated Uploads for Receipts"
 ON storage.objects FOR INSERT
 WITH CHECK (bucket_id = 'receipts-and-proofs');
+

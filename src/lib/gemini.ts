@@ -157,3 +157,4 @@ Do NOT include quotes or prefixes. Return ONLY the sentence.`;
     return `Your $${amount} directly aided ${recipientName} in ${location}! ❤️`;
   }
 }
+

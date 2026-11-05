@@ -270,3 +270,4 @@ export const SEED_CAUSES: Cause[] = [
     updatedAt: "2026-11-04T17:30:00Z",
   },
 ];
+

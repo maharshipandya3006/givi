@@ -150,3 +150,4 @@ export function Channel3Search({ onSelectProduct, selectedProductId }: Channel3S
     </div>
   );
 }
+

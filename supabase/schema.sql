@@ -97,3 +97,4 @@ CREATE POLICY "Profiles are viewable by everyone" ON public.profiles FOR SELECT 
 CREATE POLICY "Users can insert causes" ON public.causes FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (true);
 CREATE POLICY "System can record donations" ON public.donations FOR INSERT WITH CHECK (true);
+

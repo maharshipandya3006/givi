@@ -132,3 +132,4 @@ export interface TransparencyRecord {
   trustScore: number;
   isAgentic: boolean;
 }
+

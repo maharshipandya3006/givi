@@ -120,3 +120,4 @@ export function CauseCard({ cause, onInspect }: CauseCardProps) {
     </div>
   );
 }
+

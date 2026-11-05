@@ -68,3 +68,4 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
 export async function GET() {
   return NextResponse.json(LEADERBOARD_SEED);
 }
+

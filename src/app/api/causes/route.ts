@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { SEED_CAUSES } from "@/lib/seed-data";
 import { Cause, CauseCategory } from "@/lib/types";
-
-// In-memory runtime cache to persist new causes during demo session if DB is offline
-const runtimeCauses: Cause[] = [...SEED_CAUSES];
+import { activeCauses, addActiveCause } from "@/lib/causes-store";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -57,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Fallback to runtime seeds
-  let filtered = runtimeCauses.filter((c) => (status ? c.status === status : true));
+  let filtered = activeCauses.filter((c) => (status ? c.status === status : true));
   if (category && category !== "all" as unknown as CauseCategory) {
     filtered = filtered.filter((c) => c.category === category);
   }
@@ -152,7 +149,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Always maintain in runtime cache so immediate GET reflects the new cause
-    runtimeCauses.unshift(newCause);
+    addActiveCause(newCause);
 
     return NextResponse.json(newCause, { status: 201 });
   } catch (err: unknown) {
@@ -160,3 +157,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+

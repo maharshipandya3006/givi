@@ -35,7 +35,8 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
       setCauses((prev) => prev.filter((c) => c.id !== cause.id));
     } else if (direction === "right") {
       // Micro-donation $5 (or auto-capped remaining)
-      const donationAmt = Math.min(5.0, Math.max(1.0, cause.goalAmount - cause.raisedAmount));
+      const remaining = Math.max(0.01, cause.goalAmount - cause.raisedAmount);
+      const donationAmt = Math.min(5.0, remaining);
       await executeDonation(cause, donationAmt);
     } else if (direction === "up") {
       // Pay in Full -> Open confirmation drawer
@@ -212,3 +213,4 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
     </div>
   );
 }
+

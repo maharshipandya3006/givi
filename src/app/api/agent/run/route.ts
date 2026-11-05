@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SEED_CAUSES } from "@/lib/seed-data";
+import { getActiveCauses } from "@/lib/causes-store";
 import { disbursePayPalPayout } from "@/lib/paypal";
 import { generateImpactToast } from "@/lib/gemini";
 import { runtimeDonations } from "@/lib/ledger";
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const executionLogs: AgentRunLog[] = [];
 
     // Filter causes matching donor agent policies
-    const eligibleCauses = SEED_CAUSES.filter((c) => {
+    const eligibleCauses = getActiveCauses().filter((c) => {
       const remainingAsk = c.goalAmount - c.raisedAmount;
       return (
         remainingAsk > 0 &&
@@ -115,3 +115,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+

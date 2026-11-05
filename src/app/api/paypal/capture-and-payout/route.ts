@@ -3,7 +3,7 @@ import { capturePayPalOrder, disbursePayPalPayout } from "@/lib/paypal";
 import { debitDemoWallet, getDemoWalletBalance } from "@/lib/demo-wallet";
 import { generateImpactToast } from "@/lib/gemini";
 import { supabaseAdmin } from "@/lib/supabase";
-import { SEED_CAUSES } from "@/lib/seed-data";
+import { findCauseById, updateCauseFunding } from "@/lib/causes-store";
 import { Donation } from "@/lib/types";
 import { runtimeDonations } from "@/lib/ledger";
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Fetch cause details to get receiver email and check auto-capping
-    let targetCause = SEED_CAUSES.find((c) => c.id === causeId);
+    let targetCause = findCauseById(causeId);
 
     try {
       const { data } = await supabaseAdmin
@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
     });
 
     // 6. Record Donation & Update Raised Amount
-    const newRaised = Math.round((targetCause.raisedAmount + donationAmount) * 100) / 100;
+    const fundingResult = updateCauseFunding(targetCause.id, donationAmount);
+    const newRaised = fundingResult?.cause.raisedAmount || Math.round((targetCause.raisedAmount + donationAmount) * 100) / 100;
     targetCause.raisedAmount = newRaised;
     if (newRaised >= targetCause.goalAmount) {
       targetCause.status = "funded";

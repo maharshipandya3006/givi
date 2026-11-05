@@ -35,3 +35,4 @@ export function resetDemoWallet(): number {
   sessionBalance = 50.00;
   return sessionBalance;
 }
+

@@ -87,3 +87,4 @@ Visit [http://localhost:3000](http://localhost:3000) to start swiping!
 4. **[1:45 - 2:15] AG Grid Public Audit Ledger:** Navigate to `/transparency`. Filter by category, inspect the real-time PayPal settlement batch ID, and export a CSV tax receipt in 1 click.
 5. **[2:15 - 2:45] Agentic Commerce Runner:** Open `/agent`. Configure an autonomous giving rule (max $15 per cause, >85% trust score) and trigger an autonomous run. Watch the agent evaluate causes and execute PayPal Payouts without human friction.
 6. **[2:45 - 3:00] Wrap-up & Mission:** 100% direct relief, 0% platform fee, driving real good in the world.
+

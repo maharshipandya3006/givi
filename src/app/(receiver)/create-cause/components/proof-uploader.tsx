@@ -154,3 +154,4 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
     </div>
   );
 }
+
