@@ -34,7 +34,7 @@ export function SwipeUpConfirmation({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm"
           />
 
           {/* Drawer Sheet */}
@@ -43,15 +43,15 @@ export function SwipeUpConfirmation({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto p-4 sm:p-6 bg-zinc-900 border-t border-zinc-700/80 rounded-t-3xl shadow-2xl text-white"
+            className="fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto p-4 sm:p-6 bg-black border-t border-[#1f1f23] rounded-t-3xl shadow-2xl text-white"
           >
             {/* Grab Handle */}
-            <div className="w-12 h-1.5 rounded-full bg-zinc-700 mx-auto mb-5" />
+            <div className="w-12 h-1.5 rounded-full bg-zinc-800 mx-auto mb-5" />
 
             <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-                  👆
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 text-[#118C4F] flex items-center justify-center font-bold">
+                  <Zap className="w-4 h-4 fill-[#118C4F]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-zinc-100">Clear The Ask in Full</h3>
@@ -60,27 +60,27 @@ export function SwipeUpConfirmation({
               </div>
               <button
                 onClick={onClose}
-                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-zinc-800/60 border border-zinc-700/50 mb-6">
+            <div className="p-4 rounded-2xl bg-zinc-950 border border-[#1f1f23] mb-6">
               <div className="text-xs text-zinc-400 mb-1 font-mono uppercase">
                 {cause.receiverLocation} · {cause.receiverName}
               </div>
               <div className="font-semibold text-sm text-zinc-200 mb-3">{cause.title}</div>
-              <div className="flex items-baseline justify-between pt-2 border-t border-zinc-700/50">
+              <div className="flex items-baseline justify-between pt-2 border-t border-[#1f1f23]">
                 <span className="text-xs text-zinc-400">Remaining to Fund:</span>
-                <span className="text-2xl font-bold font-mono text-emerald-400">
+                <span className="text-2xl font-bold font-mono text-[#118C4F]">
                   {formatCurrency(remaining)}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 text-[11px] text-zinc-400 mb-6 px-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[#118C4F] shrink-0" />
               <span>
                 100% of this payment dispatches directly to {cause.receiverEmail} with 0% platform fee.
               </span>
@@ -90,14 +90,14 @@ export function SwipeUpConfirmation({
               <button
                 onClick={onClose}
                 disabled={isProcessing}
-                className="flex-1 py-3.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold text-zinc-300 transition-colors"
+                className="flex-1 py-3.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-sm font-semibold text-zinc-300 transition-colors border border-[#1f1f23]"
               >
                 Cancel
               </button>
               <button
                 onClick={() => onConfirm(cause, remaining)}
                 disabled={isProcessing}
-                className="flex-[2] py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-sm font-bold text-white shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
+                className="flex-[2] py-3.5 px-4 rounded-xl bg-[#118C4F] hover:bg-[#0e703f] text-sm font-bold text-white shadow-lg shadow-[#118C4F]/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
               >
                 <Zap className="w-4 h-4 fill-white" />
                 {isProcessing ? "Processing Payout..." : `Confirm & Pay ${formatCurrency(remaining)}`}
@@ -109,4 +109,3 @@ export function SwipeUpConfirmation({
     </AnimatePresence>
   );
 }
-

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Cause } from "@/lib/types";
-import { SEED_CAUSES } from "@/lib/seed-data";
+import { getActiveCauses } from "@/lib/causes-store";
 import { formatCurrency } from "@/lib/utils";
-import { PlusCircle, CheckCircle2, Clock, ShieldCheck, ArrowRight } from "lucide-react";
+import { PlusCircle, Clock, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function MyCausesPage() {
   const [causes, setCauses] = useState<Cause[]>([]);
@@ -19,10 +19,10 @@ export default function MyCausesPage() {
           const data = await res.json();
           setCauses(data);
         } else {
-          setCauses(SEED_CAUSES);
+          setCauses(getActiveCauses());
         }
       } catch (err) {
-        setCauses(SEED_CAUSES);
+        setCauses(getActiveCauses());
       } finally {
         setIsLoading(false);
       }
@@ -41,10 +41,10 @@ export default function MyCausesPage() {
         </div>
         <Link
           href="/create-cause"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all hover:scale-105"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#118C4F] hover:bg-[#0e703f] text-white text-xs font-semibold shadow-md shadow-[#118C4F]/20 transition-all hover:scale-105"
         >
           <PlusCircle className="w-4 h-4" />
-          New Cause
+          <span>New Cause</span>
         </Link>
       </div>
 
@@ -57,14 +57,14 @@ export default function MyCausesPage() {
             return (
               <div
                 key={c.id}
-                className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-md flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-zinc-950 border border-[#1f1f23] shadow-md flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-blue-500/10 text-sky-400 border border-blue-500/20">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#118C4F]/10 text-[#118C4F] border border-[#118C4F]/30 font-semibold">
                       {c.category}
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                    <span className="text-[10px] font-mono text-[#118C4F] flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       {c.trustScore.overall}% Trust
                     </span>
@@ -72,24 +72,24 @@ export default function MyCausesPage() {
                   <h3 className="text-sm font-bold text-white mb-2 line-clamp-1">{c.title}</h3>
                   <div className="flex items-baseline justify-between mb-1.5">
                     <span className="text-xs text-zinc-400">Funding Progress</span>
-                    <span className="text-xs font-mono font-bold text-emerald-400">
+                    <span className="text-xs font-mono font-bold text-[#118C4F]">
                       {formatCurrency(c.raisedAmount)} / {formatCurrency(c.goalAmount)} ({percentage}%)
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden mb-3">
+                  <div className="w-full h-2 rounded-full bg-zinc-900 overflow-hidden mb-3 border border-[#1f1f23]">
                     <div
-                      className="h-full bg-emerald-400 rounded-full"
+                      className="h-full bg-[#118C4F] rounded-full"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400">
+                <div className="pt-3 border-t border-[#1f1f23] flex items-center justify-between text-[11px] text-zinc-400">
                   <span className="flex items-center gap-1 font-mono text-zinc-400">
-                    <Clock className="w-3.5 h-3.5" />
+                    <Clock className="w-3.5 h-3.5 text-[#118C4F]" />
                     Instant Payout Active
                   </span>
-                  <span className="text-sky-400 hover:underline flex items-center gap-0.5">
+                  <span className="text-[#118C4F] hover:underline flex items-center gap-0.5">
                     View <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
@@ -101,4 +101,3 @@ export default function MyCausesPage() {
     </div>
   );
 }
-

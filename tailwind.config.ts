@@ -10,33 +10,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--bg-base)",
-        surface: "var(--bg-surface)",
-        elevated: "var(--bg-elevated)",
+        background: "#000000",
+        surface: "#0a0a0a",
+        elevated: "#121212",
         primary: {
-          DEFAULT: "var(--accent-primary)",
-          text: "var(--text-primary)",
+          DEFAULT: "#118C4F",
+          text: "#ffffff",
+        },
+        brand: {
+          DEFAULT: "#118C4F",
+          dark: "#0a5c33",
+          light: "#1cb668",
+          black: "#000000",
         },
         muted: {
-          DEFAULT: "var(--text-muted)",
+          DEFAULT: "#8e8e93",
         },
-        border: "var(--border-default)",
-        brand: {
-          paypal: "#0070ba",
-          paypalDark: "#003087",
-        },
+        border: "#1f1f23",
         state: {
-          success: "var(--state-success)",
-          warning: "var(--state-warning)",
-          danger: "var(--state-danger)",
-        },
-        category: {
-          utilities: "#f59e0b",
-          medical: "#10b981",
-          education: "#6366f1",
-          food: "#f43f5e",
-          climate: "#14b8a6",
-          community: "#8b5cf6",
+          success: "#118C4F",
+          warning: "#118C4F",
+          danger: "#ef4444",
         },
       },
       borderRadius: {
@@ -53,4 +47,3 @@ const config: Config = {
 };
 
 export default config;
-

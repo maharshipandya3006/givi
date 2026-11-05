@@ -7,7 +7,7 @@ import { CauseCard } from "./cause-card";
 import { CauseDetailsModal } from "./cause-details-modal";
 import { SwipeUpConfirmation } from "./swipe-up-confirmation";
 import { ImpactToast } from "./impact-toast";
-import { Heart, X, Zap, RefreshCw, Sparkles } from "lucide-react";
+import { Heart, X, Zap, RefreshCw, CheckCircle2 } from "lucide-react";
 
 interface SwipeDeckProps {
   initialCauses: Cause[];
@@ -107,18 +107,18 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
       {/* Active Card Deck Stack */}
       <div className="relative w-full h-[590px] flex items-center justify-center">
         {causes.length === 0 ? (
-          <div className="p-8 text-center rounded-3xl bg-zinc-900/90 border border-zinc-800 shadow-2xl max-w-sm w-full flex flex-col items-center animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
-              <Sparkles className="w-8 h-8" />
+          <div className="p-8 text-center rounded-3xl bg-zinc-950 border border-[#1f1f23] shadow-2xl max-w-sm w-full flex flex-col items-center animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-[#118C4F]/10 text-[#118C4F] border border-[#118C4F]/30 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">You cleared the deck!</h3>
+            <h3 className="text-xl font-bold text-white mb-2">You cleared the deck</h3>
             <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
               Every verified statement in this category has been funded or reviewed. Thank you for
               driving immediate good in the world.
             </p>
             <button
               onClick={handleResetDeck}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-lg shadow-blue-500/20 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#118C4F] hover:bg-[#0e703f] text-white font-semibold text-xs shadow-lg shadow-[#118C4F]/20 transition-all hover:scale-105"
             >
               <RefreshCw className="w-4 h-4" />
               Reset Cause Deck
@@ -159,7 +159,7 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
           <button
             onClick={() => handleManualAction("left")}
             disabled={isProcessing}
-            className="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-700/80 hover:border-zinc-500 text-zinc-400 hover:text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+            className="w-14 h-14 rounded-full bg-black border border-[#1f1f23] hover:border-zinc-500 text-zinc-400 hover:text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
             aria-label="Skip Cause"
             title="Pass (Swipe Left)"
           >
@@ -170,18 +170,18 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
           <button
             onClick={() => handleManualAction("up")}
             disabled={isProcessing}
-            className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 hover:border-amber-400 text-amber-400 flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+            className="w-12 h-12 rounded-full bg-black border border-[#118C4F]/40 hover:border-[#118C4F] text-[#118C4F] flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
             aria-label="Clear The Ask in Full"
             title="Pay Remaining Goal (Swipe Up)"
           >
-            <Zap className="w-5 h-5 fill-amber-400" />
+            <Zap className="w-5 h-5 fill-[#118C4F]" />
           </button>
 
           {/* Micro-Donate $5 (Right) */}
           <button
             onClick={() => handleManualAction("right")}
             disabled={isProcessing}
-            className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white flex items-center justify-center shadow-xl shadow-emerald-500/30 transition-transform hover:scale-110 active:scale-95"
+            className="w-16 h-16 rounded-full bg-[#118C4F] hover:bg-[#0e703f] text-white flex items-center justify-center shadow-xl shadow-[#118C4F]/30 transition-transform hover:scale-110 active:scale-95"
             aria-label="Donate $5"
             title="Chip in $5 (Swipe Right)"
           >
@@ -213,4 +213,3 @@ export function SwipeDeck({ initialCauses, onDonationComplete }: SwipeDeckProps)
     </div>
   );
 }
-

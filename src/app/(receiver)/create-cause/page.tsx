@@ -8,9 +8,7 @@ import {
   FileText,
   ShoppingCart,
   Users,
-  CheckCircle2,
   ArrowRight,
-  ShieldCheck,
   Zap,
   Loader2,
 } from "lucide-react";
@@ -115,7 +113,7 @@ export default function CreateCausePage() {
   return (
     <div className="flex-1 flex flex-col items-center justify-start px-4 py-8 max-w-2xl mx-auto w-full">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-semibold mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#118C4F]/10 border border-[#118C4F]/30 text-[#118C4F] text-xs font-semibold mb-3">
           <Zap className="w-3.5 h-3.5" />
           <span>Zero Platform Fee · 100% Direct Payouts</span>
         </div>
@@ -129,7 +127,7 @@ export default function CreateCausePage() {
 
       <form onSubmit={handleSubmit} className="w-full space-y-6">
         {/* Step 1: Need Type Selector */}
-        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800">
+        <div className="p-5 rounded-2xl bg-zinc-950 border border-[#1f1f23]">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-3">
             1. Select Need Category
           </label>
@@ -139,11 +137,11 @@ export default function CreateCausePage() {
               onClick={() => setNeedType("bill")}
               className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
                 needType === "bill"
-                  ? "bg-blue-500/10 border-blue-500 text-white"
-                  : "bg-zinc-800/40 border-zinc-700/80 text-zinc-400 hover:text-white"
+                  ? "bg-[#118C4F]/10 border-[#118C4F] text-white"
+                  : "bg-black border-[#1f1f23] text-zinc-400 hover:text-white"
               }`}
             >
-              <FileText className="w-5 h-5 text-amber-400 mb-2" />
+              <FileText className="w-5 h-5 text-[#118C4F] mb-2" />
               <span className="text-xs font-bold text-zinc-200">Overdue Bill</span>
               <span className="text-[11px] text-zinc-400 mt-1">Utility, pharmacy, clinic, or rent</span>
             </button>
@@ -153,11 +151,11 @@ export default function CreateCausePage() {
               onClick={() => setNeedType("aid_supply")}
               className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
                 needType === "aid_supply"
-                  ? "bg-blue-500/10 border-blue-500 text-white"
-                  : "bg-zinc-800/40 border-zinc-700/80 text-zinc-400 hover:text-white"
+                  ? "bg-[#118C4F]/10 border-[#118C4F] text-white"
+                  : "bg-black border-[#1f1f23] text-zinc-400 hover:text-white"
               }`}
             >
-              <ShoppingCart className="w-5 h-5 text-sky-400 mb-2" />
+              <ShoppingCart className="w-5 h-5 text-[#118C4F] mb-2" />
               <span className="text-xs font-bold text-zinc-200">Channel3 Retail Item</span>
               <span className="text-[11px] text-zinc-400 mt-1">Heater, formula, winter boots</span>
             </button>
@@ -167,11 +165,11 @@ export default function CreateCausePage() {
               onClick={() => setNeedType("community")}
               className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
                 needType === "community"
-                  ? "bg-blue-500/10 border-blue-500 text-white"
-                  : "bg-zinc-800/40 border-zinc-700/80 text-zinc-400 hover:text-white"
+                  ? "bg-[#118C4F]/10 border-[#118C4F] text-white"
+                  : "bg-black border-[#1f1f23] text-zinc-400 hover:text-white"
               }`}
             >
-              <Users className="w-5 h-5 text-purple-400 mb-2" />
+              <Users className="w-5 h-5 text-[#118C4F] mb-2" />
               <span className="text-xs font-bold text-zinc-200">Community Cause</span>
               <span className="text-[11px] text-zinc-400 mt-1">Milestones & local mutual aid</span>
             </button>
@@ -179,7 +177,7 @@ export default function CreateCausePage() {
         </div>
 
         {/* Step 2: Verification Engine (Bill Upload vs Channel3 Search) */}
-        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800">
+        <div className="p-5 rounded-2xl bg-zinc-950 border border-[#1f1f23]">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-3">
             2. Verified Proof or Item Link
           </label>
@@ -196,15 +194,15 @@ export default function CreateCausePage() {
               selectedProductId={selectedProduct?.id}
             />
           ) : (
-            <div className="p-4 rounded-xl bg-zinc-800/30 border border-zinc-700 text-xs text-zinc-300">
-              Community relief campaigns display interactive Bryntum milestone schedules for transparent
+            <div className="p-4 rounded-xl bg-black border border-[#1f1f23] text-xs text-zinc-300">
+              Community relief campaigns display interactive milestone schedules for transparent
               phased fund releases.
             </div>
           )}
         </div>
 
         {/* Step 3: Details & PayPal Payout Destination */}
-        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-4">
+        <div className="p-5 rounded-2xl bg-zinc-950 border border-[#1f1f23] space-y-4">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block">
             3. Beneficiary & PayPal Payout Details
           </label>
@@ -217,7 +215,7 @@ export default function CreateCausePage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. DTE Energy Overdue Heat Bill"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white focus:outline-none focus:border-sky-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white focus:outline-none focus:border-[#118C4F]"
             />
           </div>
 
@@ -227,14 +225,14 @@ export default function CreateCausePage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as CauseCategory)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white focus:outline-none focus:border-sky-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white focus:outline-none focus:border-[#118C4F]"
               >
-                <option value="utilities">⚡ Utilities</option>
-                <option value="medical">💊 Medical</option>
-                <option value="food">🍞 Groceries</option>
-                <option value="education">🎒 Education</option>
-                <option value="community">🤝 Community</option>
-                <option value="climate">🌱 Climate</option>
+                <option value="utilities">Utilities</option>
+                <option value="medical">Medical</option>
+                <option value="food">Groceries</option>
+                <option value="education">Education</option>
+                <option value="community">Community</option>
+                <option value="climate">Climate</option>
               </select>
             </div>
 
@@ -249,7 +247,7 @@ export default function CreateCausePage() {
                 value={goalAmount}
                 onChange={(e) => setGoalAmount(e.target.value)}
                 placeholder="142.50"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white font-mono focus:outline-none focus:border-[#118C4F]"
               />
             </div>
           </div>
@@ -264,7 +262,7 @@ export default function CreateCausePage() {
                 value={receiverName}
                 onChange={(e) => setReceiverName(e.target.value)}
                 placeholder="e.g. Sarah M."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white focus:outline-none focus:border-sky-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white focus:outline-none focus:border-[#118C4F]"
               />
             </div>
             <div>
@@ -276,7 +274,7 @@ export default function CreateCausePage() {
                 value={receiverLocation}
                 onChange={(e) => setReceiverLocation(e.target.value)}
                 placeholder="e.g. Detroit, MI"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white focus:outline-none focus:border-sky-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white focus:outline-none focus:border-[#118C4F]"
               />
             </div>
           </div>
@@ -291,7 +289,7 @@ export default function CreateCausePage() {
               value={receiverEmail}
               onChange={(e) => setReceiverEmail(e.target.value)}
               placeholder="beneficiary@sandbox.paypal.com"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white font-mono focus:outline-none focus:border-sky-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white font-mono focus:outline-none focus:border-[#118C4F]"
             />
             <span className="text-[10px] text-zinc-500 mt-1 block">
               100% of all micro-donations are transferred here immediately via PayPal Payouts API.
@@ -305,7 +303,7 @@ export default function CreateCausePage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Explain the urgent context so donors understand where their $5 goes..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700 text-xs text-white focus:outline-none focus:border-sky-400"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-[#1f1f23] text-xs text-white focus:outline-none focus:border-[#118C4F]"
             />
           </div>
         </div>
@@ -314,12 +312,12 @@ export default function CreateCausePage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white font-bold text-sm shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
+          className="w-full py-4 px-6 rounded-2xl bg-[#118C4F] hover:bg-[#0e703f] text-white font-bold text-sm shadow-xl shadow-[#118C4F]/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Publishing Cause to Swipe Feed...
+              <span>Publishing Cause to Swipe Feed...</span>
             </>
           ) : (
             <>
@@ -332,4 +330,3 @@ export default function CreateCausePage() {
     </div>
   );
 }
-

@@ -31,7 +31,7 @@ export default function TransparencyPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full mb-8">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#118C4F]/10 border border-[#118C4F]/30 text-[#118C4F] text-xs font-semibold mb-2">
             <Layers className="w-3.5 h-3.5" />
             <span>AG Grid React Enterprise Audit Ledger</span>
           </div>
@@ -44,21 +44,21 @@ export default function TransparencyPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-zinc-900 p-3 rounded-2xl border border-zinc-800">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="flex items-center gap-3 bg-zinc-950 p-3 px-4 rounded-2xl border border-[#1f1f23]">
+          <div className="w-10 h-10 rounded-xl bg-[#118C4F]/10 text-[#118C4F] border border-[#118C4F]/30 flex items-center justify-center font-bold">
+            <ShieldCheck className="w-5 h-5 text-[#118C4F]" />
           </div>
           <div>
-            <div className="text-[10px] uppercase font-mono text-zinc-400">Platform Fee</div>
-            <div className="text-base font-extrabold text-white font-mono">0.00% (Zero)</div>
+            <div className="text-[10px] uppercase font-mono text-zinc-500 font-semibold">Platform Fee</div>
+            <div className="text-base font-extrabold text-[#118C4F] font-mono">0.00% (Zero)</div>
           </div>
         </div>
       </div>
 
       {/* Grid */}
       {isLoading ? (
-        <div className="w-full h-96 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 text-xs gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
+        <div className="w-full h-96 rounded-2xl bg-zinc-950 border border-[#1f1f23] flex items-center justify-center text-zinc-500 text-xs gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-[#118C4F]" />
           <span>Loading public audit ledger...</span>
         </div>
       ) : (

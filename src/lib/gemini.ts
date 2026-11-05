@@ -127,14 +127,14 @@ export async function generateImpactToast(params: {
 
   if (!genAI || !GEMINI_API_KEY) {
     const templates: Record<string, string> = {
-      utilities: `You just kept the lights and heat on for ${recipientName} in ${location}! ⚡`,
-      medical: `You helped cover critical medication for ${recipientName}! 💊`,
-      education: `You funded school essentials for ${recipientName}'s family! 🎒`,
-      food: `You provided warm, fresh groceries for ${recipientName} tonight! 🍞`,
-      climate: `You contributed to neighborhood green relief in ${location}! 🌱`,
-      community: `You stood with ${recipientName} and strengthened community aid! 🤝`,
+      utilities: `You just kept the lights and heat on for ${recipientName} in ${location}!`,
+      medical: `You helped cover critical medication for ${recipientName}!`,
+      education: `You funded school essentials for ${recipientName}'s family!`,
+      food: `You provided warm, fresh groceries for ${recipientName} tonight!`,
+      climate: `You contributed to neighborhood green relief in ${location}!`,
+      community: `You stood with ${recipientName} and strengthened community aid!`,
     };
-    return templates[category] || `Your $${amount} donation made an immediate difference for ${recipientName}! ❤️`;
+    return templates[category] || `Your $${amount} donation made an immediate difference for ${recipientName}!`;
   }
 
   try {
@@ -145,16 +145,16 @@ export async function generateImpactToast(params: {
 - Category: ${category}
 
 Examples of desired tone:
-- "You just kept the heat on for Sarah and her kids in Detroit! ⚡"
-- "You covered Maya's insulin prescription for the month! 💊"
+- "You just kept the heat on for Sarah and her kids in Detroit!"
+- "You covered Maya's insulin prescription for the month!"
 
-Do NOT include quotes or prefixes. Return ONLY the sentence.`;
+Do NOT include emojis, quotes or prefixes. Return ONLY the sentence.`;
 
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
   } catch (error) {
     console.warn("Gemini impact toast generation error:", error);
-    return `Your $${amount} directly aided ${recipientName} in ${location}! ❤️`;
+    return `Your $${amount} directly aided ${recipientName} in ${location}!`;
   }
 }
 

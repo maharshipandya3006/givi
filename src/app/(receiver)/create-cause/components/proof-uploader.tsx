@@ -78,17 +78,17 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
     <div className="flex flex-col w-full text-left">
       <div className="flex items-center justify-between mb-2">
         <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-          <FileText className="w-4 h-4 text-sky-400" />
+          <FileText className="w-4 h-4 text-[#118C4F]" />
           <span>Upload Overdue Bill or Receipt (Photo / PDF)</span>
         </label>
-        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+        <span className="text-[10px] font-mono text-[#118C4F] flex items-center gap-1">
           <ShieldCheck className="w-3.5 h-3.5" />
           Auto-Redacted by Gemini
         </span>
       </div>
 
       {/* Upload Drop Area */}
-      <label className="relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-zinc-700 hover:border-sky-500 bg-zinc-800/40 hover:bg-zinc-800/60 cursor-pointer transition-colors group">
+      <label className="relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-[#1f1f23] hover:border-[#118C4F] bg-black cursor-pointer transition-colors group">
         <input
           type="file"
           accept="image/*,application/pdf"
@@ -102,24 +102,24 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
             <img
               src={previewUrl}
               alt="Uploaded statement"
-              className="w-16 h-16 rounded-xl object-cover bg-zinc-900 border border-zinc-700"
+              className="w-16 h-16 rounded-xl object-cover bg-zinc-950 border border-[#1f1f23]"
             />
             <div className="flex-1 min-w-0">
               <span className="text-xs font-semibold text-zinc-200 line-clamp-1">{fileName}</span>
               <span className="text-[11px] text-zinc-400 block mt-0.5">Click to replace photo</span>
             </div>
             {isAnalyzing ? (
-              <div className="flex items-center gap-1.5 text-xs text-sky-400 font-mono">
+              <div className="flex items-center gap-1.5 text-xs text-[#118C4F] font-mono">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Gemini OCR...
               </div>
             ) : (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-[#118C4F] shrink-0" />
             )}
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">
-            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 mb-2 group-hover:text-sky-400 group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-[#1f1f23] flex items-center justify-center text-zinc-400 mb-2 group-hover:text-[#118C4F] group-hover:scale-110 transition-transform">
               <UploadCloud className="w-5 h-5" />
             </div>
             <span className="text-xs font-semibold text-zinc-300">
@@ -134,15 +134,15 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
 
       {/* Real-time Gemini Verification Card */}
       {analysisResult && (
-        <div className="mt-3 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3 text-xs">
-          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="mt-3 p-3.5 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-start gap-3 text-xs">
+          <ShieldCheck className="w-4 h-4 text-[#118C4F] shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-emerald-400">
+              <span className="font-bold text-[#118C4F]">
                 Gemini AI Trust Score: {analysisResult.score}%
               </span>
               {analysisResult.vendor && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#118C4F]/20 text-zinc-200">
                   {analysisResult.vendor}
                 </span>
               )}
@@ -154,4 +154,3 @@ export function ProofUploader({ onAnalysisComplete, category, statedAmount }: Pr
     </div>
   );
 }
-

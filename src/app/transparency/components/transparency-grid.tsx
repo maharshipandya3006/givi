@@ -70,7 +70,7 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
         width: 130,
         cellRenderer: (params: { value?: string }) => {
           return (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-zinc-800 text-zinc-300 border border-zinc-700">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-zinc-900 text-zinc-300 border border-[#1f1f23]">
               {params.value}
             </span>
           );
@@ -81,7 +81,7 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
         headerName: "Amount",
         width: 120,
         cellRenderer: (params: { value?: number }) => (
-          <span className="font-bold font-mono text-emerald-400">
+          <span className="font-bold font-mono text-[#118C4F]">
             {formatCurrency(params.value || 0)}
           </span>
         ),
@@ -91,8 +91,8 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
         headerName: "Gemini Trust",
         width: 140,
         cellRenderer: (params: { value?: number }) => (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <ShieldCheck className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-[#118C4F]/10 text-[#118C4F] border border-[#118C4F]/30">
+            <ShieldCheck className="w-3 h-3 text-[#118C4F]" />
             {params.value}%
           </span>
         ),
@@ -103,7 +103,7 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
         flex: 1.5,
         minWidth: 180,
         cellRenderer: (params: { value?: string }) => (
-          <span className="font-mono text-xs text-sky-400 select-all hover:underline cursor-pointer">
+          <span className="font-mono text-xs text-[#118C4F] select-all hover:underline cursor-pointer">
             {params.value}
           </span>
         ),
@@ -115,7 +115,7 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
         cellRenderer: (params: { value?: boolean }) => {
           if (params.value) {
             return (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#118C4F]/10 text-[#118C4F] border border-[#118C4F]/30">
                 <Zap className="w-3 h-3" />
                 Autonomous Agent
               </span>
@@ -158,13 +158,13 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
             value={quickFilterText}
             onChange={(e) => setQuickFilterText(e.target.value)}
             placeholder="Search PayPal settlement IDs, causes..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-sky-400"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-black border border-[#1f1f23] text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#118C4F]"
           />
         </div>
 
         <button
           onClick={onExportCsv}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md shadow-emerald-600/20 transition-all hover:scale-[1.02]"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#118C4F] hover:bg-[#0e703f] text-white font-semibold text-xs shadow-md shadow-[#118C4F]/20 transition-all hover:scale-[1.02]"
         >
           <Download className="w-4 h-4" />
           <span>Export Tax Deductible Ledger (CSV)</span>
@@ -172,7 +172,7 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
       </div>
 
       {/* AG Grid Table Container */}
-      <div className="ag-theme-quartz-dark w-full h-[540px] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
+      <div className="ag-theme-quartz-dark w-full h-[540px] rounded-2xl overflow-hidden border border-[#1f1f23] shadow-2xl">
         <AgGridReact
           ref={gridRef}
           rowData={initialData}
@@ -189,4 +189,3 @@ export function TransparencyGrid({ initialData }: TransparencyGridProps) {
     </div>
   );
 }
-

@@ -29,3 +29,4 @@ export function updateCauseFunding(id: string, additionalAmount: number): { caus
 
   return { cause, isFunded: cause.status === "funded" };
 }
+

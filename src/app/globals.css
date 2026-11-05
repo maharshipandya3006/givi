@@ -3,36 +3,24 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --bg-base: #f8fafc;
-    --bg-surface: #ffffff;
-    --bg-elevated: #f1f5f9;
-    --text-primary: #0f172a;
-    --text-muted: #64748b;
-    --accent-primary: #0070ba;
-    --state-success: #10b981;
-    --state-warning: #f59e0b;
-    --state-danger: #ef4444;
-    --border-default: #e2e8f0;
-  }
-
+  :root,
   .dark {
-    --bg-base: #09090b;
-    --bg-surface: #18181b;
-    --bg-elevated: #27272a;
-    --text-primary: #fafafa;
-    --text-muted: #a1a1aa;
-    --accent-primary: #0070ba;
-    --state-success: #10b981;
-    --state-warning: #f59e0b;
+    --bg-base: #000000;
+    --bg-surface: #0a0a0a;
+    --bg-elevated: #121212;
+    --text-primary: #ffffff;
+    --text-muted: #8e8e93;
+    --accent-primary: #118C4F;
+    --state-success: #118C4F;
+    --state-warning: #118C4F;
     --state-danger: #ef4444;
-    --border-default: #27272a;
+    --border-default: #1f1f23;
   }
 }
 
 body {
-  background-color: var(--bg-base);
-  color: var(--text-primary);
+  background-color: #000000;
+  color: #ffffff;
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
   min-height: 100vh;
   margin: 0;
@@ -48,12 +36,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-default);
+  background: #27272a;
   border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #118C4F;
 }
 
 /* Smooth swipe cards & transitions */
@@ -80,4 +72,3 @@ body {
 .swipe-card:active {
   cursor: grabbing;
 }
-

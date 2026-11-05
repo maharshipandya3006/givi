@@ -20,7 +20,7 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
     totalDonated: 485.0,
     causeCount: 42,
     isAnonymous: false,
-    badge: "🏆 Winter Guardian",
+    badge: "Winter Guardian",
     categories: ["utilities", "medical", "community"],
   },
   {
@@ -30,7 +30,7 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
     totalDonated: 340.0,
     causeCount: 29,
     isAnonymous: false,
-    badge: "⚡ Heat Savior",
+    badge: "Heat Savior",
     categories: ["utilities", "food"],
   },
   {
@@ -40,7 +40,7 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
     totalDonated: 275.0,
     causeCount: 24,
     isAnonymous: false,
-    badge: "💊 Rx Angel",
+    badge: "Rx Angel",
     categories: ["medical", "education"],
   },
   {
@@ -50,7 +50,7 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
     totalDonated: 195.0,
     causeCount: 18,
     isAnonymous: true,
-    badge: "🌱 Climate Ally",
+    badge: "Climate Ally",
     categories: ["climate", "community"],
   },
   {
@@ -60,7 +60,7 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
     totalDonated: 140.0,
     causeCount: 14,
     isAnonymous: false,
-    badge: "🎒 STEM Sponsor",
+    badge: "STEM Sponsor",
     categories: ["education"],
   },
 ];
@@ -68,4 +68,3 @@ const LEADERBOARD_SEED: LeaderboardEntry[] = [
 export async function GET() {
   return NextResponse.json(LEADERBOARD_SEED);
 }
-
