@@ -13,7 +13,6 @@ import {
   CreditCard,
   Mail,
   Lock,
-  ShieldAlert,
   Zap,
   ExternalLink,
 } from "lucide-react";
@@ -22,14 +21,9 @@ import { useUser } from "@/lib/user-context";
 export function JudgeDemoPill() {
   const router = useRouter();
   const {
-    role,
-    userEmail,
-    userName,
-    demoPersona,
     switchJudgePersona,
     setDonorOnboarded,
     setBeneficiaryOnboarded,
-    setRole,
     updateDonorPrefs,
   } = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -39,26 +33,6 @@ export function JudgeDemoPill() {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
-  };
-
-  const handleSwitchToDonor = () => {
-    if (switchJudgePersona) {
-      switchJudgePersona("judge_donor");
-    } else {
-      setRole("donor");
-    }
-    router.push("/feed");
-    setIsOpen(false);
-  };
-
-  const handleSwitchToBeneficiary = () => {
-    if (switchJudgePersona) {
-      switchJudgePersona("judge_beneficiary");
-    } else {
-      setRole("beneficiary");
-    }
-    router.push("/my-causes");
-    setIsOpen(false);
   };
 
   const handleRestartOnboarding = async (targetRole: "donor" | "beneficiary" = "donor") => {
@@ -96,63 +70,6 @@ export function JudgeDemoPill() {
           <p className="text-[11px] text-ink-muted leading-relaxed">
             Quick-copy credentials to test PayPal Sandbox checkout without typing.
           </p>
-
-          {/* Active Persona Indicator */}
-          <div className="p-2 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${demoPersona === "judge_beneficiary" ? "bg-blue-500" : "bg-[#166534]"}`} />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-ink-muted uppercase font-bold tracking-wider">Active Persona</span>
-                <span className="text-xs font-bold text-ink">
-                  {demoPersona === "judge_donor"
-                    ? "Judge Donor (Demo)"
-                    : demoPersona === "judge_beneficiary"
-                    ? "Judge Beneficiary (Demo)"
-                    : `${userName || "Personal"} (${userEmail})`}
-                </span>
-              </div>
-            </div>
-            {demoPersona && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (switchJudgePersona) switchJudgePersona(null);
-                  router.push("/feed");
-                }}
-                className="text-[10px] text-[#166534] font-bold hover:underline"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-
-          {/* 1-Tap Persona Switcher for Showcase */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleSwitchToDonor}
-              className={`flex-1 py-2 px-3 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-sm ${
-                demoPersona === "judge_donor"
-                  ? "bg-[#166534] text-white"
-                  : "bg-surface-elevated hover:bg-surface-highlight text-ink border border-border"
-              }`}
-            >
-              <Sparkles className="w-3 h-3" />
-              <span>Judge Donor</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleSwitchToBeneficiary}
-              className={`flex-1 py-2 px-3 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-sm ${
-                demoPersona === "judge_beneficiary"
-                  ? "bg-[#166534] text-white"
-                  : "bg-surface-elevated hover:bg-surface-highlight text-ink border border-border"
-              }`}
-            >
-              <Mail className="w-3 h-3" />
-              <span>Judge Beneficiary</span>
-            </button>
-          </div>
 
           {/* Donor Credentials */}
           <div className="p-2.5 rounded-xl bg-surface-elevated border border-border-subtle space-y-2">
@@ -234,19 +151,19 @@ export function JudgeDemoPill() {
             </code>
           </div>
 
-          {/* Beneficiary Credentials (Recipient) */}
+          {/* Beneficiary Credentials */}
           <div className="p-2.5 rounded-xl bg-surface-elevated border border-border-subtle space-y-2">
             {/* Beneficiary Mail ID */}
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
                   <Mail className="w-3.5 h-3.5 text-[#166534]" />
-                  Relief Beneficiary (Recipient)
+                  Beneficiary mail id
                 </span>
                 <button
                   type="button"
                   onClick={() =>
-                    copyToClipboard("relief.beneficiary@personal.example.com", "bene_email")
+                    copyToClipboard("givibeneficiary@business.example.com", "bene_email")
                   }
                   className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline cursor-pointer"
                 >
@@ -259,7 +176,7 @@ export function JudgeDemoPill() {
                 </button>
               </div>
               <code className="text-[10px] font-mono text-ink-muted block truncate mt-0.5">
-                relief.beneficiary@personal.example.com
+                givibeneficiary@business.example.com
               </code>
             </div>
 
@@ -272,7 +189,7 @@ export function JudgeDemoPill() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard("relief1234", "bene_pw")}
+                  onClick={() => copyToClipboard("givibeneficiary1234", "bene_pw")}
                   className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline cursor-pointer"
                 >
                   {copiedKey === "bene_pw" ? (
@@ -284,31 +201,9 @@ export function JudgeDemoPill() {
                 </button>
               </div>
               <code className="text-[10px] font-mono text-ink-muted block truncate mt-0.5">
-                relief1234
+                givibeneficiary1234
               </code>
             </div>
-          </div>
-
-          {/* Platform Hub Note for Judges */}
-          <div className="p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-[10px] space-y-0.5">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-[#166534] dark:text-emerald-400 flex items-center gap-1">
-                <Zap className="w-3 h-3 fill-emerald-500 text-emerald-500" />
-                Givi Platform Hub (Sender Engine)
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  copyToClipboard("givibeneficiary@business.example.com", "hub_email")
-                }
-                className="text-[9px] text-[#166534] font-bold hover:underline cursor-pointer"
-              >
-                {copiedKey === "hub_email" ? "Copied" : "Copy"}
-              </button>
-            </div>
-            <p className="text-ink-muted text-[10px] leading-tight">
-              Holds sandbox balance & REST API credentials. Disburses 100% of micro-relief directly via PayPal Payouts.
-            </p>
           </div>
 
           {/* Repeat Onboarding Triggers */}

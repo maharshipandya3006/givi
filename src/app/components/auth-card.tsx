@@ -433,18 +433,6 @@ export function AuthCard() {
               <span>Judge Demo (Start Full {selectedRole === "donor" ? "Donor" : "Receiver"} Onboarding)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                enableDemoSession(selectedRole);
-                router.push(selectedRole === "donor" ? "/feed" : "/my-causes");
-              }}
-              className="w-full py-2 px-3 rounded-xl bg-surface-elevated hover:bg-surface-highlight border border-border text-ink-muted hover:text-ink font-semibold text-[11px] flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <span>Instant Demo Access (Skip to {selectedRole === "donor" ? "Swipe Feed" : "Causes"})</span>
-              <ArrowRight className="w-3 h-3 text-ink-muted" />
-            </button>
           </div>
         </form>
       )}
