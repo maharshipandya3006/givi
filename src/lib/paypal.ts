@@ -193,12 +193,17 @@ export async function disbursePayPalPayout(params: {
   const token = await getPayPalAccessToken();
 
   const defaultSandboxReceiver =
-    process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "givibeneficiary@business.example.com";
+    process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "relief.beneficiary@personal.example.com";
   const isSeedEmail = recipientEmail && DEMO_SEED_EMAILS.has(recipientEmail.trim().toLowerCase());
-  const effectiveReceiver =
+  let effectiveReceiver =
     recipientEmail && recipientEmail.includes("@") && !isSeedEmail
       ? recipientEmail.trim()
       : defaultSandboxReceiver;
+
+  // Prevent self-payout conflict: Never disburse to the business hub account that owns the app credentials
+  if (effectiveReceiver.toLowerCase() === "givibeneficiary@business.example.com") {
+    effectiveReceiver = defaultSandboxReceiver;
+  }
 
   if (token === "mock_sandbox_access_token") {
     return {

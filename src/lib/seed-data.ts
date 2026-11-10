@@ -1,7 +1,7 @@
 import type { Cause } from "./types.ts";
 
 export const DEFAULT_RECEIVER_EMAIL =
-  process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "givibeneficiary@business.example.com";
+  process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "relief.beneficiary@personal.example.com";
 
 export const SEED_CAUSES: Cause[] = [
 
