@@ -674,12 +674,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = useCallback(async () => {
+    setDemoPersona(null);
     setIsDemoUser(false);
     setIsOnboarded(false);
     setDonorOnboardedState(false);
     setBeneficiaryOnboardedState(false);
     setDonorPrefs(DEFAULT_DONOR_PREFS);
     if (typeof window !== "undefined") {
+      localStorage.removeItem("givi_demo_persona");
       localStorage.removeItem("givi_demo_session");
       localStorage.removeItem("givi_demo_role");
       localStorage.removeItem("givi_donor_onboarded");
@@ -688,6 +690,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("givi_user_email");
       localStorage.removeItem("givi_wallet_balance");
       localStorage.removeItem("givi_display_name");
+      localStorage.removeItem("givi_recent_transactions");
       // Expire any residual auth session cookies
       document.cookie = "__session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       document.cookie = "__client_uat=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
