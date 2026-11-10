@@ -97,9 +97,7 @@ export default function DonorOnboardingPage() {
   const [impactRadius, setImpactRadius] = useState<"urgent" | "local" | "national">("urgent");
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
   const [location, setLocation] = useState<string>(donorPrefs.location || "");
-  const [displayName, setDisplayName] = useState<string>(
-    donorPrefs.displayName || (userEmail && userEmail.includes("@") ? userEmail.split("@")[0] : "")
-  );
+  const [displayName, setDisplayName] = useState<string>("");
   const [showGivingPass, setShowGivingPass] = useState<boolean>(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [ticketWidth, setTicketWidth] = useState<number>(500);
@@ -133,6 +131,11 @@ export default function DonorOnboardingPage() {
   };
 
   const handleFinish = async () => {
+    const trimmedName = displayName.trim();
+    if (!isAnonymous && !trimmedName) {
+      return;
+    }
+
     await updateDonorPrefs({
       interests: selectedInterests,
       defaultSwipeAmount: swipeAmount,
@@ -140,7 +143,7 @@ export default function DonorOnboardingPage() {
       paymentPreference: paymentPreference,
       impactRadius: impactRadius,
       isAnonymous: isAnonymous,
-      displayName: displayName.trim() || "Supporter",
+      displayName: isAnonymous ? "Anonymous Giver" : trimmedName,
       location: location.trim(),
       onboarded: true,
     });
@@ -348,7 +351,7 @@ export default function DonorOnboardingPage() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="w-14 h-14 rounded-2xl bg-surface-elevated hover:bg-surface-highlight text-ink-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
+              className="w-14 h-14 rounded-2xl bg-surface-elevated hover:bg-surface-highlight text-ink-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
               aria-label="Back to step 1"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -356,11 +359,12 @@ export default function DonorOnboardingPage() {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="flex-1 h-14 rounded-2xl bg-[#166534] hover:bg-[#14532d] text-white font-bold text-base shadow-sm flex items-center justify-center gap-2 transition-colors pr-0 sm:pr-[68px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
+              className="flex-1 h-14 rounded-2xl bg-[#166534] hover:bg-[#14532d] text-white font-bold text-base shadow-sm flex items-center justify-center gap-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
             >
               <span>Continue to Identity</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+            <div className="w-14 shrink-0 hidden sm:block pointer-events-none" aria-hidden="true" />
           </div>
         </div>
       )}
@@ -456,16 +460,28 @@ export default function DonorOnboardingPage() {
 
               {!isAnonymous && (
                 <div className="pt-3 border-t border-border-subtle">
-                  <label className="text-[13px] font-medium text-ink-dim block mb-1.5">
-                    Display name
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label htmlFor="donor-name-input" className="text-[13px] font-medium text-ink-dim block">
+                      Display name
+                    </label>
+                    <span className="text-[11px] font-medium text-rose-500">
+                      Required
+                    </span>
+                  </div>
                   <input
+                    id="donor-name-input"
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="e.g. Alex R. or Kind Supporter"
-                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-sm text-ink placeholder:text-ink-muted/60 focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
+                    placeholder="Enter your name"
+                    autoFocus
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
                   />
+                  {!displayName.trim() && (
+                    <span className="text-[11px] text-ink-muted block mt-1.5">
+                      Please enter your name to activate your givi. Pass
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -475,7 +491,7 @@ export default function DonorOnboardingPage() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="w-14 h-14 rounded-2xl bg-surface-elevated hover:bg-surface-highlight text-ink-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
+              className="w-14 h-14 rounded-2xl bg-surface-elevated hover:bg-surface-highlight text-ink-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
               aria-label="Back to step 2"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -483,10 +499,12 @@ export default function DonorOnboardingPage() {
             <button
               type="button"
               onClick={handleFinish}
-              className="flex-1 h-14 rounded-2xl bg-[#166534] hover:bg-[#14532d] text-white font-bold text-base shadow-sm flex items-center justify-center transition-colors pr-0 sm:pr-[68px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
+              disabled={!isAnonymous && !displayName.trim()}
+              className="flex-1 h-14 rounded-2xl bg-[#166534] hover:bg-[#14532d] text-white font-bold text-base shadow-sm flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534]"
             >
               <span>Activate givi. Pass</span>
             </button>
+            <div className="w-14 shrink-0 hidden sm:block pointer-events-none" aria-hidden="true" />
           </div>
         </div>
       )}
@@ -509,7 +527,7 @@ export default function DonorOnboardingPage() {
           {/* Interactive WebGL Dithering Shader Ticket Card */}
           <div className="w-full flex justify-center mb-6 overflow-visible py-2">
             <AdmitOneTicket
-              name={isAnonymous ? "Anonymous Giver" : displayName || "Givi Donor"}
+              name={isAnonymous ? "Anonymous Giver" : displayName.trim() || "Givi Donor"}
               presenter="Givi Relief Pass"
               venue={location ? `${location} · ${formatCurrency(swipeAmount)} Swipe` : `Relief Hub · ${formatCurrency(swipeAmount)} Swipe`}
               dates="givi. Wallet"
