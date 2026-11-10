@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-import { useUser as useClerkUser } from "@clerk/nextjs";
+import { useUser as useClerkUser, useClerk } from "@clerk/nextjs";
 import { CauseCategory, createDefaultDonorProfile } from "@/lib/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -81,14 +81,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   let clerkUser: any = null;
   let isClerkLoaded = false;
   let isClerkSignedIn = false;
+  let clerkInstance: any = null;
 
   try {
-    const clerk = useClerkUser();
-    clerkUser = clerk.user;
-    isClerkLoaded = clerk.isLoaded;
-    isClerkSignedIn = Boolean(clerk.isSignedIn);
+    const clerkUserHook = useClerkUser();
+    clerkUser = clerkUserHook.user;
+    isClerkLoaded = clerkUserHook.isLoaded;
+    isClerkSignedIn = Boolean(clerkUserHook.isSignedIn);
   } catch (e) {
     // Graceful fallback if ClerkProvider is unconfigured or in dummy mode
+  }
+
+  try {
+    clerkInstance = useClerk();
+  } catch (e) {
+    // Graceful fallback
   }
 
   // Active user identification
@@ -247,7 +254,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const applyProfileData = useCallback((profile: any) => {
     if (!profile) return;
     if (profile.role) setRoleState(profile.role === "beneficiary" ? "beneficiary" : "donor");
-    const onboardedFlag = Boolean(profile.onboarded) || (typeof window !== "undefined" && (localStorage.getItem("givi_donor_onboarded") === "true" || localStorage.getItem("givi_demo_session") === "true"));
+    const isAuthenticSession = Boolean(
+      isClerkSignedIn || isDemoUser || demoPersona === "judge_donor" || demoPersona === "judge_beneficiary"
+    );
+    const onboardedFlag = isAuthenticSession && (
+      Boolean(profile.onboarded) ||
+      (typeof window !== "undefined" && (localStorage.getItem("givi_donor_onboarded") === "true" || localStorage.getItem("givi_demo_session") === "true"))
+    );
     setIsOnboarded(onboardedFlag);
     if (profile.role === "beneficiary") {
       setBeneficiaryOnboardedState(onboardedFlag);
@@ -353,7 +366,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         paypalEmail: profile.paypal_email || prev.paypalEmail || "",
       };
     });
-  }, [activeUserName, activeUserEmail, demoPersona]);
+  }, [activeUserName, activeUserEmail, demoPersona, isClerkSignedIn, isDemoUser]);
 
   // Fetch live profile from backend for current role
   const refreshProfile = useCallback(async () => {
@@ -682,28 +695,58 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setDonorOnboardedState(false);
     setBeneficiaryOnboardedState(false);
     setDonorPrefs(DEFAULT_DONOR_PREFS);
+
     if (typeof window !== "undefined") {
-      localStorage.removeItem("givi_demo_persona");
-      localStorage.removeItem("givi_demo_session");
-      localStorage.removeItem("givi_demo_role");
-      localStorage.removeItem("givi_donor_onboarded");
-      localStorage.removeItem("givi_beneficiary_onboarded");
-      localStorage.removeItem("givi_user_id");
-      localStorage.removeItem("givi_user_email");
-      localStorage.removeItem("givi_wallet_balance");
-      localStorage.removeItem("givi_display_name");
-      localStorage.removeItem("givi_recent_transactions");
-      // Expire any residual auth session cookies
-      document.cookie = "__session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      document.cookie = "__client_uat=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("givi_") || key.startsWith("clerk_"))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+        sessionStorage.clear();
+      } catch (err) {
+        console.warn("Storage wipe error:", err);
+      }
+
+      // Expire auth cookies across root and domain
+      try {
+        const cookieNames = ["__session", "__client_uat", "__clerk_handshake", "__clerk_db_jwt"];
+        const hostParts = window.location.hostname.split(".");
+        for (const name of cookieNames) {
+          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          for (let i = 0; i < hostParts.length - 1; i++) {
+            const domain = hostParts.slice(i).join(".");
+            document.cookie = `${name}=; Path=/; Domain=.${domain}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          }
+        }
+      } catch (err) {
+        console.warn("Cookie expire warning:", err);
+      }
     }
-  }, []);
+
+    try {
+      if (clerkInstance && typeof clerkInstance.signOut === "function") {
+        await clerkInstance.signOut({ redirectUrl: "/" });
+        return;
+      }
+    } catch (err) {
+      console.warn("Clerk signOut error:", err);
+    }
+
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  }, [clerkInstance]);
 
   const isAuthReady =
-    isClerkLoaded || isDemoUser || donorOnboarded || beneficiaryOnboarded || isOnboarded;
+    isClerkLoaded || isDemoUser || Boolean(demoPersona);
 
-  const isUserAuthenticated =
-    isClerkSignedIn || isDemoUser || donorOnboarded || beneficiaryOnboarded || isOnboarded;
+  const isUserAuthenticated = Boolean(
+    isClerkSignedIn || isDemoUser || demoPersona === "judge_donor" || demoPersona === "judge_beneficiary"
+  );
 
   return (
     <UserContext.Provider

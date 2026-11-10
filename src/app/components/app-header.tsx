@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
 import {
   Heart,
   ShieldCheck,
@@ -22,30 +21,16 @@ export function AppHeader() {
   const router = useRouter();
   const { role, isSignedIn, userEmail, isOnboarded, signOut: userSignOut } = useUser();
 
-  let clerkSignOut: (() => Promise<void>) | null = null;
-  try {
-    const clerk = useClerk();
-    clerkSignOut = async () => {
-      if (clerk && clerk.session) {
-        await clerk.signOut();
-      }
-    };
-  } catch (e) {}
-
   const handleSignOut = async () => {
     try {
       if (userSignOut) {
         await userSignOut();
       }
-      if (clerkSignOut) {
-        await clerkSignOut().catch((err) => {
-          console.warn("Clerk signOut error (non-fatal):", err);
-        });
-      }
     } catch (e) {
       console.warn("Sign-out warning:", e);
-    } finally {
-      window.location.href = "/";
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     }
   };
 

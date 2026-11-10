@@ -1406,8 +1406,10 @@ export default function ProfilePage() {
           onClick={async () => {
             try {
               await signOut();
-            } finally {
-              window.location.href = "/";
+            } catch (e) {
+              if (typeof window !== "undefined") {
+                window.location.href = "/";
+              }
             }
           }}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold transition-colors cursor-pointer"

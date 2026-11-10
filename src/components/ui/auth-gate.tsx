@@ -17,7 +17,7 @@ export function AuthGate({
   title = "Authentication Required",
   description = "Sign in to access your direct micro-relief dashboard, verified bills, and real-time PayPal ledger.",
 }: AuthGateProps) {
-  const { isLoaded, isSignedIn, isDemoUser, isOnboarded, donorOnboarded, beneficiaryOnboarded } = useUser();
+  const { isLoaded, isSignedIn, isDemoUser, demoPersona } = useUser();
 
   // 1. While auth state is initializing from session cookies/Clerk, render an elegant skeleton frame
   if (!isLoaded) {
@@ -68,8 +68,8 @@ export function AuthGate({
     );
   }
 
-  // 2. If user is authenticated via Clerk OR active in demo/onboarded session, render immediately
-  if (isSignedIn || isDemoUser || isOnboarded || donorOnboarded || beneficiaryOnboarded) {
+  // 2. If user is authenticated via Clerk OR active in demo session, render immediately
+  if (isSignedIn || isDemoUser || Boolean(demoPersona)) {
     return <>{children}</>;
   }
 
