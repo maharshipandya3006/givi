@@ -29,14 +29,20 @@ export default function LeaderboardPage() {
         // Match active user entry for UI highlighting and privacy preferences
         if (userId) {
           const isJudge = userId === "judge-donor-session" || donorPrefs?.displayName === "Judge Donor";
-          const myName = isJudge ? "Judge Donor" : donorPrefs?.displayName;
+          const myName = donorPrefs?.displayName && donorPrefs.displayName !== "Kind Supporter"
+            ? donorPrefs.displayName
+            : (isJudge ? "Judge Donor" : "Kind Supporter");
+
           const userEntry = data.find(
-            (e) => (isJudge && (e.id === "judge-donor-session" || e.displayName === "Judge Donor")) ||
+            (e) => (isJudge && (e.id === "judge-donor-session" || e.displayName === "Judge Donor" || e.displayName === myName)) ||
                    e.id === userId ||
                    (myName && e.displayName === myName)
           );
           if (userEntry) {
             userEntry.id = userId;
+            if (myName && !donorPrefs?.isAnonymous && myName !== "Kind Supporter") {
+              userEntry.displayName = myName;
+            }
             if (isJudge && donorPrefs?.totalDonated) {
               userEntry.totalDonated = Math.max(userEntry.totalDonated, Number(donorPrefs.totalDonated));
               userEntry.causeCount = Math.max(userEntry.causeCount, Number(donorPrefs.billsCleared || 9));

@@ -158,7 +158,14 @@ export async function GET(request: NextRequest) {
 
     if (isJudgeDonor) {
       groupKey = "judge-donor-session";
-      displayName = "Judge Donor";
+      const isCustomJudgeName =
+        cleanedName &&
+        cleanedName !== "Kind Supporter" &&
+        cleanedName !== "Supporter" &&
+        cleanedName !== "Judge Donor" &&
+        cleanedName !== "Givi Donor" &&
+        cleanedName !== "judge donor";
+      displayName = isCustomJudgeName ? cleanedName : "Judge Donor";
       isAnonymous = false;
     } else if (isGuest) {
       groupKey = "guest-community";
@@ -183,6 +190,14 @@ export async function GET(request: NextRequest) {
         categories: [],
       };
       donorMap.set(groupKey, entry);
+    } else {
+      if (
+        isJudgeDonor &&
+        displayName !== "Judge Donor" &&
+        displayName !== "Kind Supporter"
+      ) {
+        entry.displayName = displayName;
+      }
     }
 
     entry.totalDonated = Math.round((entry.totalDonated + tx.amount) * 100) / 100;
@@ -207,9 +222,18 @@ export async function GET(request: NextRequest) {
         if (profiles) {
           for (const p of profiles) {
             const entry = donorMap.get(p.id);
-            if (entry && p.is_anonymous) {
-              entry.isAnonymous = true;
-              entry.displayName = "Anonymous Giver";
+            if (entry) {
+              if (p.is_anonymous) {
+                entry.isAnonymous = true;
+                entry.displayName = "Anonymous Giver";
+              } else if (
+                p.display_name &&
+                p.display_name !== "Kind Supporter" &&
+                p.display_name !== "Supporter" &&
+                p.display_name !== "Judge Donor"
+              ) {
+                entry.displayName = p.display_name;
+              }
             }
           }
         }
@@ -222,9 +246,18 @@ export async function GET(request: NextRequest) {
     if (fallbackStore) {
       for (const [storeId, profile] of fallbackStore.entries()) {
         const entry = donorMap.get(storeId);
-        if (entry && (profile.is_anonymous || profile.isAnonymous)) {
-          entry.isAnonymous = true;
-          entry.displayName = "Anonymous Giver";
+        if (entry) {
+          if (profile.is_anonymous || profile.isAnonymous) {
+            entry.isAnonymous = true;
+            entry.displayName = "Anonymous Giver";
+          } else if (
+            profile.display_name &&
+            profile.display_name !== "Kind Supporter" &&
+            profile.display_name !== "Supporter" &&
+            profile.display_name !== "Judge Donor"
+          ) {
+            entry.displayName = profile.display_name;
+          }
         }
       }
     }
@@ -241,12 +274,20 @@ export async function GET(request: NextRequest) {
     const judgeAgentSpent = judgeWallet < 33 ? Math.max(0, 33 - judgeWallet) : 0;
     const judgeTargetTotal = Math.max(judgeProfileTotal, Math.round((456.93 + judgeAgentSpent) * 100) / 100);
 
+    const customJudgeName =
+      judgeProfile?.display_name &&
+      judgeProfile.display_name !== "Kind Supporter" &&
+      judgeProfile.display_name !== "Supporter" &&
+      judgeProfile.display_name !== "Judge Donor"
+        ? judgeProfile.display_name
+        : undefined;
+
     let judgeEntry = donorMap.get("judge-donor-session");
     if (!judgeEntry) {
       judgeEntry = {
         rank: 1,
         id: "judge-donor-session",
-        displayName: "Judge Donor",
+        displayName: customJudgeName || "Judge Donor",
         totalDonated: judgeTargetTotal,
         causeCount: Math.max(Number(judgeProfile?.bills_cleared || 9), 9),
         isAnonymous: false,
@@ -255,6 +296,9 @@ export async function GET(request: NextRequest) {
       };
       donorMap.set("judge-donor-session", judgeEntry);
     } else {
+      if (customJudgeName) {
+        judgeEntry.displayName = customJudgeName;
+      }
       judgeEntry.totalDonated = Math.max(judgeEntry.totalDonated, judgeTargetTotal);
       judgeEntry.causeCount = Math.max(judgeEntry.causeCount, 9);
       judgeEntry.badge = getGiverBadge(judgeEntry.totalDonated);

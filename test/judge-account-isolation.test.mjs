@@ -166,3 +166,54 @@ test("Judge Demo Account Unification: all judge logins are treated as ONE, addin
   assert.equal(maharshiEntry.totalDonated, 50.0);
 });
 
+test("Judge Demo Account Custom Name: custom name entered in judge mode is preserved on leaderboard", () => {
+  const transactions = [
+    { donorName: "Mahi", donorId: "judge-donor-session", amount: 5.0 },
+    { donorName: "Mahi", donorId: "judge-donor-session", amount: 12.20 },
+    { donorName: "Mahi", donorId: "judge-donor-session", amount: 5.0 },
+  ];
+
+  const donorMap = new Map();
+  for (const tx of transactions) {
+    const rawId = (tx.donorId || "").trim();
+    const cleanedName = (tx.donorName || "").trim();
+    const lowerName = cleanedName.toLowerCase();
+
+    const isJudgeDonor =
+      rawId === "judge-donor-session" ||
+      rawId.startsWith("judge-donor") ||
+      rawId.includes("gividonor") ||
+      lowerName === "judge donor" ||
+      lowerName === "givi donor" ||
+      lowerName === "judge";
+
+    const isCustomJudgeName =
+      cleanedName &&
+      cleanedName !== "Kind Supporter" &&
+      cleanedName !== "Supporter" &&
+      cleanedName !== "Judge Donor" &&
+      cleanedName !== "Givi Donor";
+
+    const groupKey = isJudgeDonor ? "judge-donor-session" : (rawId || `donor_${lowerName}`);
+    const displayName = isJudgeDonor ? (isCustomJudgeName ? cleanedName : "Judge Donor") : cleanedName;
+
+    let entry = donorMap.get(groupKey);
+    if (!entry) {
+      entry = { id: groupKey, displayName, totalDonated: 0, causeCount: 0 };
+      donorMap.set(groupKey, entry);
+    } else {
+      if (isJudgeDonor && isCustomJudgeName) {
+        entry.displayName = cleanedName;
+      }
+    }
+    entry.totalDonated = Math.round((entry.totalDonated + tx.amount) * 100) / 100;
+    entry.causeCount += 1;
+  }
+
+  const judgeEntry = donorMap.get("judge-donor-session");
+  assert.ok(judgeEntry);
+  assert.equal(judgeEntry.displayName, "Mahi", "Leaderboard entry must reflect custom name Mahi");
+  assert.equal(judgeEntry.totalDonated, 22.20);
+  assert.equal(judgeEntry.causeCount, 3);
+});
+

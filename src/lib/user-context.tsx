@@ -216,9 +216,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         typeof window !== "undefined" ? parseFloat(localStorage.getItem("givi_judge_donor_total") || "0") : 0,
         typeof window !== "undefined" ? parseFloat(localStorage.getItem("givi_total_donated") || "0") : 0
       );
+      const savedJudgeName = typeof window !== "undefined"
+        ? localStorage.getItem("givi_judge_donor_name") || localStorage.getItem("givi_display_name") || ""
+        : "";
       return {
         ...DEFAULT_DONOR_PREFS,
-        displayName: "Judge Donor",
+        displayName: savedJudgeName && savedJudgeName !== "Kind Supporter" ? savedJudgeName : "Judge Donor",
         paypalEmail: "gividonor@personal.example.com",
         walletBalance: savedBalance > 0 ? savedBalance : 50,
         billsCleared: isNaN(savedBills) ? 0 : savedBills,
@@ -280,9 +283,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           typeof window !== "undefined" ? parseInt(localStorage.getItem("givi_bills_cleared") || "0", 10) : 0,
           Number(profile.bills_cleared || 0)
         );
+        const judgeCustomName =
+          (profile.display_name && profile.display_name !== "Kind Supporter" && profile.display_name !== "Supporter" && profile.display_name !== "Judge Donor" ? profile.display_name : "") ||
+          (prev.displayName && prev.displayName !== "Kind Supporter" && prev.displayName !== "Judge Donor" ? prev.displayName : "") ||
+          (typeof window !== "undefined" ? localStorage.getItem("givi_judge_donor_name") || localStorage.getItem("givi_display_name") : "") ||
+          "Judge Donor";
+
         return {
           ...prev,
-          displayName: "Judge Donor",
+          displayName: judgeCustomName,
           walletBalance: judgeBal > 0 ? judgeBal : 50,
           totalDonated: judgeTotal,
           billsCleared: judgeBills,
@@ -532,13 +541,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const cachedJudgeBills = typeof window !== "undefined"
         ? parseInt(localStorage.getItem("givi_judge_donor_bills") || "0", 10)
         : 0;
+      const savedJudgeName = typeof window !== "undefined"
+        ? localStorage.getItem("givi_judge_donor_name") || localStorage.getItem("givi_display_name") || ""
+        : "";
+      const effectiveJudgeName = savedJudgeName && savedJudgeName !== "Kind Supporter" ? savedJudgeName : "Judge Donor";
       if (typeof window !== "undefined") {
-        localStorage.setItem("givi_display_name", "Judge Donor");
+        localStorage.setItem("givi_display_name", effectiveJudgeName);
         localStorage.setItem("givi_demo_role", "donor");
       }
       setDonorPrefs((prev) => ({
         ...prev,
-        displayName: "Judge Donor",
+        displayName: effectiveJudgeName,
         walletBalance: cachedJudgeBal,
         totalDonated: cachedJudgeTotal,
         billsCleared: cachedJudgeBills,
