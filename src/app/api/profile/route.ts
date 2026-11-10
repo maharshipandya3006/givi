@@ -66,7 +66,8 @@ export async function GET(req: NextRequest) {
 
     const isJudgeBeneficiaryRequest =
       (clientRequestedUserId && (clientRequestedUserId === "judge-beneficiary-session" || clientRequestedUserId.startsWith("judge-beneficiary"))) ||
-      userEmail.toLowerCase().includes("givibeneficiary");
+      userEmail.toLowerCase().includes("givibeneficiary") ||
+      userEmail.toLowerCase().includes("relief.beneficiary");
 
     if (isJudgeBeneficiaryRequest) {
       userId = "judge-beneficiary-session";

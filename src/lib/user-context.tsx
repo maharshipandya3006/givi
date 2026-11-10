@@ -124,6 +124,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   );
   const isJudgeBeneficiaryAuth = Boolean(
     demoPersona === "judge_beneficiary" ||
+    userPrimaryEmail === "relief.beneficiary@personal.example.com" ||
+    userPrimaryEmail.startsWith("relief.beneficiary@") ||
     userPrimaryEmail === "givibeneficiary@business.example.com" ||
     userPrimaryEmail.startsWith("givibeneficiary@")
   );

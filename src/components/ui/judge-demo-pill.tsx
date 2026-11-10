@@ -234,21 +234,21 @@ export function JudgeDemoPill() {
             </code>
           </div>
 
-          {/* Beneficiary Credentials */}
+          {/* Beneficiary Credentials (Recipient) */}
           <div className="p-2.5 rounded-xl bg-surface-elevated border border-border-subtle space-y-2">
             {/* Beneficiary Mail ID */}
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
                   <Mail className="w-3.5 h-3.5 text-[#166534]" />
-                  Beneficiary mail id
+                  Relief Beneficiary (Recipient)
                 </span>
                 <button
                   type="button"
                   onClick={() =>
-                    copyToClipboard("givibeneficiary@business.example.com", "bene_email")
+                    copyToClipboard("relief.beneficiary@personal.example.com", "bene_email")
                   }
-                  className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline"
+                  className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline cursor-pointer"
                 >
                   {copiedKey === "bene_email" ? (
                     <Check className="w-3 h-3 text-[#166534]" />
@@ -259,7 +259,7 @@ export function JudgeDemoPill() {
                 </button>
               </div>
               <code className="text-[10px] font-mono text-ink-muted block truncate mt-0.5">
-                givibeneficiary@business.example.com
+                relief.beneficiary@personal.example.com
               </code>
             </div>
 
@@ -272,8 +272,8 @@ export function JudgeDemoPill() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard("givibeneficiary1234", "bene_pw")}
-                  className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline"
+                  onClick={() => copyToClipboard("relief1234", "bene_pw")}
+                  className="flex items-center gap-1 text-[10px] text-[#166534] font-bold hover:underline cursor-pointer"
                 >
                   {copiedKey === "bene_pw" ? (
                     <Check className="w-3 h-3 text-[#166534]" />
@@ -284,9 +284,31 @@ export function JudgeDemoPill() {
                 </button>
               </div>
               <code className="text-[10px] font-mono text-ink-muted block truncate mt-0.5">
-                givibeneficiary1234
+                relief1234
               </code>
             </div>
+          </div>
+
+          {/* Platform Hub Note for Judges */}
+          <div className="p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-[10px] space-y-0.5">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#166534] dark:text-emerald-400 flex items-center gap-1">
+                <Zap className="w-3 h-3 fill-emerald-500 text-emerald-500" />
+                Givi Platform Hub (Sender Engine)
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  copyToClipboard("givibeneficiary@business.example.com", "hub_email")
+                }
+                className="text-[9px] text-[#166534] font-bold hover:underline cursor-pointer"
+              >
+                {copiedKey === "hub_email" ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="text-ink-muted text-[10px] leading-tight">
+              Holds sandbox balance & REST API credentials. Disburses 100% of micro-relief directly via PayPal Payouts.
+            </p>
           </div>
 
           {/* Repeat Onboarding Triggers */}
