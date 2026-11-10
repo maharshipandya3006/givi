@@ -3,7 +3,7 @@ services:
   - type: web
     name: givi-web
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm run start
     envVars:
@@ -28,28 +28,5 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: PAYPAL_WEBHOOK_ID
-        sync: false
-
-  # Background Agentic Payout Runner Worker
-  - type: worker
-    name: givi-agent-worker
-    env: node
-    plan: starter
-    buildCommand: npm install
-    startCommand: node scripts/agent-worker.mjs
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: PAYPAL_CLIENT_ID
-        sync: false
-      - key: PAYPAL_CLIENT_SECRET
-        sync: false
-      - key: PAYPAL_API_BASE
-        value: https://api-m.sandbox.paypal.com
-      - key: NEXT_PUBLIC_APP_URL
         sync: false
 
