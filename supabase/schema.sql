@@ -7,8 +7,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. Profiles Table
 CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  clerk_user_id TEXT UNIQUE NOT NULL,
+  id TEXT PRIMARY KEY,
+  clerk_user_id TEXT UNIQUE,
   email TEXT NOT NULL,
   display_name TEXT NOT NULL,
   avatar_url TEXT,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- 2. Causes Table
 CREATE TABLE IF NOT EXISTS public.causes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   category TEXT NOT NULL CHECK (category IN ('utilities', 'medical', 'education', 'food', 'climate', 'community')),
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS public.causes (
 
 -- 3. Donations Table
 CREATE TABLE IF NOT EXISTS public.donations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  cause_id UUID NOT NULL REFERENCES public.causes(id) ON DELETE CASCADE,
+  id TEXT PRIMARY KEY,
+  cause_id TEXT NOT NULL REFERENCES public.causes(id) ON DELETE CASCADE,
   donor_id TEXT NOT NULL,
   donor_name TEXT NOT NULL,
   amount NUMERIC(10, 2) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS public.donations (
 
 -- 4. Agent Policies Table (Agentic Commerce)
 CREATE TABLE IF NOT EXISTS public.agent_policies (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   category TEXT CHECK (category IN ('utilities', 'medical', 'education', 'food', 'climate', 'community')),
   max_amount_per_cause NUMERIC(10, 2) NOT NULL DEFAULT 15.00,

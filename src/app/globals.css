@@ -1,32 +1,61 @@
+/* Hallmark · shape: split · genre: atmospheric · theme: brand · redesign: full
+ * paper: oklch(14% 0.005 260) · accent: oklch(69% 0.17 155) · display: -apple-system · body: -apple-system · hero: split · nav: edge-aligned · footer: minimal · signature: live micro-payout
+ * axes: dark/grotesk-sans/chromatic-green · posture: split · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P9 H9 E9 S9 R9 V9 · weakest: none, brand locked system with tactile physics */
+@import "./tokens.css";
+@import "./base.css" layer(base);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root,
-  .dark {
-    --bg-base: #000000;
-    --bg-surface: #0a0a0a;
-    --bg-elevated: #121212;
-    --text-primary: #ffffff;
-    --text-muted: #8e8e93;
-    --accent-primary: #118C4F;
-    --state-success: #118C4F;
-    --state-warning: #118C4F;
-    --state-danger: #ef4444;
-    --border-default: #1f1f23;
+  :root {
+    --background: var(--color-paper);
+    --foreground: var(--color-ink);
+    --card: var(--color-paper-2);
+    --card-foreground: var(--color-ink);
+    --popover: var(--color-paper-2);
+    --popover-foreground: var(--color-ink);
+    --primary: var(--color-accent);
+    --primary-foreground: var(--color-accent-ink);
+    --muted: var(--color-paper-3);
+    --muted-foreground: var(--color-muted);
+    --border: var(--color-rule);
+    --radius: 1.5rem;
+  }
+}
+
+* {
+  border-color: var(--color-rule, oklch(88% 0.01 85));
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
-  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  background-color: var(--color-paper, oklch(98.2% 0.005 85));
+  color: var(--color-ink, oklch(18% 0.018 50));
+  font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1;
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+  color: var(--color-ink);
 }
 
 /* Custom scrollbars */
@@ -36,39 +65,66 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--color-paper);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--color-rule);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #118C4F;
+  background: var(--color-accent);
 }
 
-/* Smooth swipe cards & transitions */
-.swipe-card-container {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  height: 580px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Tabular figures for amounts and metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-.swipe-card {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  user-select: none;
-  cursor: grab;
+/* Laser scanline animation for Gemini OCR */
+@keyframes laser-sweep {
+  0% {
+    top: 0%;
+    opacity: 0.9;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.9;
+  }
+  }
+
+.animate-laser {
+  animation: laser-sweep 2.2s ease-in-out infinite;
 }
 
-.swipe-card:active {
-  cursor: grabbing;
+@keyframes holographic-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(16, 185, 129, 0.12) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: holographic-shimmer 3s infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-laser,
+  .animate-shimmer {
+    animation: none !important;
+  }
 }

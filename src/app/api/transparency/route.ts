@@ -1,105 +1,81 @@
 import { NextResponse } from "next/server";
-import { runtimeDonations } from "@/lib/ledger";
+import { runtimeDonations, formatLedgerDonorName, HISTORICAL_AUDIT_LOGS } from "@/lib/ledger";
 import { TransparencyRecord } from "@/lib/types";
-
-const HISTORICAL_AUDIT_LOGS: TransparencyRecord[] = [
-  {
-    id: "tx-dte-9912",
-    timestamp: "2026-11-04T18:20:12Z",
-    causeId: "cause-dte-heat-01",
-    causeTitle: "DTE Energy Overdue Heat Bill",
-    category: "utilities",
-    donorName: "Maya Lin",
-    amount: 5.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-782194-DTE",
-    receiverLocation: "Detroit, MI",
-    trustScore: 96,
-    isAgentic: false,
-  },
-  {
-    id: "tx-insulin-8812",
-    timestamp: "2026-11-04T17:45:00Z",
-    causeId: "cause-insulin-copay-02",
-    causeTitle: "Walgreens Pharmacy 30-Day Insulin Copay",
-    category: "medical",
-    donorName: "Autonomous Giving Agent",
-    amount: 15.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-662190-RX",
-    receiverLocation: "Atlanta, GA",
-    trustScore: 94,
-    isAgentic: true,
-  },
-  {
-    id: "tx-heater-7714",
-    timestamp: "2026-11-04T16:10:44Z",
-    causeId: "cause-channel3-heater-03",
-    causeTitle: "Honeywell Ceramic Digital Space Heater",
-    category: "utilities",
-    donorName: "Devon Clark",
-    amount: 5.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-551982-CH3",
-    receiverLocation: "Cleveland, OH",
-    trustScore: 92,
-    isAgentic: false,
-  },
-  {
-    id: "tx-formula-6612",
-    timestamp: "2026-11-04T15:02:18Z",
-    causeId: "cause-channel3-formula-04",
-    causeTitle: "Similac Advance Infant Formula (6-Pack)",
-    category: "food",
-    donorName: "Elena Rostova",
-    amount: 25.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-441029-WMT",
-    receiverLocation: "Chicago, IL",
-    trustScore: 95,
-    isAgentic: false,
-  },
-  {
-    id: "tx-water-5510",
-    timestamp: "2026-11-04T13:40:00Z",
-    causeId: "cause-water-bill-05",
-    causeTitle: "City of Philadelphia Overdue Water Bill",
-    category: "utilities",
-    donorName: "Autonomous Giving Agent",
-    amount: 20.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-339102-PWD",
-    receiverLocation: "Philadelphia, PA",
-    trustScore: 91,
-    isAgentic: true,
-  },
-  {
-    id: "tx-school-4411",
-    timestamp: "2026-11-04T11:22:30Z",
-    causeId: "cause-school-supplies-06",
-    causeTitle: "AP Chemistry Lab Manual & TI-84 Calculator",
-    category: "education",
-    donorName: "Liam Vance",
-    amount: 10.0,
-    paypalPayoutBatchId: "BATCH-SANDBOX-228190-EDU",
-    receiverLocation: "Houston, TX",
-    trustScore: 90,
-    isAgentic: false,
-  },
-];
+import { findCauseById } from "@/lib/causes-store";
+import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 export async function GET() {
-  // Merge live session runtime donations with historical logs
-  const dynamicLogs: TransparencyRecord[] = runtimeDonations.map((d) => ({
-    id: d.id,
-    timestamp: d.createdAt,
-    causeId: d.causeId,
-    causeTitle: "Verified Relief Need",
-    category: "utilities",
-    donorName: d.donorName,
-    amount: d.amount,
-    paypalPayoutBatchId: d.paypalPayoutBatchId || `BATCH-DEMO-${d.id.slice(0, 8)}`,
-    receiverLocation: "United States",
-    trustScore: 94,
-    isAgentic: d.isAgentic,
-  }));
+  // 1. Merge live session runtime donations
+  const dynamicLogs: TransparencyRecord[] = runtimeDonations.map((d) => {
+    const matchedCause = findCauseById(d.causeId);
+    return {
+      id: d.id,
+      timestamp: d.createdAt,
+      causeId: d.causeId,
+      causeTitle: matchedCause?.title || "Verified Relief Need",
+      category: matchedCause?.category || "utilities",
+      donorName: formatLedgerDonorName(d.donorName, d.isAgentic),
+      donorId: d.donorId,
+      amount: d.amount,
+      paypalPayoutBatchId: d.paypalPayoutBatchId || `BATCH-DEMO-${d.id.slice(0, 8)}`,
+      paypalPayoutItemId: d.paypalPayoutItemId,
+      settlementStatus: d.settlementStatus || "SETTLED",
+      receiverLocation: matchedCause?.receiverLocation || "United States",
+      receiverEmail: matchedCause?.receiverEmail || process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "givibeneficiary@business.example.com",
+      receiverName: matchedCause?.receiverName || "Verified Beneficiary",
+      trustScore: matchedCause?.trustScore?.overall || 94,
+      isAgentic: d.isAgentic,
+    };
+  });
 
-  const allRecords = [...dynamicLogs, ...HISTORICAL_AUDIT_LOGS];
+  // 2. Fetch persisted donations from Supabase when configured
+  let dbRecords: TransparencyRecord[] = [];
+  if (isSupabaseConfigured) {
+    try {
+      const { data } = await supabaseAdmin
+        .from("donations")
+        .select("*, causes(title, category, receiver_location, receiver_email, receiver_name, trust_score)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (data && data.length > 0) {
+        dbRecords = data.map((d: any) => {
+          const matchedCause = d.causes || findCauseById(d.cause_id);
+          return {
+            id: d.id,
+            timestamp: d.created_at,
+            causeId: d.cause_id,
+            causeTitle: matchedCause?.title || "Verified Relief Need",
+            category: matchedCause?.category || "utilities",
+            donorName: formatLedgerDonorName(d.donor_name || "Kind Supporter", Boolean(d.is_agentic)),
+            donorId: d.donor_id,
+            amount: parseFloat(d.amount),
+            paypalPayoutBatchId: d.paypal_payout_batch_id || `BATCH-${d.id.slice(0, 8)}`,
+            paypalPayoutItemId: d.paypal_payout_item_id,
+            settlementStatus: d.settlement_status || "SETTLED",
+            receiverLocation: matchedCause?.receiver_location || matchedCause?.receiverLocation || "United States",
+            receiverEmail: matchedCause?.receiver_email || matchedCause?.receiverEmail || process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "givibeneficiary@business.example.com",
+            receiverName: matchedCause?.receiver_name || matchedCause?.receiverName || "Verified Beneficiary",
+            trustScore: matchedCause?.trust_score?.overall || matchedCause?.trustScore?.overall || 95,
+            isAgentic: Boolean(d.is_agentic),
+          };
+        });
+      }
+    } catch (err) {
+      console.warn("Could not query Supabase donations for transparency:", err);
+    }
+  }
+
+  // De-duplicate records by id
+  const seenIds = new Set<string>();
+  const allRecords: TransparencyRecord[] = [];
+
+  for (const record of [...dbRecords, ...dynamicLogs, ...HISTORICAL_AUDIT_LOGS]) {
+    if (!seenIds.has(record.id)) {
+      seenIds.add(record.id);
+      allRecords.push(record);
+    }
+  }
 
   return NextResponse.json(allRecords);
 }

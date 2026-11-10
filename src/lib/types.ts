@@ -80,9 +80,51 @@ export interface Donation {
   paypalOrderId?: string;
   paypalPayoutBatchId?: string;
   paypalPayoutItemId?: string;
+  settlementStatus?: "PENDING" | "SETTLED" | "FAILED";
+  settledAt?: string;
+  failureReason?: string;
   isAgentic: boolean;
   impactMessage: string;
   createdAt: string;
+}
+
+export interface DonorProfile {
+  id: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  location?: string | null;
+  walletBalance: number;
+  monthlyBudget: number;
+  defaultSwipeAmount: number;
+  impactRadius: "urgent" | "local" | "national" | "global";
+  isAnonymous: boolean;
+  interests: CauseCategory[];
+  bookmarkedCauseIds: string[];
+  totalDonated: number;
+  billsCleared: number;
+  streakDays: number;
+  onboarded: boolean;
+  paymentPreference: "wallet" | "direct_paypal";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BeneficiaryProfile {
+  id: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  phoneNumber?: string | null;
+  location?: string | null;
+  payoutPaypalEmail?: string | null;
+  verificationStatus: "pending" | "verified" | "flagged";
+  totalReliefReceived: number;
+  activeBillCount: number;
+  causesCreated: number;
+  onboarded: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserProfile {
@@ -117,6 +159,8 @@ export interface ImpactToastData {
   amount: number;
   causeTitle: string;
   category: CauseCategory;
+  paypalPayoutBatchId?: string;
+  receiverEmail?: string;
 }
 
 export interface TransparencyRecord {
@@ -126,10 +170,69 @@ export interface TransparencyRecord {
   causeTitle: string;
   category: CauseCategory;
   donorName: string;
+  donorId?: string;
   amount: number;
   paypalPayoutBatchId: string;
+  paypalPayoutItemId?: string;
+  settlementStatus?: "PENDING" | "SETTLED" | "FAILED";
+  settledAt?: string;
   receiverLocation: string;
+  receiverEmail?: string;
+  receiverName?: string;
   trustScore: number;
   isAgentic: boolean;
 }
+
+export function createDefaultDonorProfile(id: string = "guest-session", email: string = "supporter@givi.app", name: string = "Kind Supporter") {
+  return {
+    id,
+    email,
+    display_name: name,
+    avatar_url: null,
+    role: "donor",
+    location: null,
+    wallet_balance: 0.0,
+    monthly_budget: 0.0,
+    default_swipe_amount: 5.0,
+    impact_radius: "urgent",
+    is_anonymous: false,
+    interests: [] as CauseCategory[],
+    bookmarked_cause_ids: [] as string[],
+    total_donated: 0.0,
+    bills_cleared: 0,
+    streak_days: 0,
+    onboarded: false,
+    payment_preference: "wallet",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function createDefaultBeneficiaryProfile(id: string = "guest-session", email: string = "receiver@givi.app", name: string = "Applicant") {
+  return {
+    id,
+    email,
+    display_name: name,
+    avatar_url: null,
+    role: "beneficiary",
+    location: null,
+    phone_number: null,
+    payout_paypal_email: email,
+    verification_status: "pending",
+    total_relief_received: 0.0,
+    active_bill_count: 0,
+    causes_created: 0,
+    onboarded: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function getGiverBadge(totalDonated: number): string {
+  if (totalDonated >= 500) return "Level 5 Guardian";
+  if (totalDonated >= 200) return "Level 3 Giver · Heat Guardian";
+  if (totalDonated >= 50) return "Level 2 Supporter";
+  return "Level 1 Neighbor";
+}
+
 

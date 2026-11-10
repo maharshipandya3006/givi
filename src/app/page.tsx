@@ -1,359 +1,132 @@
-import Link from "next/link";
-import {
-  Heart,
-  Zap,
-  ShieldCheck,
-  ArrowRight,
-  ArrowLeft,
-  ArrowUp,
-  Receipt,
-  Sparkles,
-  Layers,
-  Bot,
-  ShoppingBag,
-  ExternalLink,
-  Lock,
-} from "lucide-react";
-import { DollarTapeCorner, DollarTickerTape, DollarTapeCanvas } from "@/components/ui/dollar-tape";
-import { HeroPreviewCard } from "./components/hero-preview-card";
+"use client";
+
+import { ArrowUp } from "lucide-react";
+import { AuthCard } from "./components/auth-card";
+import { CinematicOpeningHero } from "@/components/ui/motion-footer";
+import { Globe, type Marker, type Arc } from "@/components/ui/cobe-globe";
+
+const GIVI_RELIEF_MARKERS: Marker[] = [
+  { id: "detroit", location: [42.3314, -83.0458] },
+  { id: "nyc", location: [40.7128, -74.006] },
+  { id: "chicago", location: [41.8781, -87.6298] },
+  { id: "sf", location: [37.7749, -122.4194] },
+  { id: "austin", location: [30.2672, -97.7431] },
+  { id: "atlanta", location: [33.749, -84.388] },
+  { id: "london", location: [51.5074, -0.1278] },
+  { id: "paris", location: [48.8566, 2.3522] },    // Europe node
+  { id: "berlin", location: [52.52, 13.405] },     // Europe node
+  { id: "mumbai", location: [19.076, 72.8777] },   // Asia node
+  { id: "singapore", location: [1.3521, 103.8198] },// Asia node
+  { id: "tokyo", location: [35.6762, 139.6503] },
+];
+
+const GIVI_RELIEF_ARCS: Arc[] = [
+  { id: "sf-detroit", from: [37.7749, -122.4194], to: [42.3314, -83.0458] },
+  { id: "nyc-atlanta", from: [40.7128, -74.006], to: [33.749, -84.388] },
+  { id: "chicago-detroit", from: [41.8781, -87.6298], to: [42.3314, -83.0458] },
+  { id: "london-nyc", from: [51.5074, -0.1278], to: [40.7128, -74.006] },
+  { id: "london-berlin", from: [51.5074, -0.1278], to: [52.52, 13.405] },
+  { id: "mumbai-singapore", from: [19.076, 72.8777], to: [1.3521, 103.8198] },
+  { id: "singapore-tokyo", from: [1.3521, 103.8198], to: [35.6762, 139.6503] },
+];
+
+const GLOBE_MARKER_COLOR: [number, number, number] = [0.086, 0.42, 0.22];
+const GLOBE_BASE_COLOR: [number, number, number] = [0.96, 0.94, 0.91];
+const GLOBE_ARC_COLOR: [number, number, number] = [0.086, 0.42, 0.22];
+const GLOBE_GLOW_COLOR: [number, number, number] = [0.98, 0.97, 0.95];
 
 export default function HomePage() {
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
-    <DollarTapeCanvas className="flex-1 flex flex-col items-center w-full bg-black text-white selection:bg-[#118C4F] selection:text-white min-h-screen">
-      {/* Infinite Dollar Ticker Tape */}
-      <DollarTickerTape />
+    <div className="relative w-full bg-background min-h-screen flex flex-col">
+      {/* 
+        SCREEN 1: The Grand Opening Stage (Shown First)
+        Independent full-page hero stage in natural document flow.
+        Completely separate from Screen 2 with zero layer overlapping.
+      */}
+      <section id="hero-stage" className="relative w-full min-h-dvh flex flex-col">
+        <CinematicOpeningHero />
+      </section>
 
-      {/* Main Container */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 flex flex-col items-center">
-        {/* Hero Section: 2-Column Fintech Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full mb-20">
-          {/* Left Column: Hero Copy & Actions */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
-            {/* Hackathon Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#118C4F]/10 border border-[#118C4F]/30 text-[#118C4F] text-xs font-semibold mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>PayPal AI Hackathon · Social Impact & Agentic Commerce</span>
+      {/* 
+        SCREEN 2: The Core Action & Authentication Gateway (Scroll-Down Destination)
+        Separate sequential stage in natural document flow.
+        No overlapping/covering of the hero layer; scrolls in smoothly below it.
+      */}
+      <section
+        id="action-stage"
+        className="relative w-full min-h-dvh bg-background border-t border-border flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-16 md:py-24 overflow-hidden"
+      >
+        {/* Ambient 3D Interactive Cobe Globe - Centered & Proportionally Fitted in Background */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0"
+        >
+          <div className="w-[480px] sm:w-[600px] md:w-[700px] lg:w-[760px] xl:w-[820px] max-w-[84vw] max-h-[64dvh] aspect-square opacity-80 sm:opacity-90 transition-opacity pointer-events-auto">
+            <Globe
+              markers={GIVI_RELIEF_MARKERS}
+              arcs={GIVI_RELIEF_ARCS}
+              markerColor={GLOBE_MARKER_COLOR}
+              baseColor={GLOBE_BASE_COLOR}
+              arcColor={GLOBE_ARC_COLOR}
+              glowColor={GLOBE_GLOW_COLOR}
+              dark={0}
+              mapBrightness={8}
+              markerSize={0.03}
+              markerElevation={0.015}
+              arcWidth={0.6}
+              arcHeight={0.25}
+              speed={0.0028}
+              theta={0.12}
+              diffuse={1.3}
+              mapSamples={18000}
+            />
+          </div>
+        </div>
+
+        <div
+          id="action-stage-content"
+          className="relative z-10 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center pointer-events-none"
+        >
+          {/* Left Column: Clean Focused Statement Stage */}
+          <div
+            id="action-statement"
+            className="flex flex-col items-center lg:items-start text-center lg:text-left justify-center pointer-events-auto w-full max-w-xl mx-auto lg:mx-0"
+          >
+            {/* Smooth Scroll Up Return Cue (§ 1, § 7 Spatial Continuity) */}
+            <div className="mb-6 lg:mb-8">
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-elevated hover:bg-surface border border-border text-xs text-ink-muted hover:text-ink transition-transform motion-safe:transition-transform motion-reduce:transition-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#166534] cursor-pointer shadow-sm"
+                aria-label="Scroll back to top overview"
+              >
+                <ArrowUp className="w-3.5 h-3.5 text-[#166534]" />
+                <span>Return to top</span>
+              </button>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-[1.1] mb-6">
+            {/* Headline: Punchy, Apple Optical Sizing */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black tracking-[-0.04em] text-ink leading-[1.03]">
               Swipe a bill. <br />
-              <span className="text-[#118C4F] underline decoration-[#118C4F]/40 underline-offset-8">
-                Keep the heat on.
-              </span>
-            </h1>
-
-            {/* Description */}
-            <p className="text-base sm:text-lg text-zinc-400 mb-8 max-w-xl leading-relaxed">
-              The micro-donation platform turning abstract charity pleas into tangible,
-              verified utility and medical statements. 100% of your micro-donation reaches the
-              recipient immediately via instant PayPal Payouts with 0% platform fees.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto mb-10">
-              <Link
-                href="/feed"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-[#118C4F] hover:bg-[#0e703f] text-white font-bold text-base shadow-xl shadow-[#118C4F]/25 transition-all hover:scale-[1.02]"
-              >
-                <Heart className="w-5 h-5 fill-white" />
-                <span>Start Swiping ($5)</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-              <Link
-                href="/create-cause"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-zinc-950 hover:bg-zinc-900 text-zinc-200 font-semibold text-base border border-[#1f1f23] transition-colors"
-              >
-                <Receipt className="w-5 h-5 text-[#118C4F]" />
-                <span>Submit an Overdue Bill</span>
-              </Link>
-            </div>
-
-            {/* Micro Trust Stats */}
-            <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-[#1f1f23] w-full text-xs text-zinc-400">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#118C4F]" />
-                <span>Gemini Vision AI Audited</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#118C4F]" />
-                <span>Automatic PII Redaction</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[#118C4F]" />
-                <span>Instant PayPal Payouts Rail</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Interactive 3D Dollar-Taped Hero Card */}
-          <div className="lg:col-span-5 flex justify-center w-full">
-            <HeroPreviewCard />
-          </div>
-        </div>
-
-        {/* Live Fintech Stats Strip */}
-        <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 rounded-3xl bg-zinc-950 border border-[#1f1f23] shadow-lg mb-20">
-          <div className="flex flex-col items-center lg:items-start p-4">
-            <span className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1">
-              0.0%
-            </span>
-            <span className="text-xs font-bold text-[#118C4F] uppercase tracking-wider mb-1">
-              Platform Take Rate
-            </span>
-            <span className="text-[11px] text-zinc-500 font-mono">100% of donation disbursed</span>
-          </div>
-
-          <div className="flex flex-col items-center lg:items-start p-4 border-l-0 sm:border-l border-[#1f1f23]">
-            <span className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1">
-              &lt; 2.4s
-            </span>
-            <span className="text-xs font-bold text-[#118C4F] uppercase tracking-wider mb-1">
-              Settlement Speed
-            </span>
-            <span className="text-[11px] text-zinc-500 font-mono">PayPal Payouts v1 Rail</span>
-          </div>
-
-          <div className="flex flex-col items-center lg:items-start p-4 border-l-0 lg:border-l border-[#1f1f23]">
-            <span className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1">
-              98.4%
-            </span>
-            <span className="text-xs font-bold text-[#118C4F] uppercase tracking-wider mb-1">
-              Gemini OCR Accuracy
-            </span>
-            <span className="text-[11px] text-zinc-500 font-mono">Auto-verification & masking</span>
-          </div>
-
-          <div className="flex flex-col items-center lg:items-start p-4 border-l-0 sm:border-l border-[#1f1f23]">
-            <span className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1">
-              $5.00
-            </span>
-            <span className="text-xs font-bold text-[#118C4F] uppercase tracking-wider mb-1">
-              Micro-Relief Unit
-            </span>
-            <span className="text-[11px] text-zinc-500 font-mono">Auto-capped goal protection</span>
-          </div>
-        </div>
-
-        {/* 3-Step Gesture Mechanics Bento */}
-        <div className="w-full mb-20">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-mono font-bold text-[#118C4F] uppercase tracking-widest block mb-2">
-              Intuitive Donating
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Tinder-Style Gesture Mechanics
+              <span className="text-[#166534]">Keep the heat on.</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Gesture 1: Swipe Right */}
-            <div className="relative p-7 rounded-3xl bg-zinc-950 border border-[#1f1f23] overflow-hidden flex flex-col justify-between">
-              <DollarTapeCorner corner="top-left" />
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F] mb-6">
-                  <ArrowRight className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Swipe Right · $5 Micro-Relief
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                  Chip in $5 toward an overdue heating, water, or insulin bill. The payment engine
-                  automatically caps your contribution if the remaining statement ask is less than
-                  $5.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1f1f23] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                <span>GESTURE: DRAG RIGHT</span>
-                <span className="text-[#118C4F] font-bold">1-TAP DISBURSE</span>
-              </div>
-            </div>
-
-            {/* Gesture 2: Swipe Up */}
-            <div className="relative p-7 rounded-3xl bg-zinc-950 border border-[#1f1f23] overflow-hidden flex flex-col justify-between">
-              <DollarTapeCorner corner="top-right" />
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F] mb-6">
-                  <ArrowUp className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Swipe Up · Pay Ask in Full
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                  Want to clear the entire overdue statement at once? Swipe up to summon a safe
-                  confirmation drawer and extinguish the bill in a single transaction.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1f1f23] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                <span>GESTURE: DRAG UP</span>
-                <span className="text-[#118C4F] font-bold">CLEAR IN FULL</span>
-              </div>
-            </div>
-
-            {/* Gesture 3: Swipe Left */}
-            <div className="relative p-7 rounded-3xl bg-zinc-950 border border-[#1f1f23] overflow-hidden flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-[#1f1f23] flex items-center justify-center text-zinc-400 mb-6">
-                  <ArrowLeft className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Swipe Left · Pass Cause
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                  Not the right cause for you today? Pass frictionlessly without awkward guilt
-                  trips. Browse at your own pace through authentic, community-submitted requests.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-[#1f1f23] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                <span>GESTURE: DRAG LEFT</span>
-                <span className="text-zinc-400 font-bold">ZERO GUILT PASS</span>
-              </div>
-            </div>
+          {/* Right Column: Sign In & Sign Up Auth Component */}
+          <div
+            id="auth-card-container"
+            className="flex items-center justify-center lg:justify-end w-full pointer-events-auto"
+          >
+            <AuthCard />
           </div>
         </div>
-
-        {/* Feature Pillars: Bento Grid */}
-        <div className="w-full mb-20">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-mono font-bold text-[#118C4F] uppercase tracking-widest block mb-2">
-              Architecture
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Enterprise Fintech Infrastructure
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Bento Card 1: Autonomous Giving Agent */}
-            <div className="p-8 rounded-3xl bg-zinc-950 border border-[#1f1f23] relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F]">
-                  <Bot className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-mono text-[#118C4F] bg-[#118C4F]/10 px-2.5 py-1 rounded-full border border-[#118C4F]/30">
-                  AGENTIC COMMERCE
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Autonomous Giving Agent
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                Set a monthly budget, target categories (Heating, Medical, Child Nutrition), and a
-                minimum Gemini AI Trust Score. Your autonomous background agent scans active causes
-                and automatically disburses micro-donations via PayPal on your behalf.
-              </p>
-              <Link
-                href="/agent"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#118C4F] hover:text-[#1cb668]"
-              >
-                <span>Configure Agent Rules</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Bento Card 2: AG Grid Transparency Ledger */}
-            <div className="p-8 rounded-3xl bg-zinc-950 border border-[#1f1f23] relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F]">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-mono text-[#118C4F] bg-[#118C4F]/10 px-2.5 py-1 rounded-full border border-[#118C4F]/30">
-                  AG GRID COMMUNITY
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Public Transparency Audit Ledger
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                Every single dollar is accounted for in real time. Powered by AG Grid React, anyone
-                can search, filter by category or city, inspect PayPal Payout batch IDs, and export
-                tax-deductible receipt records as CSV with 1 click.
-              </p>
-              <Link
-                href="/transparency"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#118C4F] hover:text-[#1cb668]"
-              >
-                <span>View Public Audit Grid</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Bento Card 3: Channel3 Retail Aid */}
-            <div className="p-8 rounded-3xl bg-zinc-950 border border-[#1f1f23] relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F]">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-mono text-[#118C4F] bg-[#118C4F]/10 px-2.5 py-1 rounded-full border border-[#118C4F]/30">
-                  CHANNEL3 COMMERCE
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                Verified Retail Aid Integration
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                Beyond utility bills, receivers can search real e-commerce catalogs via the
-                Channel3 API to fund essential physical items—space heaters, infant formula, and
-                emergency winter boots—directly delivered to their doorstep.
-              </p>
-              <Link
-                href="/create-cause"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#118C4F] hover:text-[#1cb668]"
-              >
-                <span>Search Retail Catalog</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Bento Card 4: APIMatic OpenAPI Engine */}
-            <div className="p-8 rounded-3xl bg-zinc-950 border border-[#1f1f23] relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#118C4F]/10 border border-[#118C4F]/30 flex items-center justify-center text-[#118C4F]">
-                  <ExternalLink className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-mono text-[#118C4F] bg-[#118C4F]/10 px-2.5 py-1 rounded-full border border-[#118C4F]/30">
-                  APIMATIC DEVELOPER PORTAL
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                OpenAPI Specification & Multi-Language SDKs
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-6">
-                Givi exposes a full OpenAPI 3.0 specification allowing external charity bots, donor
-                wallets, and partner apps to query active statements and disburse micro-donations
-                programmatically with auto-generated SDKs in 6 languages.
-              </p>
-              <Link
-                href="/developers"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#118C4F] hover:text-[#1cb668]"
-              >
-                <span>Explore Developer Docs</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Sponsor Showcase Strip */}
-        <div className="w-full border-t border-[#1f1f23] pt-12 text-center">
-          <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest block mb-6">
-            Built for the PayPal AI Hackathon 2026 with Official Sponsor Rails
-          </span>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 text-zinc-400 text-sm font-semibold">
-            <span className="hover:text-white transition-colors">PayPal Payouts & Orders</span>
-            <span className="text-zinc-700">•</span>
-            <span className="hover:text-white transition-colors">Google Gemini AI</span>
-            <span className="text-zinc-700">•</span>
-            <span className="hover:text-white transition-colors">AG Grid Community</span>
-            <span className="text-zinc-700">•</span>
-            <span className="hover:text-white transition-colors">Channel3 Commerce</span>
-            <span className="text-zinc-700">•</span>
-            <span className="hover:text-white transition-colors">APIMatic Portal</span>
-            <span className="text-zinc-700">•</span>
-            <span className="hover:text-white transition-colors">Render Cloud</span>
-          </div>
-        </div>
-      </div>
-    </DollarTapeCanvas>
+      </section>
+    </div>
   );
 }

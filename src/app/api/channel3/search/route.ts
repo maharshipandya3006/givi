@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.toLowerCase().trim() || "";
 
-  if (CHANNEL3_API_KEY) {
+  if (CHANNEL3_API_KEY && !CHANNEL3_API_KEY.includes("REPLACE")) {
     try {
       const response = await fetch(
         `${CHANNEL3_API_BASE}/products/search?q=${encodeURIComponent(q)}`,

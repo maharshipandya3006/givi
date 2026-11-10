@@ -30,3 +30,11 @@ yarn-error.log*
 .vercel
 .turbo
 
+# TypeScript build cache
+*.tsbuildinfo
+
+# Agent & tool scratch caches
+.hallmark/
+.impeccable/
+docs/appleskill.md
+

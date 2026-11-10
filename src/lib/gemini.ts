@@ -43,7 +43,8 @@ export async function analyzeProofDocument(params: {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `You are an expert fraud verification and privacy protection analyst for Givi, a micro-donation platform.
 Analyze this uploaded document image for an urgent assistance request:
@@ -78,8 +79,11 @@ Respond with strict JSON ONLY in this format:
     ]);
 
     const text = result.response.text();
-    const cleanedJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    const parsed = JSON.parse(cleanedJson);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON structure found in Gemini OCR response");
+    }
+    const parsed = JSON.parse(jsonMatch[0]);
 
     return {
       trustScore: {
@@ -125,36 +129,44 @@ export async function generateImpactToast(params: {
 }): Promise<string> {
   const { causeTitle, amount, category, recipientName, location = "their hometown" } = params;
 
+  const templates: Record<string, string> = {
+    utilities: `You just kept the lights and heat on for ${recipientName} in ${location}!`,
+    medical: `You helped cover critical medication for ${recipientName}!`,
+    education: `You funded school essentials for ${recipientName}'s family!`,
+    food: `You provided warm, fresh groceries for ${recipientName} tonight!`,
+    climate: `You contributed to emergency supplies for ${recipientName} in ${location}!`,
+    community: `You stood with ${recipientName} and strengthened community aid!`,
+  };
+  const fallbackMessage =
+    templates[category] ||
+    `Your $${amount} donation made an immediate difference for ${recipientName}!`;
+
   if (!genAI || !GEMINI_API_KEY) {
-    const templates: Record<string, string> = {
-      utilities: `You just kept the lights and heat on for ${recipientName} in ${location}!`,
-      medical: `You helped cover critical medication for ${recipientName}!`,
-      education: `You funded school essentials for ${recipientName}'s family!`,
-      food: `You provided warm, fresh groceries for ${recipientName} tonight!`,
-      climate: `You contributed to neighborhood green relief in ${location}!`,
-      community: `You stood with ${recipientName} and strengthened community aid!`,
-    };
-    return templates[category] || `Your $${amount} donation made an immediate difference for ${recipientName}!`;
+    return fallbackMessage;
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const model = genAI.getGenerativeModel({ model: modelName });
     const prompt = `Generate a single, warm, highly specific celebratory gratitude message (max 15 words) for a donor who just contributed $${amount} to:
 - Cause: "${causeTitle}"
 - Beneficiary: ${recipientName} in ${location}
 - Category: ${category}
 
-Examples of desired tone:
-- "You just kept the heat on for Sarah and her kids in Detroit!"
-- "You covered Maya's insulin prescription for the month!"
-
 Do NOT include emojis, quotes or prefixes. Return ONLY the sentence.`;
 
-    const result = await model.generateContent(prompt);
-    return result.response.text().trim();
+    // Race Gemini with an 800ms timeout for instant sub-second response
+    const geminiPromise = model
+      .generateContent(prompt)
+      .then((res) => res.response.text().trim());
+    const timeoutPromise = new Promise<string>((resolve) =>
+      setTimeout(() => resolve(fallbackMessage), 800)
+    );
+
+    return await Promise.race([geminiPromise, timeoutPromise]);
   } catch (error) {
     console.warn("Gemini impact toast generation error:", error);
-    return `Your $${amount} directly aided ${recipientName} in ${location}!`;
+    return fallbackMessage;
   }
 }
 
