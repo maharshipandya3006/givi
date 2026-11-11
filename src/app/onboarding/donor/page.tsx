@@ -84,7 +84,7 @@ const CAUSE_OPTIONS: CauseOption[] = [
 
 export default function DonorOnboardingPage() {
   const router = useRouter();
-  const { updateDonorPrefs, setDonorOnboarded, setRole, enableDemoSession, userEmail, donorPrefs } = useUser();
+  const { updateDonorPrefs, activateGuestProfile, setDonorOnboarded, setRole, enableDemoSession, userId, donorPrefs } = useUser();
 
   const [step, setStep] = useState<number>(1);
   const [selectedInterests, setSelectedInterests] = useState<CauseCategory[]>([
@@ -99,6 +99,7 @@ export default function DonorOnboardingPage() {
   const [location, setLocation] = useState<string>(donorPrefs.location || "");
   const [displayName, setDisplayName] = useState<string>("");
   const [showGivingPass, setShowGivingPass] = useState<boolean>(false);
+  const [restoredExistingAccount, setRestoredExistingAccount] = useState<boolean>(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [ticketWidth, setTicketWidth] = useState<number>(500);
   const ticketContainerRef = useRef<HTMLDivElement>(null);
@@ -136,7 +137,7 @@ export default function DonorOnboardingPage() {
       return;
     }
 
-    await updateDonorPrefs({
+    const onboardingUpdates = {
       interests: selectedInterests,
       defaultSwipeAmount: swipeAmount,
       monthlyBudget: monthlyBudget,
@@ -146,7 +147,18 @@ export default function DonorOnboardingPage() {
       displayName: isAnonymous ? "Anonymous Giver" : trimmedName,
       location: location.trim(),
       onboarded: true,
-    });
+    };
+
+    if (!isAnonymous && trimmedName && (!userId || !userId.startsWith("user_"))) {
+      const result = await activateGuestProfile(trimmedName, {
+        fromOnboarding: true,
+        onboardingUpdates,
+      });
+      setRestoredExistingAccount(result.restored);
+    } else {
+      await updateDonorPrefs(onboardingUpdates);
+      setRestoredExistingAccount(false);
+    }
     setRole("donor");
     setDonorOnboarded(true);
     enableDemoSession("donor");
@@ -517,7 +529,9 @@ export default function DonorOnboardingPage() {
         >
           <div className="text-center mb-6">
             <span className="text-xs sm:text-sm font-medium text-[#166534] block mb-1.5">
-              Pass activated & verified
+              {restoredExistingAccount
+                ? `Welcome back, ${displayName.trim()} — balance & giving history restored`
+                : "Pass activated & verified"}
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
               Your givi. Pass

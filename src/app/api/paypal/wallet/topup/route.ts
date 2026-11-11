@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { capturePayPalOrder } from "@/lib/paypal";
-import { topUpDemoWallet, getDemoWalletBalance, setDemoWalletBalance, isDemoUserKey } from "@/lib/demo-wallet";
+import { capturePayPalOrder, recordCapturedOrder } from "@/lib/paypal";
+import {
+  topUpDemoWallet,
+  getDemoWalletBalance,
+  setDemoWalletBalance,
+  isDemoUserKey,
+  withUserLock,
+} from "@/lib/demo-wallet";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { createDefaultDonorProfile } from "@/lib/types";
 
@@ -43,6 +49,12 @@ export async function POST(request: NextRequest) {
 
     // If orderId is provided (real/sandbox PayPal capture)
     if (orderId && !isDemoAllowed) {
+      if (!recordCapturedOrder(orderId)) {
+        return NextResponse.json(
+          { error: "PayPal order has already been captured / processed" },
+          { status: 400 }
+        );
+      }
       try {
         const captureResult = await capturePayPalOrder(orderId, parsedAmount);
         captureId = captureResult.captureId;
@@ -53,52 +65,55 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Credit in-memory wallet
-    const newBalance = topUpDemoWallet(parsedAmount, effectiveUserId);
+    // Credit wallet and update profiles under user lock (Issue 3)
+    await withUserLock(effectiveUserId, async () => {
+      // Credit in-memory wallet
+      const newBalance = topUpDemoWallet(parsedAmount, effectiveUserId);
 
-    // Sync to fallback profile store so profile immediately shows new balance
-    const fallbackStore: Map<string, any> =
-      (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__;
-    if (fallbackStore?.has(effectiveUserId)) {
-      fallbackStore.get(effectiveUserId).wallet_balance = newBalance;
-    }
-
-    // Persist to Supabase if configured
-    if (isSupabaseConfigured && effectiveUserId) {
-      try {
-        const { data: currentProfile } = await (supabaseAdmin as any)
-          .from("donor_profiles")
-          .select("wallet_balance")
-          .eq("id", effectiveUserId)
-          .maybeSingle();
-
-        if (currentProfile) {
-          const currentDbBalance = Number(currentProfile.wallet_balance || 0);
-          const updatedDbBalance = Math.round((currentDbBalance + parsedAmount) * 100) / 100;
-
-          await (supabaseAdmin as any)
-            .from("donor_profiles")
-            .update({
-              wallet_balance: updatedDbBalance,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", effectiveUserId);
-          setDemoWalletBalance(effectiveUserId, updatedDbBalance);
-        } else {
-          const fresh = createDefaultDonorProfile(
-            effectiveUserId,
-            `${effectiveUserId}@donor.givi.app`,
-            "Kind Supporter"
-          );
-          fresh.wallet_balance = parsedAmount;
-          const { role: _r, ...dbFresh } = fresh;
-          await (supabaseAdmin as any).from("donor_profiles").insert([dbFresh]);
-          setDemoWalletBalance(effectiveUserId, parsedAmount);
-        }
-      } catch (dbErr) {
-        console.warn("Could not sync wallet top-up to Supabase:", dbErr);
+      // Sync to fallback profile store so profile immediately shows new balance
+      const fallbackStore: Map<string, any> =
+        (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__;
+      if (fallbackStore?.has(effectiveUserId)) {
+        fallbackStore.get(effectiveUserId).wallet_balance = newBalance;
       }
-    }
+
+      // Persist to Supabase if configured
+      if (isSupabaseConfigured && effectiveUserId) {
+        try {
+          const { data: currentProfile } = await (supabaseAdmin as any)
+            .from("donor_profiles")
+            .select("wallet_balance")
+            .eq("id", effectiveUserId)
+            .maybeSingle();
+
+          if (currentProfile) {
+            const currentDbBalance = Number(currentProfile.wallet_balance || 0);
+            const updatedDbBalance = Math.round((currentDbBalance + parsedAmount) * 100) / 100;
+
+            await (supabaseAdmin as any)
+              .from("donor_profiles")
+              .update({
+                wallet_balance: updatedDbBalance,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", effectiveUserId);
+            setDemoWalletBalance(effectiveUserId, updatedDbBalance);
+          } else {
+            const fresh = createDefaultDonorProfile(
+              effectiveUserId,
+              `${effectiveUserId}@donor.givi.app`,
+              "Kind Supporter"
+            );
+            fresh.wallet_balance = parsedAmount;
+            const { role: _r, ...dbFresh } = fresh;
+            await (supabaseAdmin as any).from("donor_profiles").insert([dbFresh]);
+            setDemoWalletBalance(effectiveUserId, parsedAmount);
+          }
+        } catch (dbErr) {
+          console.warn("Could not sync wallet top-up to Supabase:", dbErr);
+        }
+      }
+    });
 
     const finalBalance = getDemoWalletBalance(effectiveUserId);
 

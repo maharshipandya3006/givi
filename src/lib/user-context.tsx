@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { useUser as useClerkUser, useClerk } from "@clerk/nextjs";
 import { CauseCategory, createDefaultDonorProfile } from "@/lib/types";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { guestIdForUsername, isCustomGuestUsername } from "@/lib/guest-identity";
 
 export type UserRole = "donor" | "beneficiary";
 export type DemoPersona = "judge_donor" | "judge_beneficiary" | null;
@@ -47,6 +48,10 @@ export interface UserContextType {
   setBeneficiaryOnboarded: (val: boolean) => void;
   donorPrefs: DonorPreferences;
   updateDonorPrefs: (updates: Partial<DonorPreferences>) => Promise<void>;
+  activateGuestProfile: (
+    username: string,
+    options?: { fromOnboarding?: boolean; onboardingUpdates?: Partial<DonorPreferences> }
+  ) => Promise<{ restored: boolean; userId: string }>;
   toggleBookmark: (causeId: string) => Promise<void>;
   isBookmarked: (causeId: string) => boolean;
   rechargeWallet: (amount: number, newBalance?: number) => Promise<void>;
@@ -99,7 +104,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Active user identification
-  const [guestSessionId] = useState<string>(() => {
+  const [guestSessionId, setGuestSessionId] = useState<string>(() => {
     if (typeof window !== "undefined") {
       let saved = localStorage.getItem("givi_guest_id");
       if (!saved) {
@@ -382,13 +387,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const cachedBills = typeof window !== "undefined" ? localStorage.getItem("givi_bills_cleared") || "0" : "0";
       const cachedTotal = typeof window !== "undefined" ? localStorage.getItem("givi_total_donated") || "0" : "0";
+      const cachedName = typeof window !== "undefined" ? localStorage.getItem("givi_display_name") || "" : "";
+      const lookupParam =
+        activeUserId.startsWith("guest-") && isCustomGuestUsername(cachedName)
+          ? `&lookupName=${encodeURIComponent(cachedName)}`
+          : "";
       const res = await fetch(
-        `/api/profile?userId=${encodeURIComponent(activeUserId)}&role=${encodeURIComponent(role)}&fallbackBillsCleared=${encodeURIComponent(cachedBills)}&fallbackTotalDonated=${encodeURIComponent(cachedTotal)}`
+        `/api/profile?userId=${encodeURIComponent(activeUserId)}&role=${encodeURIComponent(role)}&fallbackBillsCleared=${encodeURIComponent(cachedBills)}&fallbackTotalDonated=${encodeURIComponent(cachedTotal)}${lookupParam}`
       );
       if (res.ok) {
         const data = await res.json();
         if (data?.profile) {
           applyProfileData(data.profile);
+        }
+        if (typeof window !== "undefined" && Array.isArray(data?.recentTransactions) && data.recentTransactions.length > 0) {
+          try {
+            const raw = localStorage.getItem("givi_recent_transactions");
+            const existing = raw ? JSON.parse(raw) : [];
+            const seen = new Set<string>();
+            const merged = [...data.recentTransactions, ...(Array.isArray(existing) ? existing : [])].filter((tx: any) => {
+              if (!tx?.id || seen.has(tx.id)) return false;
+              seen.add(tx.id);
+              return true;
+            });
+            localStorage.setItem("givi_recent_transactions", JSON.stringify(merged.slice(0, 500)));
+          } catch {}
         }
       }
     } catch (e) {
@@ -653,7 +676,171 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (updates.paymentPreference !== undefined) payload.payment_preference = updates.paymentPreference;
     if (updates.paypalEmail !== undefined) payload.paypal_email = updates.paypalEmail;
 
+    if (typeof window !== "undefined" && activeUserId.startsWith("guest-u-")) {
+      try {
+        const merged = { ...donorPrefs, ...updates };
+        const rawTx = localStorage.getItem("givi_recent_transactions");
+        localStorage.setItem(
+          `guest_archive:${activeUserId}`,
+          JSON.stringify({ prefs: merged, transactions: rawTx ? JSON.parse(rawTx) : [] })
+        );
+      } catch {}
+    }
+
     await persistUpdates(payload);
+  };
+
+  const activateGuestProfile = async (
+    username: string,
+    options: { fromOnboarding?: boolean; onboardingUpdates?: Partial<DonorPreferences> } = {}
+  ): Promise<{ restored: boolean; userId: string }> => {
+    const trimmed = username.trim();
+    const shouldRestoreFresh = Boolean(
+      options.fromOnboarding ||
+      (!activeUserId.startsWith("user_") &&
+        !isJudgeDonorAuth &&
+        donorPrefs.totalDonated === 0 &&
+        donorPrefs.walletBalance === 0)
+    );
+
+    // Mid-session rename with existing active balance/donations: keep active session & stats
+    if (!shouldRestoreFresh || !isCustomGuestUsername(trimmed) || activeUserId.startsWith("user_") || isJudgeDonorAuth) {
+      await updateDonorPrefs({
+        ...(options.onboardingUpdates || {}),
+        displayName: trimmed || donorPrefs.displayName,
+      });
+      return { restored: false, userId: activeUserId };
+    }
+
+    const canonicalId = guestIdForUsername(trimmed);
+    setGuestSessionId(canonicalId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("givi_guest_id", canonicalId);
+      localStorage.setItem("givi_display_name", trimmed);
+      localStorage.setItem("givi_demo_session", "true");
+      localStorage.setItem("givi_donor_onboarded", "true");
+    }
+
+    const patchCanonical = async (fields: Record<string, any>) => {
+      try {
+        await fetch("/api/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: canonicalId, role: "donor", ...fields }),
+        });
+      } catch {}
+    };
+
+    try {
+      const res = await fetch(
+        `/api/profile?userId=${encodeURIComponent(canonicalId)}&role=donor&lookupName=${encodeURIComponent(trimmed)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const remote = data?.profile;
+        const remoteTxs = Array.isArray(data?.recentTransactions) ? data.recentTransactions : [];
+        const hasStoredAccount = Boolean(
+          data?.restored ||
+          Number(remote?.total_donated || 0) > 0 ||
+          Number(remote?.wallet_balance || 0) > 0 ||
+          Number(remote?.bills_cleared || 0) > 0 ||
+          remoteTxs.length > 0
+        );
+
+        if (hasStoredAccount && remote) {
+          const restoredWallet = Number(remote.wallet_balance || 0);
+          const restoredTotal = Number(remote.total_donated || 0);
+          const restoredBills = Number(remote.bills_cleared || 0);
+          const restoredStreak = Number(remote.streak_days || 0);
+          const restoredLocation = remote.location || options.onboardingUpdates?.location || "";
+
+          if (typeof window !== "undefined") {
+            localStorage.setItem("givi_wallet_balance", restoredWallet.toString());
+            localStorage.setItem("givi_total_donated", restoredTotal.toString());
+            localStorage.setItem("givi_bills_cleared", restoredBills.toString());
+            if (remoteTxs.length > 0) {
+              localStorage.setItem("givi_recent_transactions", JSON.stringify(remoteTxs));
+            }
+          }
+
+          setIsDemoUser(true);
+          setIsOnboarded(true);
+          setDonorOnboardedState(true);
+          setDonorPrefs((prev) => ({
+            ...prev,
+            displayName: trimmed,
+            location: restoredLocation,
+            walletBalance: restoredWallet,
+            totalDonated: restoredTotal,
+            billsCleared: restoredBills,
+            streakDays: restoredStreak,
+            monthlyBudget: Number(remote.monthly_budget ?? options.onboardingUpdates?.monthlyBudget ?? prev.monthlyBudget),
+            defaultSwipeAmount: Number(remote.default_swipe_amount ?? options.onboardingUpdates?.defaultSwipeAmount ?? prev.defaultSwipeAmount),
+            interests: Array.isArray(remote.interests) && remote.interests.length > 0
+              ? remote.interests
+              : (options.onboardingUpdates?.interests || prev.interests),
+            bookmarkedCauseIds: Array.isArray(remote.bookmarked_cause_ids) ? remote.bookmarked_cause_ids : prev.bookmarkedCauseIds,
+            impactRadius: remote.impact_radius || options.onboardingUpdates?.impactRadius || prev.impactRadius,
+            isAnonymous: Boolean(remote.is_anonymous),
+            onboarded: true,
+          }));
+
+          await patchCanonical({ display_name: trimmed, onboarded: true });
+          return { restored: true, userId: canonicalId };
+        }
+      }
+    } catch {}
+
+    // Offline / restarted-server fallback archive lookup for exact case-sensitive username
+    if (typeof window !== "undefined") {
+      try {
+        const rawArchive = localStorage.getItem(`guest_archive:${canonicalId}`);
+        if (rawArchive) {
+          const parsed = JSON.parse(rawArchive);
+          const archivedPrefs = parsed?.prefs;
+          const archivedTxs = Array.isArray(parsed?.transactions) ? parsed.transactions : [];
+          if (
+            archivedPrefs &&
+            (archivedPrefs.totalDonated > 0 || archivedPrefs.walletBalance > 0 || archivedTxs.length > 0)
+          ) {
+            localStorage.setItem("givi_wallet_balance", String(archivedPrefs.walletBalance || 0));
+            localStorage.setItem("givi_total_donated", String(archivedPrefs.totalDonated || 0));
+            localStorage.setItem("givi_bills_cleared", String(archivedPrefs.billsCleared || 0));
+            if (archivedTxs.length > 0) {
+              localStorage.setItem("givi_recent_transactions", JSON.stringify(archivedTxs));
+            }
+            setIsDemoUser(true);
+            setIsOnboarded(true);
+            setDonorOnboardedState(true);
+            setDonorPrefs({ ...DEFAULT_DONOR_PREFS, ...archivedPrefs, displayName: trimmed, onboarded: true });
+            await patchCanonical({ display_name: trimmed, onboarded: true });
+            return { restored: true, userId: canonicalId };
+          }
+        }
+      } catch {}
+    }
+
+    // Brand-new guest username: save preferences cleanly under canonical guest ID
+    const freshUpdates = {
+      ...(options.onboardingUpdates || {}),
+      displayName: trimmed,
+      onboarded: true,
+    };
+    setIsDemoUser(true);
+    setIsOnboarded(true);
+    setDonorOnboardedState(true);
+    setDonorPrefs((prev) => ({ ...prev, ...freshUpdates }));
+    await patchCanonical({
+      display_name: trimmed,
+      onboarded: true,
+      ...(freshUpdates.interests ? { interests: freshUpdates.interests } : {}),
+      ...(freshUpdates.defaultSwipeAmount !== undefined ? { default_swipe_amount: freshUpdates.defaultSwipeAmount } : {}),
+      ...(freshUpdates.monthlyBudget !== undefined ? { monthly_budget: freshUpdates.monthlyBudget } : {}),
+      ...(freshUpdates.impactRadius ? { impact_radius: freshUpdates.impactRadius } : {}),
+      ...(freshUpdates.location !== undefined ? { location: freshUpdates.location } : {}),
+      ...(freshUpdates.isAnonymous !== undefined ? { is_anonymous: freshUpdates.isAnonymous } : {}),
+    });
+    return { restored: false, userId: canonicalId };
   };
 
   const toggleBookmark = async (causeId: string) => {
@@ -676,7 +863,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       typeof newBalance === "number"
         ? Math.round(newBalance * 100) / 100
         : Math.round((donorPrefs.walletBalance + amount) * 100) / 100;
-    setDonorPrefs((prev) => ({ ...prev, walletBalance: nextBalance }));
+    setDonorPrefs((prev) => {
+      const updated = { ...prev, walletBalance: nextBalance };
+      if (typeof window !== "undefined" && activeUserId.startsWith("guest-u-")) {
+        try {
+          const rawTx = localStorage.getItem("givi_recent_transactions");
+          localStorage.setItem(
+            `guest_archive:${activeUserId}`,
+            JSON.stringify({ prefs: updated, transactions: rawTx ? JSON.parse(rawTx) : [] })
+          );
+        } catch {}
+      }
+      return updated;
+    });
     if (typeof window !== "undefined") {
       localStorage.setItem("givi_wallet_balance", nextBalance.toString());
     }
@@ -786,6 +985,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setBeneficiaryOnboarded,
         donorPrefs,
         updateDonorPrefs,
+        activateGuestProfile,
         toggleBookmark,
         isBookmarked,
         rechargeWallet,

@@ -72,7 +72,7 @@ export async function createPayPalOrder(params: {
     };
   }
 
-  const baseAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+  const baseAppUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const receiverEmail =
     process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL || "givibeneficiary@business.example.com";
 
@@ -123,6 +123,22 @@ export async function createPayPalOrder(params: {
   };
 }
 
+// In-memory replay protection for processed PayPal order IDs (Issue 4)
+const capturedOrders: Set<string> =
+  (globalThis as any).__GIVI_CAPTURED_ORDERS__ || new Set<string>();
+(globalThis as any).__GIVI_CAPTURED_ORDERS__ = capturedOrders;
+
+export function recordCapturedOrder(orderId: string): boolean {
+  if (!orderId) return true;
+  if (capturedOrders.has(orderId)) return false;
+  if (capturedOrders.size > 5000) {
+    const first = capturedOrders.values().next().value;
+    if (first) capturedOrders.delete(first);
+  }
+  capturedOrders.add(orderId);
+  return true;
+}
+
 /**
  * Captures an approved PayPal order.
  */
@@ -135,6 +151,10 @@ export async function capturePayPalOrder(
   amount: number;
 }> {
   const token = await getPayPalAccessToken();
+
+  if (process.env.NODE_ENV === "production" && token !== "mock_sandbox_access_token" && orderId.startsWith("ORDER-MOCK-")) {
+    throw new Error("Mock order IDs not permitted in production mode");
+  }
 
   if (token === "mock_sandbox_access_token" || orderId.startsWith("ORDER-MOCK-")) {
     return {
@@ -153,8 +173,9 @@ export async function capturePayPalOrder(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`PayPal Order Capture Failed: ${JSON.stringify(error)}`);
+    const error = await response.json().catch(() => ({}));
+    console.error("PayPal Order Capture Failed:", error);
+    throw new Error("PayPal order capture failed");
   }
 
   const captureData = await response.json();
@@ -260,7 +281,8 @@ export async function disbursePayPalPayout(params: {
         status: "SUCCESS",
       };
     }
-    throw new Error(`PayPal Payout Failed: ${JSON.stringify(error)}`);
+    console.error("PayPal Payout Failed:", error);
+    throw new Error("PayPal payout disbursement failed");
   }
 
   const payoutResult = await response.json();

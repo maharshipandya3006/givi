@@ -72,15 +72,20 @@ export default function AgentPage() {
         setExecutionLogs(data.payoutsExecuted || []);
         setTotalDisbursed(data.totalDisbursed);
 
-        // Record agent disbursements into account's recent swipe history
-        const agentSwipes = (data.payoutsExecuted || []).map((p: any) => ({
+        // Record agent disbursements into account's recent swipe history (Issue 5)
+        const agentSwipes = (data.payoutsExecuted || []).map((p: any, idx: number) => ({
+          id: p.payoutBatchId ? `agent-${p.payoutBatchId}-${idx}` : `agent-swipe-${Date.now()}-${idx}`,
           causeId: p.causeId,
-          title: p.causeTitle,
+          causeTitle: p.causeTitle || p.title || "Direct Relief Grant",
+          title: p.causeTitle || p.title || "Direct Relief Grant",
+          donorId: userId || "guest-session",
+          donorName: userName || donorPrefs.displayName || "Autonomous Donor",
           amount: p.amount,
           category: p.category || "utilities",
           timestamp: p.timestamp || new Date().toISOString(),
           isAgentic: true,
           isFunded: Boolean(p.isFunded),
+          paypalPayoutBatchId: p.payoutBatchId || `BATCH-AGENT-${idx}`,
         }));
 
         if (typeof window !== "undefined" && agentSwipes.length > 0) {

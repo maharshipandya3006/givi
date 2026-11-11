@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       categories = ["utilities", "medical", "food"],
       maxTotalBudget = 50.0,
       monthlyBudget,
-      donorId = "user_donor_demo",
+      donorId = "guest-session",
       donorName: requestedDonorName,
     } = body;
 
@@ -56,14 +56,14 @@ export async function POST(request: NextRequest) {
         }
       } catch {}
     }
-    // Security (Issue 2): Reject unauthenticated claims on real user accounts
-    if (donorId && donorId.startsWith("user_") && donorId !== "user_anon" && donorId !== "user_donor_demo" && authUserId !== donorId) {
+    // Security (Issue 9): Reject unauthenticated claims on real user accounts
+    if (donorId && donorId.startsWith("user_") && donorId !== "user_anon" && authUserId !== donorId) {
       return NextResponse.json(
         { error: "Authentication required to run giving agent for this donor account" },
         { status: 401 }
       );
     }
-    const effectiveDonorId = authUserId || donorId || "user_donor_demo";
+    const effectiveDonorId = authUserId || donorId || "guest-session";
 
     // Resolve user's human name for transaction attribution
     let effectiveDonorName =
@@ -245,6 +245,25 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
+      // Check cause status in database before initiating payout (Issue 2)
+      if (isSupabaseConfigured) {
+        try {
+          const { data: dbCause } = await (supabaseAdmin as any)
+            .from("causes")
+            .select("raised_amount, goal_amount, status")
+            .eq("id", cause.id)
+            .maybeSingle();
+          if (dbCause) {
+            const dbRemaining = Math.max(0, Number(dbCause.goal_amount || 0) - Number(dbCause.raised_amount || 0));
+            if (dbRemaining < donationAmt || dbCause.status === "funded") {
+              releaseCauseFunding(cause.id, donationAmt);
+              topUpDemoWallet(donationAmt, effectiveDonorId);
+              continue;
+            }
+          }
+        } catch {}
+      }
+
       try {
         const donationId = `don-agent-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -279,7 +298,7 @@ export async function POST(request: NextRequest) {
         // Persist autonomous donation to Supabase concurrently (Issue 14 & Issue 5)
         if (isSupabaseConfigured) {
           try {
-            await Promise.all([
+            const [{ error: donErr }] = await Promise.all([
               supabaseAdmin.from("donations").insert([
                 {
                   id: donationRecord.id,
@@ -304,7 +323,14 @@ export async function POST(request: NextRequest) {
                 .eq("id", cause.id)
                 .lte("raised_amount", Math.max(0, cause.goalAmount - donationAmt)),
             ]);
+            if (donErr) {
+              console.warn("Supabase agent donation insert warning:", donErr.message);
+            }
+          } catch (donSyncErr) {
+            console.warn("Could not persist agent donation row:", donSyncErr);
+          }
 
+          try {
             if (effectiveDonorId && effectiveDonorId !== "user_anon") {
               const { data: donorProf } = await (supabaseAdmin as any)
                 .from("donor_profiles")
@@ -382,9 +408,27 @@ export async function POST(request: NextRequest) {
           timestamp: new Date().toISOString(),
         });
       } catch (causeErr) {
-        // Rollback reserved funding and refund donor wallet allowance on failure
+        // Rollback reserved funding and refund donor wallet allowance on failure (Issue 2)
         releaseCauseFunding(cause.id, donationAmt);
         topUpDemoWallet(donationAmt, effectiveDonorId);
+        if (isSupabaseConfigured && !isDemoUserKey(effectiveDonorId)) {
+          try {
+            const { data: dbProf } = await (supabaseAdmin as any)
+              .from("donor_profiles")
+              .select("wallet_balance")
+              .eq("id", effectiveDonorId)
+              .maybeSingle();
+            const curr = Number(dbProf?.wallet_balance || 0);
+            const refunded = Math.round((curr + donationAmt) * 100) / 100;
+            await (supabaseAdmin as any)
+              .from("donor_profiles")
+              .update({ wallet_balance: refunded, updated_at: new Date().toISOString() })
+              .eq("id", effectiveDonorId);
+            setDemoWalletBalance(effectiveDonorId, refunded);
+          } catch (refundErr) {
+            console.error("Failed to refund Supabase wallet on agent payout error:", refundErr);
+          }
+        }
         console.warn(`Autonomous payout failed for cause ${cause.id}:`, causeErr);
       }
     }
@@ -399,8 +443,7 @@ export async function POST(request: NextRequest) {
       walletBalance: getDemoWalletBalance(effectiveDonorId),
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Agent execution failed";
     console.error("Agent runner error:", err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Agent execution failed" }, { status: 500 });
   }
 }

@@ -17,10 +17,11 @@ export interface LeaderboardRanking {
 
 interface LeaderboardPodiumProps extends React.HTMLAttributes<HTMLDivElement> {
   rankings: LeaderboardRanking[];
+  currentUserId?: string;
 }
 
 export const LeaderboardPodium = React.forwardRef<HTMLDivElement, LeaderboardPodiumProps>(
-  ({ className, rankings, ...props }, ref) => {
+  ({ className, rankings, currentUserId, ...props }, ref) => {
     if (!rankings || rankings.length === 0) return null;
 
     const top1 = rankings.find((r) => r.rank === 1) || rankings[0];
@@ -116,15 +117,23 @@ export const LeaderboardPodium = React.forwardRef<HTMLDivElement, LeaderboardPod
 
                 {/* 2. Donor Identity with Apple Optical Typography */}
                 <div className="w-full px-0.5 mb-1.5">
-                  <h4
-                    className={cn(
-                      "font-black tracking-tight truncate",
-                      isFirst ? "text-sm sm:text-base text-ink" : "text-xs sm:text-sm text-ink"
-                    )}
-                    title={entry.userName}
-                  >
-                    {entry.userName}
-                  </h4>
+                  <div className="flex items-center justify-center gap-1.5 min-w-0">
+                    <h4
+                      className={cn(
+                        "font-black tracking-tight truncate",
+                        isFirst ? "text-sm sm:text-base text-ink" : "text-xs sm:text-sm text-ink"
+                      )}
+                      title={entry.userName}
+                    >
+                      {entry.userName}
+                    </h4>
+                    {Boolean(currentUserId) &&
+                      (entry.userId === currentUserId || entry.userId === `user_${currentUserId}`) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-[#166534] text-white text-[9px] font-black tracking-tight shrink-0">
+                          You
+                        </span>
+                      )}
+                  </div>
                   
                   {entry.byline && (
                     <span

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { capturePayPalOrder, disbursePayPalPayout, refundPayPalCapture } from "@/lib/paypal";
+import { capturePayPalOrder, disbursePayPalPayout, refundPayPalCapture, recordCapturedOrder } from "@/lib/paypal";
 import { debitDemoWallet, getDemoWalletBalance, topUpDemoWallet, setDemoWalletBalance, isDemoUserKey, withUserLock } from "@/lib/demo-wallet";
 import { generateImpactToast } from "@/lib/gemini";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
@@ -240,6 +240,14 @@ export async function POST(request: NextRequest) {
         fallbackStore.get(effectiveDonorId).wallet_balance = walletResult.newBalance;
       }
     } else if (orderId) {
+      if (!recordCapturedOrder(orderId)) {
+        if (reservedCauseId) releaseCauseFunding(reservedCauseId, reservedAmount);
+        reservedCauseId = null;
+        return NextResponse.json(
+          { error: "PayPal order has already been captured / processed" },
+          { status: 400 }
+        );
+      }
       try {
         const captureResult = await capturePayPalOrder(orderId, donationAmount);
         // Issue 4: Enforce completed status on captured order before proceeding to payout
@@ -411,7 +419,7 @@ export async function POST(request: NextRequest) {
     // Update Supabase if connected
     if (isSupabaseConfigured) {
       try {
-        await supabaseAdmin.from("donations").insert([
+        const { error: donErr } = await supabaseAdmin.from("donations").insert([
           {
             id: donationRecord.id,
             cause_id: donationRecord.causeId,
@@ -425,6 +433,9 @@ export async function POST(request: NextRequest) {
             impact_message: donationRecord.impactMessage,
           },
         ]);
+        if (donErr) {
+          console.warn("Supabase donations insert warning:", donErr.message);
+        }
 
         await supabaseAdmin
           .from("causes")
@@ -433,8 +444,13 @@ export async function POST(request: NextRequest) {
             status: targetCause.status,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", targetCause.id);
+          .eq("id", targetCause.id)
+          .lte("raised_amount", Math.max(0, targetCause.goalAmount - donationAmount));
+      } catch (donSyncErr) {
+        console.warn("Could not insert donation row to Supabase:", donSyncErr);
+      }
 
+      try {
         // Sync donor profile statistics (Total Donated, Bills Cleared, Wallet Balance)
         if (effectiveDonorId && effectiveDonorId !== "user_anon") {
           const { data: donorProf } = await (supabaseAdmin as any)

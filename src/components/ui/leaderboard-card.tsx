@@ -30,19 +30,6 @@ interface LeaderboardCardProps extends React.HTMLAttributes<HTMLDivElement> {
   onRunChange?: (runId: string) => void;
 }
 
-function formatRangeDate(date: string | Date) {
-  const parsed = date instanceof Date ? date : new Date(date);
-  if (Number.isNaN(parsed.getTime())) return "";
-
-  // Explicit locale and UTC to guarantee zero SSR/hydration mismatch across timezones
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
 const LeaderboardCard = React.forwardRef<HTMLDivElement, LeaderboardCardProps>(
   (
     {
@@ -60,8 +47,6 @@ const LeaderboardCard = React.forwardRef<HTMLDivElement, LeaderboardCardProps>(
     },
     ref
   ) => {
-    const fromLabel = formatRangeDate(fromDate);
-    const toLabel = formatRangeDate(toDate);
     const resolvedRunId = selectedRunId ?? runOptions?.[0]?.id ?? "";
     const hasOnRunChange = Boolean(onRunChange);
     const [localRunId, setLocalRunId] = React.useState(resolvedRunId);
@@ -138,7 +123,11 @@ const LeaderboardCard = React.forwardRef<HTMLDivElement, LeaderboardCardProps>(
         </div>
 
         {/* Podium Area with Physical Depth & Lighting */}
-        <LeaderboardPodium rankings={podiumRankings} className="mb-10" />
+        <LeaderboardPodium
+          rankings={podiumRankings}
+          currentUserId={currentUserId}
+          className="mb-10"
+        />
 
         {/* Paginated Rankings List with Momentum Springs */}
         <LeaderboardRankings

@@ -27,6 +27,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useUser } from "@/lib/user-context";
+import { cleanDonorName, isCustomGuestUsername } from "@/lib/guest-identity";
 import { formatCurrency } from "@/lib/utils";
 import { Cause, CauseCategory, getGiverBadge } from "@/lib/types";
 import { getActiveCauses } from "@/lib/causes-store";
@@ -102,6 +103,7 @@ export default function ProfilePage() {
     userName,
     donorPrefs,
     updateDonorPrefs,
+    activateGuestProfile,
     rechargeWallet,
     signOut,
     demoPersona,
@@ -146,23 +148,66 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    function loadTransactions() {
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("givi_recent_transactions");
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              setLocalSwipes(parsed);
-            }
-          }
-        } catch {}
+    let active = true;
+    function readLocalTransactions(): any[] {
+      if (typeof window === "undefined") return [];
+      try {
+        const raw = localStorage.getItem("givi_recent_transactions");
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
       }
     }
+
+    async function loadTransactions() {
+      const localList = readLocalTransactions();
+      if (active) setLocalSwipes(localList);
+
+      if (isJudge || !userId) return;
+      try {
+        const res = await fetch("/api/transparency");
+        if (!res.ok) return;
+        const allTxs = await res.json();
+        if (!Array.isArray(allTxs)) return;
+
+        const exactName = !donorPrefs.isAnonymous && isCustomGuestUsername(donorPrefs.displayName)
+          ? donorPrefs.displayName.trim()
+          : "";
+        const isGuestSession = !userId.startsWith("user_");
+
+        const remoteMine = allTxs.filter((tx: any) => {
+          if (tx.donorId && tx.donorId === userId) return true;
+          if (exactName && isGuestSession && (!tx.donorId || !String(tx.donorId).startsWith("user_"))) {
+            return cleanDonorName(tx.donorName || "") === exactName;
+          }
+          return false;
+        });
+
+        const seen = new Set<string>();
+        const merged = [...localList, ...remoteMine].filter((tx: any) => {
+          if (!tx?.id || seen.has(tx.id)) return false;
+          seen.add(tx.id);
+          return true;
+        });
+        merged.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+        if (active && merged.length > 0) {
+          setLocalSwipes(merged);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("givi_recent_transactions", JSON.stringify(merged.slice(0, 500)));
+          }
+        }
+      } catch {}
+    }
+
     loadTransactions();
     window.addEventListener("givi_transactions_updated", loadTransactions);
-    return () => window.removeEventListener("givi_transactions_updated", loadTransactions);
-  }, []);
+    return () => {
+      active = false;
+      window.removeEventListener("givi_transactions_updated", loadTransactions);
+    };
+  }, [userId, isJudge, donorPrefs.displayName, donorPrefs.isAnonymous]);
 
   const rawLocalTotal = localSwipes.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   const localTotalGiven = rawLocalTotal;
@@ -305,9 +350,17 @@ export default function ProfilePage() {
     updateDonorPrefs({ interests: next });
   };
 
-  const handleSaveName = () => {
-    if (tempName.trim()) {
-      updateDonorPrefs({ displayName: tempName.trim() });
+  const handleSaveName = async () => {
+    const trimmed = tempName.trim();
+    if (trimmed) {
+      if (!isJudge && (!userId || !userId.startsWith("user_"))) {
+        await activateGuestProfile(trimmed);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("givi_transactions_updated"));
+        }
+      } else {
+        await updateDonorPrefs({ displayName: trimmed });
+      }
     }
     setIsEditingName(false);
   };

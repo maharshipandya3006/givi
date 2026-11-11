@@ -3,52 +3,29 @@ import { runtimeDonations, HISTORICAL_AUDIT_LOGS } from "@/lib/ledger";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { getGiverBadge } from "@/lib/types";
 import { SEED_CAUSES } from "@/lib/seed-data";
+import {
+  aggregateLeaderboardTransactions,
+  type AggregatedLeaderboardEntry,
+  type RawLeaderboardTx,
+  type RawProfileRecord,
+} from "@/lib/leaderboard-utils";
+import { isCustomGuestUsername } from "@/lib/guest-identity";
 
-export interface LeaderboardEntry {
-  rank: number;
-  id: string;
-  displayName: string;
-  totalDonated: number;
-  causeCount: number;
-  isAnonymous: boolean;
-  avatarUrl?: string;
-  badge: string;
-  categories: string[];
-}
-
-function cleanDonorName(rawName: string): string {
-  if (!rawName) return "Kind Supporter";
-  const cleaned = rawName
-    .replace(/'s givi agent$/i, "")
-    .replace(/\s*\(givi agent\)$/i, "")
-    .replace(/^autonomous giving agent$/i, "Kind Supporter")
-    .replace(/^autonomous donor$/i, "Kind Supporter")
-    .trim();
-  return cleaned || "Kind Supporter";
-}
+export type LeaderboardEntry = AggregatedLeaderboardEntry;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const period = searchParams.get("period") || "all";
+  const requestedUserId = searchParams.get("userId")?.trim() || "";
+  const lookupName = searchParams.get("lookupName")?.trim() || "";
   const isWeekly = period === "weekly";
   const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
-  // Helper map for cause categories
   const causeCategoryMap = new Map<string, string>(
     SEED_CAUSES.map((c) => [c.id, c.category])
   );
 
-  interface RawLedgerTx {
-    id: string;
-    timestamp: string;
-    causeId?: string;
-    donorName?: string;
-    donorId?: string;
-    amount: number;
-    category?: string;
-  }
-
-  const transactions: RawLedgerTx[] = [];
+  const transactions: RawLeaderboardTx[] = [];
   const seenTxIds = new Set<string>();
 
   // 1. Fetch persisted donations from Supabase when configured
@@ -58,7 +35,7 @@ export async function GET(request: NextRequest) {
         .from("donations")
         .select("id, donor_id, donor_name, amount, is_agentic, created_at, cause_id, causes(category)")
         .order("created_at", { ascending: false })
-        .limit(200);
+        .limit(2000);
 
       if (isWeekly) {
         query = query.gte("created_at", new Date(oneWeekAgo).toISOString());
@@ -120,148 +97,84 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Group strictly by verified ledger donor
-  const donorMap = new Map<string, LeaderboardEntry>();
+  // 4. Collect donor profiles (Supabase + fallback store) so profile updates & totals are reflected
+  const profileMap = new Map<string, RawProfileRecord>();
 
-  for (const tx of transactions) {
-    if (tx.amount <= 0) continue;
-
-    const rawName = tx.donorName || "Kind Supporter";
-    const cleanedName = cleanDonorName(rawName);
-    const lowerName = cleanedName.toLowerCase();
-    const rawId = (tx.donorId || "").trim();
-
-    const isJudgeDonor =
-      rawId === "judge-donor-session" ||
-      rawId.startsWith("judge-donor") ||
-      rawId.includes("gividonor") ||
-      lowerName === "judge donor" ||
-      lowerName === "givi donor" ||
-      lowerName === "judge" ||
-      lowerName.includes("judge donor") ||
-      lowerName.includes("givi donor");
-
-    const isGuest =
-      !isJudgeDonor && (
-        !rawId ||
-        rawId === "guest" ||
-        rawId.startsWith("guest-") ||
-        rawId === "user_anon" ||
-        lowerName === "guest" ||
-        lowerName.includes("anonymous") ||
-        lowerName === "kind supporter"
-      );
-
-    let groupKey: string;
-    let displayName: string;
-    let isAnonymous: boolean;
-
-    if (isJudgeDonor) {
-      groupKey = "judge-donor-session";
-      const isCustomJudgeName =
-        cleanedName &&
-        cleanedName !== "Kind Supporter" &&
-        cleanedName !== "Supporter" &&
-        cleanedName !== "Judge Donor" &&
-        cleanedName !== "Givi Donor" &&
-        cleanedName !== "judge donor";
-      displayName = isCustomJudgeName ? cleanedName : "Judge Donor";
-      isAnonymous = false;
-    } else if (isGuest) {
-      groupKey = "guest-community";
-      displayName = "Kind Supporter";
-      isAnonymous = true;
-    } else {
-      groupKey = rawId || `donor_${lowerName.replace(/[^a-z0-9]/g, "_")}`;
-      displayName = cleanedName;
-      isAnonymous = false;
-    }
-
-    let entry = donorMap.get(groupKey);
-    if (!entry) {
-      entry = {
-        rank: 99,
-        id: groupKey,
-        displayName,
-        totalDonated: 0,
-        causeCount: 0,
-        isAnonymous,
-        badge: "",
-        categories: [],
-      };
-      donorMap.set(groupKey, entry);
-    } else {
-      if (
-        isJudgeDonor &&
-        displayName !== "Judge Donor" &&
-        displayName !== "Kind Supporter"
-      ) {
-        entry.displayName = displayName;
-      }
-    }
-
-    entry.totalDonated = Math.round((entry.totalDonated + tx.amount) * 100) / 100;
-    entry.causeCount += 1;
-    const cat = tx.category || (tx.causeId ? causeCategoryMap.get(tx.causeId) : undefined) || "utilities";
-    if (!entry.categories.includes(cat)) {
-      entry.categories.push(cat);
-    }
-    entry.badge = getGiverBadge(entry.totalDonated);
-  }
-
-  // Check profile anonymity preferences
-  if (isSupabaseConfigured && donorMap.size > 0) {
+  if (isSupabaseConfigured) {
     try {
-      const donorIds = Array.from(donorMap.keys()).filter((k) => k !== "guest-community");
-      if (donorIds.length > 0) {
-        const { data: profiles } = await (supabaseAdmin as any)
-          .from("donor_profiles")
-          .select("id, is_anonymous, display_name")
-          .in("id", donorIds);
+      const { data: activeProfiles } = await (supabaseAdmin as any)
+        .from("donor_profiles")
+        .select("id, is_anonymous, display_name, total_donated, bills_cleared")
+        .gt("total_donated", 0)
+        .limit(200);
 
-        if (profiles) {
-          for (const p of profiles) {
-            const entry = donorMap.get(p.id);
-            if (entry) {
-              if (p.is_anonymous) {
-                entry.isAnonymous = true;
-                entry.displayName = "Anonymous Giver";
-              } else if (
-                p.display_name &&
-                p.display_name !== "Kind Supporter" &&
-                p.display_name !== "Supporter" &&
-                p.display_name !== "Judge Donor"
-              ) {
-                entry.displayName = p.display_name;
-              }
-            }
+      if (activeProfiles) {
+        for (const p of activeProfiles) {
+          profileMap.set(p.id, p);
+        }
+      }
+
+      if (requestedUserId && !profileMap.has(requestedUserId)) {
+        const { data: selfProfile } = await (supabaseAdmin as any)
+          .from("donor_profiles")
+          .select("id, is_anonymous, display_name, total_donated, bills_cleared")
+          .eq("id", requestedUserId)
+          .maybeSingle();
+        if (selfProfile) profileMap.set(selfProfile.id, selfProfile);
+      }
+
+      if (isCustomGuestUsername(lookupName)) {
+        const { data: namedProfiles } = await (supabaseAdmin as any)
+          .from("donor_profiles")
+          .select("id, is_anonymous, display_name, total_donated, bills_cleared")
+          .eq("display_name", lookupName)
+          .not("id", "like", "user_%")
+          .neq("id", "judge-donor-session")
+          .neq("id", "judge-beneficiary-session")
+          .limit(5);
+        if (namedProfiles) {
+          for (const p of namedProfiles) {
+            if (!profileMap.has(p.id)) profileMap.set(p.id, p);
           }
         }
       }
-    } catch {}
+    } catch (err) {
+      console.warn("Could not query Supabase donor_profiles for leaderboard:", err);
+    }
   }
 
   try {
     const fallbackStore = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__ as Map<string, any> | undefined;
     if (fallbackStore) {
       for (const [storeId, profile] of fallbackStore.entries()) {
-        const entry = donorMap.get(storeId);
-        if (entry) {
-          if (profile.is_anonymous || profile.isAnonymous) {
-            entry.isAnonymous = true;
-            entry.displayName = "Anonymous Giver";
-          } else if (
-            profile.display_name &&
-            profile.display_name !== "Kind Supporter" &&
-            profile.display_name !== "Supporter" &&
-            profile.display_name !== "Judge Donor"
-          ) {
-            entry.displayName = profile.display_name;
+        if (!profileMap.has(storeId)) {
+          profileMap.set(storeId, { ...profile, id: storeId });
+        } else {
+          const existing = profileMap.get(storeId)!;
+          existing.total_donated = Math.max(
+            Number(existing.total_donated || 0),
+            Number(profile.total_donated ?? profile.totalDonated ?? 0)
+          );
+          existing.bills_cleared = Math.max(
+            Number(existing.bills_cleared || 0),
+            Number(profile.bills_cleared ?? profile.billsCleared ?? 0)
+          );
+          if (isCustomGuestUsername(profile.display_name)) {
+            existing.display_name = profile.display_name;
+          }
+          if (profile.is_anonymous !== undefined || profile.isAnonymous !== undefined) {
+            existing.is_anonymous = Boolean(profile.is_anonymous ?? profile.isAnonymous);
           }
         }
       }
     }
   } catch {}
+
+  const entries = aggregateLeaderboardTransactions(
+    transactions,
+    Array.from(profileMap.values()),
+    { isWeekly, causeCategoryMap }
+  );
 
   // Ensure unified Judge Donor baseline reflects active judge demo account ($456.93 showcase + agent giving)
   try {
@@ -276,13 +189,11 @@ export async function GET(request: NextRequest) {
 
     const customJudgeName =
       judgeProfile?.display_name &&
-      judgeProfile.display_name !== "Kind Supporter" &&
-      judgeProfile.display_name !== "Supporter" &&
-      judgeProfile.display_name !== "Judge Donor"
+      isCustomGuestUsername(judgeProfile.display_name)
         ? judgeProfile.display_name
         : undefined;
 
-    let judgeEntry = donorMap.get("judge-donor-session");
+    let judgeEntry = entries.find((e) => e.id === "judge-donor-session");
     if (!judgeEntry) {
       judgeEntry = {
         rank: 1,
@@ -294,7 +205,7 @@ export async function GET(request: NextRequest) {
         badge: getGiverBadge(judgeTargetTotal),
         categories: ["utilities", "climate", "food"],
       };
-      donorMap.set("judge-donor-session", judgeEntry);
+      entries.push(judgeEntry);
     } else {
       if (customJudgeName) {
         judgeEntry.displayName = customJudgeName;
@@ -305,7 +216,6 @@ export async function GET(request: NextRequest) {
     }
   } catch {}
 
-  const entries = Array.from(donorMap.values());
   entries.sort((a, b) => b.totalDonated - a.totalDonated);
   entries.forEach((entry, idx) => {
     entry.rank = idx + 1;

@@ -1,38 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeProofDocument } from "@/lib/gemini";
-
-// shortcut: in-memory limiter; upgrade to Upstash Redis for distributed multi-region rate limiting across serverless instances
-// Rate limit: max 10 OCR document analyses per 5-minute window per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string, limit = 10, windowMs = 5 * 60 * 1000): boolean {
-  const now = Date.now();
-  if (rateLimitMap.size > 1000) {
-    for (const [k, v] of rateLimitMap.entries()) {
-      if (now > v.resetAt) rateLimitMap.delete(k);
-    }
-    if (rateLimitMap.size > 1000) {
-      rateLimitMap.clear();
-    }
-  }
-  const record = rateLimitMap.get(ip);
-  if (!record || now > record.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-  if (record.count >= limit) {
-    return false;
-  }
-  record.count += 1;
-  return true;
-}
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 const MAX_BASE64_LENGTH = 14_000_000; // ~10MB payload limit
 
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
-    if (!checkRateLimit(ip)) {
+    if (!checkRateLimit("ocr", ip, 10, 5 * 60 * 1000)) {
       return NextResponse.json(
         { error: "Too many document scans. Please wait a few minutes before submitting another file." },
         { status: 429 }

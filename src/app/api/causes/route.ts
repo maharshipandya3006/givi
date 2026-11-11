@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
         .order("created_at", { ascending: false })
         .limit(100);
 
-      if (status && status !== "all") {
+      // Issue 6: Do not filter by status="active" in Supabase query so that funded causes
+      // are known in mergedMap and never resurrected at 0% from SEED_CAUSES
+      if (status && status !== "all" && status !== "active") {
         query = query.eq("status", status);
       }
 
@@ -70,14 +72,18 @@ export async function GET(request: NextRequest) {
         // When active causes are requested (default for swipe feed and explore), exclude causes that have reached their funding potential
         if (status === "active") {
           allMerged = allMerged.filter((c) => c.status !== "funded" && (c.goalAmount - c.raisedAmount) > 0.01);
+        } else if (status && status !== "all") {
+          allMerged = allMerged.filter((c) => c.status === status);
         }
 
         if (category && (category as string) !== "all") {
           allMerged = allMerged.filter((c) => c.category === category);
         }
 
+        // Issue 12: Index activeCauses by Map for O(1) lookups instead of O(n^2) nested scan
+        const activeMap = new Map(activeCauses.map((c) => [c.id, c]));
         allMerged.forEach((c) => {
-          const existing = findCauseById(c.id);
+          const existing = activeMap.get(c.id);
           if (existing) {
             existing.raisedAmount = c.raisedAmount;
             existing.status = c.status;
@@ -85,6 +91,7 @@ export async function GET(request: NextRequest) {
             existing.updatedAt = c.updatedAt;
           } else {
             addActiveCause(c);
+            activeMap.set(c.id, c);
           }
         });
 
@@ -295,7 +302,7 @@ export async function POST(request: NextRequest) {
 
     if (isSupabaseConfigured) {
       try {
-        await supabaseAdmin.from("causes").insert([
+        const { error: insertErr } = await supabaseAdmin.from("causes").insert([
           {
             id: newCause.id,
             title: newCause.title,
@@ -317,8 +324,13 @@ export async function POST(request: NextRequest) {
             deadline: newCause.deadline,
           },
         ]);
+        if (insertErr) {
+          console.error("Supabase cause insert failed (Issue 7):", insertErr);
+          return NextResponse.json({ error: "Failed to persist cause in database" }, { status: 500 });
+        }
       } catch (dbErr) {
-        console.warn("Could not write cause to Supabase, stored in runtime cache:", dbErr);
+        console.error("Could not write cause to Supabase:", dbErr);
+        return NextResponse.json({ error: "Database failure creating cause" }, { status: 500 });
       }
     }
 
@@ -369,7 +381,7 @@ export async function PATCH(request: NextRequest) {
         if (!clerkAuth?.userId) {
           return NextResponse.json({ error: "Unauthorized: Sign-in required" }, { status: 401 });
         }
-        if (causeReceiverId && causeReceiverId !== clerkAuth.userId && !causeReceiverId.startsWith("user_guest")) {
+        if (causeReceiverId && causeReceiverId !== clerkAuth.userId) {
           return NextResponse.json({ error: "Forbidden: You can only post updates to your own causes" }, { status: 403 });
         }
       } catch {

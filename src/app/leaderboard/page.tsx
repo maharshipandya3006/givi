@@ -6,62 +6,130 @@ import { LeaderboardEntry } from "@/app/api/leaderboard/route";
 import { LeaderboardCard, LeaderboardRunOption } from "@/components/ui/leaderboard-card";
 import { useUser } from "@/lib/user-context";
 import { getGiverBadge } from "@/lib/types";
+import { cleanDonorName, guestIdForUsername, isCustomGuestUsername } from "@/lib/guest-identity";
 import Link from "next/link";
 
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [filterTime, setFilterTime] = useState<"all" | "weekly">("all");
   const [isLoading, setIsLoading] = useState(true);
-  const { userId, donorPrefs } = useUser();
+  const { userId, userName, donorPrefs } = useUser();
 
   useEffect(() => {
     async function load() {
       setIsLoading(true);
       try {
-        const queryParam = userId ? `&userId=${encodeURIComponent(userId)}` : "";
-        const res = await fetch(`/api/leaderboard?period=${filterTime}${queryParam}`);
+        const isJudge = userId === "judge-donor-session" || donorPrefs?.displayName === "Judge Donor";
+        const resolvedName = donorPrefs?.isAnonymous
+          ? "Anonymous Giver"
+          : isCustomGuestUsername(donorPrefs?.displayName)
+          ? donorPrefs.displayName.trim()
+          : isCustomGuestUsername(userName)
+          ? (userName || "").trim()
+          : isJudge
+          ? "Judge Donor"
+          : "Guest Giver";
+
+        const params = new URLSearchParams({ period: filterTime });
+        if (userId) params.set("userId", userId);
+        if (!donorPrefs?.isAnonymous && isCustomGuestUsername(resolvedName)) {
+          params.set("lookupName", resolvedName);
+        }
+
+        const res = await fetch(`/api/leaderboard?${params.toString()}`);
         let data: LeaderboardEntry[] = [];
         if (res.ok) {
           const parsed = await res.json();
           if (Array.isArray(parsed)) data = parsed;
         }
 
-        // Match active user entry for UI highlighting and privacy preferences
-        if (userId) {
-          const isJudge = userId === "judge-donor-session" || donorPrefs?.displayName === "Judge Donor";
-          const myName = donorPrefs?.displayName && donorPrefs.displayName !== "Kind Supporter"
-            ? donorPrefs.displayName
-            : (isJudge ? "Judge Donor" : "Kind Supporter");
+        const activeId = userId || "me";
+        const canonicalGuestId =
+          !isJudge && !activeId.startsWith("user_") && !donorPrefs?.isAnonymous && isCustomGuestUsername(resolvedName)
+            ? guestIdForUsername(resolvedName)
+            : "";
 
-          const userEntry = data.find(
-            (e) => (isJudge && (e.id === "judge-donor-session" || e.displayName === "Judge Donor" || e.displayName === myName)) ||
-                   e.id === userId ||
-                   (myName && e.displayName === myName)
-          );
-          if (userEntry) {
-            userEntry.id = userId;
-            if (myName && !donorPrefs?.isAnonymous && myName !== "Kind Supporter") {
-              userEntry.displayName = myName;
+        // Reconcile recent local swipes for the active user (covers immediate swipes & weekly view)
+        let localRecentTotal = 0;
+        let localRecentCount = 0;
+        if (typeof window !== "undefined") {
+          try {
+            const raw = localStorage.getItem("givi_recent_transactions");
+            const parsedTxs = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(parsedTxs)) {
+              const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+              for (const tx of parsedTxs) {
+                if (filterTime === "weekly" && new Date(tx.timestamp).getTime() < oneWeekAgo) continue;
+                const txMatchesUser =
+                  (userId && tx.donorId === userId) ||
+                  (!donorPrefs?.isAnonymous &&
+                    isCustomGuestUsername(resolvedName) &&
+                    cleanDonorName(tx.donorName || "") === resolvedName);
+                if (txMatchesUser) {
+                  localRecentTotal += Number(tx.amount) || 0;
+                  localRecentCount += 1;
+                }
+              }
             }
-            if (isJudge && donorPrefs?.totalDonated) {
-              userEntry.totalDonated = Math.max(userEntry.totalDonated, Number(donorPrefs.totalDonated));
-              userEntry.causeCount = Math.max(userEntry.causeCount, Number(donorPrefs.billsCleared || 9));
-              userEntry.badge = getGiverBadge(userEntry.totalDonated);
-            }
-            if (donorPrefs?.isAnonymous) {
-              userEntry.isAnonymous = true;
-              userEntry.displayName = "Anonymous Giver";
-            }
-          }
+          } catch {}
         }
 
-        // Sort descending and re-assign ranks accurately
-        data.sort((a, b) => b.totalDonated - a.totalDonated);
-        data.forEach((entry, idx) => {
+        let userEntry = data.find(
+          (e) =>
+            (isJudge && (e.id === "judge-donor-session" || e.displayName === "Judge Donor" || e.displayName === resolvedName)) ||
+            (userId && e.id === userId) ||
+            (canonicalGuestId && e.id === canonicalGuestId) ||
+            (!donorPrefs?.isAnonymous && isCustomGuestUsername(resolvedName) && e.displayName === resolvedName)
+        );
+
+        const profileTotal = filterTime === "all" ? Number(donorPrefs?.totalDonated || 0) : 0;
+        const profileBills = filterTime === "all" ? Number(donorPrefs?.billsCleared || 0) : 0;
+        const effectiveTotal = Math.round(Math.max(userEntry?.totalDonated || 0, profileTotal, localRecentTotal) * 100) / 100;
+        const effectiveCount = Math.max(userEntry?.causeCount || 0, profileBills, localRecentCount, isJudge ? 9 : 0);
+
+        if (userEntry) {
+          userEntry.id = activeId;
+          userEntry.displayName = donorPrefs?.isAnonymous ? "Anonymous Giver" : resolvedName;
+          userEntry.isAnonymous = Boolean(donorPrefs?.isAnonymous);
+          userEntry.totalDonated = effectiveTotal;
+          userEntry.causeCount = effectiveCount;
+          userEntry.badge = getGiverBadge(effectiveTotal);
+        } else {
+          userEntry = {
+            rank: data.length + 1,
+            id: activeId,
+            displayName: resolvedName,
+            totalDonated: effectiveTotal,
+            causeCount: effectiveCount,
+            isAnonymous: Boolean(donorPrefs?.isAnonymous),
+            badge: getGiverBadge(effectiveTotal),
+            categories: ["utilities"],
+          };
+          data.push(userEntry);
+        }
+
+        // Deduplicate by resolved ID cleanly before ranking
+        const dedupedMap = new Map<string, LeaderboardEntry>();
+        for (const item of data) {
+          const existing = dedupedMap.get(item.id);
+          if (!existing || item === userEntry) {
+            dedupedMap.set(item.id, item);
+          }
+        }
+        const finalEntries = Array.from(dedupedMap.values());
+
+        finalEntries.sort((a, b) => {
+          if (b.totalDonated !== a.totalDonated) return b.totalDonated - a.totalDonated;
+          if (b.causeCount !== a.causeCount) return b.causeCount - a.causeCount;
+          if (a.id === activeId) return -1;
+          if (b.id === activeId) return 1;
+          return 0;
+        });
+        finalEntries.forEach((entry, idx) => {
           entry.rank = idx + 1;
         });
 
-        setEntries(data);
+        setEntries(finalEntries);
       } catch (err) {
         console.warn("Could not fetch leaderboard:", err);
       } finally {
@@ -69,7 +137,7 @@ export default function LeaderboardPage() {
       }
     }
     load();
-  }, [filterTime, userId, donorPrefs?.totalDonated, donorPrefs?.billsCleared, donorPrefs?.displayName, donorPrefs?.isAnonymous]);
+  }, [filterTime, userId, userName, donorPrefs?.totalDonated, donorPrefs?.billsCleared, donorPrefs?.displayName, donorPrefs?.isAnonymous]);
 
   const runOptions: LeaderboardRunOption[] = [
     { id: "all", label: "All-Time Impact" },
@@ -82,15 +150,18 @@ export default function LeaderboardPage() {
   const fromDate = filterTime === "weekly" ? weekAgo : new Date("2026-01-01");
   const toDate = now;
 
-  // Transform entries into component contracts
-  const podiumRankings = entries.slice(0, 3).map((e) => ({
-    userId: e.id,
-    userName: e.displayName,
-    rank: e.rank,
-    value: e.totalDonated,
-    badge: e.badge,
-    byline: `${e.causeCount} Bills Cleared · ${e.badge}`,
-  }));
+  // Transform entries into component contracts (Podium shows donors with > $0 only)
+  const podiumRankings = entries
+    .filter((e) => e.totalDonated > 0)
+    .slice(0, 3)
+    .map((e) => ({
+      userId: e.id,
+      userName: e.displayName,
+      rank: e.rank,
+      value: e.totalDonated,
+      badge: e.badge,
+      byline: `${e.causeCount} Bills Cleared · ${e.badge}`,
+    }));
 
   const rankings = entries.map((e) => ({
     userId: e.id,
