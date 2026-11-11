@@ -22,7 +22,6 @@ import {
   PlusCircle,
   Mail,
   User,
-  Sparkles,
   Loader2,
 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -312,10 +311,6 @@ export default function DonorOnboardingPage() {
                 <span className="text-xs text-[#166534] font-medium flex items-center gap-1 animate-pulse">
                   <Loader2 className="w-3 h-3 animate-spin" /> Verifying account...
                 </span>
-              ) : restoredExistingAccount ? (
-                <span className="text-xs text-[#166534] font-bold flex items-center gap-1 bg-[#166534]/15 px-2.5 py-0.5 rounded-full border border-[#166534]/30">
-                  <Sparkles className="w-3 h-3" /> Account Restored ({formatCurrency(donorPrefs.walletBalance)})
-                </span>
               ) : (
                 <span className="text-[11px] text-ink-muted">Enter to resume or start fresh</span>
               )}
@@ -326,16 +321,13 @@ export default function DonorOnboardingPage() {
               value={displayName}
               onChange={(e) => handleNameChange(e.target.value)}
               onBlur={handleNameBlur}
-              placeholder="Enter your name (e.g. Mahi or Eddie)"
+              placeholder="Enter Your Name"
               autoFocus
               className="w-full px-4 py-3 rounded-xl bg-surface-elevated border border-border text-sm text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors font-medium"
             />
-            {restoredExistingAccount && (
-              <div className="mt-3 p-3 rounded-xl bg-[#166534]/10 border border-[#166534]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-[#166534] animate-in fade-in duration-200">
-                <span className="font-semibold">
-                  Welcome back, {displayName.trim()}! Balance: <strong>{formatCurrency(donorPrefs.walletBalance)}</strong> · Giving history restored.
-                </span>
-                <span className="text-[11px] text-[#166534]/80">Passions pre-selected below</span>
+            {restoredExistingAccount && displayName.trim() && (
+              <div className="mt-3 p-3 rounded-xl bg-[#166534]/10 border border-[#166534]/20 text-xs text-[#166534] font-semibold animate-in fade-in duration-200">
+                Welcome back, {displayName.trim()}
               </div>
             )}
           </div>
@@ -702,7 +694,7 @@ export default function DonorOnboardingPage() {
           <div className="text-center mb-6">
             <span className="text-xs sm:text-sm font-medium text-[#166534] block mb-1.5">
               {restoredExistingAccount
-                ? `Welcome back, ${displayName.trim()} — ${formatCurrency(donorPrefs.walletBalance)} balance & giving history restored`
+                ? `Welcome back, ${displayName.trim()}`
                 : donorPrefs.walletBalance > 0
                 ? `Pass activated — ${formatCurrency(donorPrefs.walletBalance)} giving allowance funded`
                 : "Pass activated & verified"}
