@@ -22,7 +22,7 @@ export const SEED_CAUSES: Cause[] = [
     evidenceUrls: [
       "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
     ],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -55,7 +55,7 @@ export const SEED_CAUSES: Cause[] = [
     evidenceUrls: [
       "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80",
     ],
-    redactedProofUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80",
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -167,7 +167,7 @@ export const SEED_CAUSES: Cause[] = [
     evidenceUrls: [
       "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=800&q=80",
     ],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -291,8 +291,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Detroit, MI",
     receiverId: "rec_cause_util_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -320,8 +322,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Atlanta, GA",
     receiverId: "rec_cause_util_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -349,8 +353,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Chicago, IL",
     receiverId: "rec_cause_util_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -378,8 +384,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Philadelphia, PA",
     receiverId: "rec_cause_util_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -407,8 +415,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Cleveland, OH",
     receiverId: "rec_cause_util_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -436,8 +446,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Baltimore, MD",
     receiverId: "rec_cause_util_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -465,8 +477,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Houston, TX",
     receiverId: "rec_cause_util_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -494,8 +508,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Phoenix, AZ",
     receiverId: "rec_cause_util_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -523,8 +539,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Memphis, TN",
     receiverId: "rec_cause_util_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -552,8 +570,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Milwaukee, WI",
     receiverId: "rec_cause_util_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -581,8 +601,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "New Orleans, LA",
     receiverId: "rec_cause_util_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -610,8 +632,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "San Antonio, TX",
     receiverId: "rec_cause_util_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -639,8 +663,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Columbus, OH",
     receiverId: "rec_cause_util_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -668,8 +694,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Indianapolis, IN",
     receiverId: "rec_cause_util_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1568234928966-3d238b1f7375?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -697,8 +725,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Charlotte, NC",
     receiverId: "rec_cause_med_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -726,8 +756,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Minneapolis, MN",
     receiverId: "rec_cause_med_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -755,8 +787,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Kansas City, MO",
     receiverId: "rec_cause_med_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -784,8 +818,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "St. Louis, MO",
     receiverId: "rec_cause_med_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -813,8 +849,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Pittsburgh, PA",
     receiverId: "rec_cause_med_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -842,8 +880,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Richmond, VA",
     receiverId: "rec_cause_med_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -871,8 +911,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Detroit, MI",
     receiverId: "rec_cause_med_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -900,8 +942,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Atlanta, GA",
     receiverId: "rec_cause_med_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -929,8 +973,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Chicago, IL",
     receiverId: "rec_cause_med_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1583912267550-d44d9c9b1399?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -958,8 +1004,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Philadelphia, PA",
     receiverId: "rec_cause_med_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1563213126-a4273aed2016?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -987,8 +1035,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Cleveland, OH",
     receiverId: "rec_cause_med_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -1016,8 +1066,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Baltimore, MD",
     receiverId: "rec_cause_med_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1586015555751-63c25b3cf556?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -1045,8 +1097,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Houston, TX",
     receiverId: "rec_cause_med_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584516150909-c43483ee7932?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -1074,8 +1128,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Phoenix, AZ",
     receiverId: "rec_cause_med_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -1103,8 +1159,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Memphis, TN",
     receiverId: "rec_cause_med_23",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -1132,8 +1190,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Milwaukee, WI",
     receiverId: "rec_cause_med_24",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -1161,8 +1221,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "New Orleans, LA",
     receiverId: "rec_cause_edu_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -1190,8 +1252,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "San Antonio, TX",
     receiverId: "rec_cause_edu_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -1219,8 +1283,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Columbus, OH",
     receiverId: "rec_cause_edu_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -1248,8 +1314,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Indianapolis, IN",
     receiverId: "rec_cause_edu_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -1277,8 +1345,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Charlotte, NC",
     receiverId: "rec_cause_edu_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -1306,8 +1376,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Minneapolis, MN",
     receiverId: "rec_cause_edu_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -1335,8 +1407,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Kansas City, MO",
     receiverId: "rec_cause_edu_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -1364,8 +1438,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "St. Louis, MO",
     receiverId: "rec_cause_edu_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1510531704581-5b2870972060?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -1393,8 +1469,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Pittsburgh, PA",
     receiverId: "rec_cause_edu_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -1422,8 +1500,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Richmond, VA",
     receiverId: "rec_cause_edu_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1519791883288-dc8bd696e667?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -1451,8 +1531,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Detroit, MI",
     receiverId: "rec_cause_edu_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -1480,8 +1562,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Atlanta, GA",
     receiverId: "rec_cause_edu_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -1509,8 +1593,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Chicago, IL",
     receiverId: "rec_cause_edu_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -1538,8 +1624,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Philadelphia, PA",
     receiverId: "rec_cause_edu_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -1567,8 +1655,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Cleveland, OH",
     receiverId: "rec_cause_edu_23",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -1596,8 +1686,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Baltimore, MD",
     receiverId: "rec_cause_edu_24",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -1625,7 +1717,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Houston, TX",
     receiverId: "rec_cause_food_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
@@ -1654,7 +1748,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Phoenix, AZ",
     receiverId: "rec_cause_food_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
@@ -1683,7 +1779,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Memphis, TN",
     receiverId: "rec_cause_food_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
@@ -1712,7 +1810,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Milwaukee, WI",
     receiverId: "rec_cause_food_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1506484381205-f7945653044d?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
@@ -1741,7 +1841,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "New Orleans, LA",
     receiverId: "rec_cause_food_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
@@ -1770,7 +1872,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "San Antonio, TX",
     receiverId: "rec_cause_food_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1505253758473-96b3d5fe926b?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
@@ -1799,7 +1903,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Columbus, OH",
     receiverId: "rec_cause_food_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516594737748-46960925290b?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
@@ -1828,7 +1934,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Indianapolis, IN",
     receiverId: "rec_cause_food_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584473457406-624048518851?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
@@ -1857,7 +1965,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Charlotte, NC",
     receiverId: "rec_cause_food_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
@@ -1886,7 +1996,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Minneapolis, MN",
     receiverId: "rec_cause_food_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
@@ -1915,7 +2027,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Kansas City, MO",
     receiverId: "rec_cause_food_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
@@ -1944,7 +2058,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "St. Louis, MO",
     receiverId: "rec_cause_food_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1579113800432-ab3997d5a9f1?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
@@ -1973,7 +2089,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Pittsburgh, PA",
     receiverId: "rec_cause_food_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
@@ -2002,7 +2120,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Richmond, VA",
     receiverId: "rec_cause_food_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1577401239170-897942555fb3?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
@@ -2031,7 +2151,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Detroit, MI",
     receiverId: "rec_cause_food_23",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
@@ -2060,7 +2182,9 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Atlanta, GA",
     receiverId: "rec_cause_food_24",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=800&q=80"],
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=800&q=80",
+    ],
     redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
@@ -2089,8 +2213,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Chicago, IL",
     receiverId: "rec_cause_clim_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -2118,8 +2244,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Philadelphia, PA",
     receiverId: "rec_cause_clim_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1514632595-4944383f2737?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -2147,8 +2275,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Cleveland, OH",
     receiverId: "rec_cause_clim_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -2176,8 +2306,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Baltimore, MD",
     receiverId: "rec_cause_clim_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -2205,8 +2337,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Houston, TX",
     receiverId: "rec_cause_clim_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1520697830682-bbb6e85e2b0b?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -2234,8 +2368,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Phoenix, AZ",
     receiverId: "rec_cause_clim_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -2263,8 +2399,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Memphis, TN",
     receiverId: "rec_cause_clim_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -2292,8 +2430,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Milwaukee, WI",
     receiverId: "rec_cause_clim_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1508873696983-2df5293cb325?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -2321,8 +2461,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "New Orleans, LA",
     receiverId: "rec_cause_clim_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -2350,8 +2492,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "San Antonio, TX",
     receiverId: "rec_cause_clim_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516912481808-3406841bd33c?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -2379,8 +2523,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Columbus, OH",
     receiverId: "rec_cause_clim_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -2408,8 +2554,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Indianapolis, IN",
     receiverId: "rec_cause_clim_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -2437,8 +2585,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Charlotte, NC",
     receiverId: "rec_cause_clim_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1516715094483-75da7dee9758?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516431883659-655d41c09bf9?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -2466,8 +2616,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Minneapolis, MN",
     receiverId: "rec_cause_clim_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -2495,8 +2647,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Kansas City, MO",
     receiverId: "rec_cause_clim_23",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -2524,8 +2678,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "St. Louis, MO",
     receiverId: "rec_cause_comm_09",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -2553,8 +2709,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Pittsburgh, PA",
     receiverId: "rec_cause_comm_10",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -2582,8 +2740,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Richmond, VA",
     receiverId: "rec_cause_comm_11",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -2611,8 +2771,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Detroit, MI",
     receiverId: "rec_cause_comm_12",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -2640,8 +2802,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Atlanta, GA",
     receiverId: "rec_cause_comm_13",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1560707303-4e980ce876ad?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -2669,8 +2833,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Chicago, IL",
     receiverId: "rec_cause_comm_14",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -2698,8 +2864,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Philadelphia, PA",
     receiverId: "rec_cause_comm_15",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",
@@ -2727,8 +2895,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Cleveland, OH",
     receiverId: "rec_cause_comm_16",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1584362917165-526a968579e8?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 95,
       tier: "high",
@@ -2756,8 +2926,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Baltimore, MD",
     receiverId: "rec_cause_comm_17",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 96,
       tier: "high",
@@ -2785,8 +2957,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Houston, TX",
     receiverId: "rec_cause_comm_18",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 97,
       tier: "high",
@@ -2814,8 +2988,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Phoenix, AZ",
     receiverId: "rec_cause_comm_19",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1520072959219-c595dc870360?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 98,
       tier: "high",
@@ -2843,8 +3019,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Memphis, TN",
     receiverId: "rec_cause_comm_20",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 91,
       tier: "high",
@@ -2872,8 +3050,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "Milwaukee, WI",
     receiverId: "rec_cause_comm_21",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1592417817098-8f3d6910985b?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 92,
       tier: "high",
@@ -2901,8 +3081,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "New Orleans, LA",
     receiverId: "rec_cause_comm_22",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 93,
       tier: "high",
@@ -2930,8 +3112,10 @@ export const SEED_CAUSES: Cause[] = [
     receiverLocation: "San Antonio, TX",
     receiverId: "rec_cause_comm_23",
     status: "active",
-    evidenceUrls: ["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80"],
-    redactedProofUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    evidenceUrls: [
+      "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80",
+    ],
+    redactedProofUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     trustScore: {
       overall: 94,
       tier: "high",

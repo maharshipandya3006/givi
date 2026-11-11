@@ -127,8 +127,8 @@ export function SwipeDeck({
     for (const cause of upcoming) {
       const url =
         cause.channel3Product?.imageUrl ||
-        cause.redactedProofUrl ||
-        cause.evidenceUrls?.[0];
+        cause.evidenceUrls?.[0] ||
+        cause.redactedProofUrl;
       if (url && typeof url === "string" && !url.includes(".pdf")) {
         const img = new Image();
         img.src = url;

@@ -30,7 +30,7 @@ export function CauseCard({ cause, onInspect, isLocalNeighbor = false }: CauseCa
     Math.round((cause.raisedAmount / cause.goalAmount) * 100)
   );
   const mediaUrl =
-    cause.channel3Product?.imageUrl || cause.redactedProofUrl || cause.evidenceUrls[0] || "";
+    cause.channel3Product?.imageUrl || cause.evidenceUrls[0] || cause.redactedProofUrl || "";
   const isPdfDoc =
     !cause.channel3Product?.imageUrl &&
     (mediaUrl.toLowerCase().includes(".pdf") || mediaUrl.startsWith("data:application/pdf"));
