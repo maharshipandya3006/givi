@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { CAUSE_CATEGORY_OPTIONS } from "@/lib/types";
 import confetti from "canvas-confetti";
 import { useUser } from "@/lib/user-context";
 import { AuthGate } from "@/components/ui/auth-gate";
@@ -136,8 +137,7 @@ export default function AgentPage() {
           Autonomous giving agent
         </h1>
         <p className="text-sm text-ink-dim leading-relaxed">
-          Delegate your monthly micro-giving budget to an autonomous agent that monitors urgent, high-trust
-          statements and executes direct PayPal Payouts automatically without human delay.
+          Delegate your monthly giving budget to our givi. AI Agent that monitors urgent, high trust statements and executes direct PayPal Payouts automatically without human delay.
         </p>
       </div>
 
@@ -200,11 +200,11 @@ export default function AgentPage() {
               </span>
             </div>
 
-            {/* Min Gemini Trust Threshold */}
+            {/* Min Trust Threshold */}
             <div className="mb-6">
               <div className="flex justify-between items-baseline text-xs mb-2">
                 <span className="text-ink-dim font-semibold">
-                  Minimum Gemini trust score
+                  Minimum Trust Score
                 </span>
                 <span className="font-bold text-emerald-400 tabular-nums text-sm">
                   {minTrust}% verified
@@ -219,9 +219,6 @@ export default function AgentPage() {
                 onChange={(e) => setMinTrust(Number(e.target.value))}
                 className="w-full accent-emerald-500 cursor-pointer h-2 bg-border rounded-lg"
               />
-              <span className="text-[11px] text-ink-muted mt-1 block">
-                Requires utility OCR format & date verification before fund release
-              </span>
             </div>
 
             {/* Category Preferences */}
@@ -230,13 +227,7 @@ export default function AgentPage() {
                 Eligible categories
               </span>
               <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "utilities", label: "Utilities" },
-                  { id: "medical", label: "Medical" },
-                  { id: "food", label: "Groceries" },
-                  { id: "education", label: "Education" },
-                  { id: "community", label: "Community" },
-                ].map((cat) => {
+                {CAUSE_CATEGORY_OPTIONS.map((cat) => {
                   const isChecked = selectedCategories.includes(cat.id);
                   return (
                     <button
@@ -302,7 +293,7 @@ export default function AgentPage() {
                 </span>
                 <p className="text-xs text-ink-muted mt-1 max-w-sm leading-relaxed">
                   Click &quot;Execute autonomous giving cycle&quot; to run. The
-                  agent will scan causes in the database, filter by your policy rules, and disburse real-time PayPal Payouts.
+                  agent will scan causes, filter by your preferences, and disburse real time PayPal Payouts.
                 </p>
               </div>
             ) : (

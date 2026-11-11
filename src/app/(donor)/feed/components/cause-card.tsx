@@ -229,13 +229,13 @@ export function CauseCard({ cause, onInspect, isLocalNeighbor = false }: CauseCa
             <ArrowLeft className="w-3.5 h-3.5 text-ink-muted" />
             <span className="font-mono text-[10px]">Left: Skip</span>
           </div>
+          <div className="flex items-center justify-center gap-1 py-1 text-amber-500 font-bold">
+            <ArrowUp className="w-3.5 h-3.5" />
+            <span className="font-mono text-[10px]">Up: Clear</span>
+          </div>
           <div className="flex items-center justify-center gap-1 py-1 text-[#166534] font-bold">
             <Heart className="w-3.5 h-3.5 fill-[#166534]" />
             <span className="font-mono text-[10px]">Right: $5</span>
-          </div>
-          <div className="flex items-center justify-center gap-1 py-1 text-amber-600 font-bold">
-            <ArrowUp className="w-3.5 h-3.5" />
-            <span className="font-mono text-[10px]">Up: Clear</span>
           </div>
         </div>
       </div>

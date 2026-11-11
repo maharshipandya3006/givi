@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { capturePayPalOrder, disbursePayPalPayout, refundPayPalCapture } from "@/lib/paypal";
-import { debitDemoWallet, getDemoWalletBalance, topUpDemoWallet, setDemoWalletBalance, isDemoUserKey } from "@/lib/demo-wallet";
+import { debitDemoWallet, getDemoWalletBalance, topUpDemoWallet, setDemoWalletBalance, isDemoUserKey, withUserLock } from "@/lib/demo-wallet";
 import { generateImpactToast } from "@/lib/gemini";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import { findCauseById, reserveCauseFunding, releaseCauseFunding } from "@/lib/causes-store";
@@ -34,6 +34,15 @@ export async function POST(request: NextRequest) {
         authUserId = clerkAuth?.userId || null;
       } catch {}
     }
+
+    // Security (Issue 2): Reject unauthenticated claims on real user accounts
+    if (donorId && donorId.startsWith("user_") && donorId !== "user_anon" && authUserId !== donorId) {
+      return NextResponse.json(
+        { error: "Authentication required to access this donor account" },
+        { status: 401 }
+      );
+    }
+
     const effectiveDonorId =
       authUserId ||
       (donorId && donorId !== "user_anon" ? donorId : "guest-session");
@@ -177,13 +186,48 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const walletResult = debitDemoWallet(
-        donationAmount,
-        effectiveDonorId,
-        isDemoUser ? clientBalance : undefined
-      );
+      // Issue 1: Debit atomically under user lock to prevent concurrent double-spending
+      const walletResult = await withUserLock(effectiveDonorId, async () => {
+        if (isSupabaseConfigured && !isDemoUser) {
+          const { data: dbProf } = await (supabaseAdmin as any)
+            .from("donor_profiles")
+            .select("wallet_balance")
+            .eq("id", effectiveDonorId)
+            .maybeSingle();
+          const currentBal = Number(dbProf?.wallet_balance || 0);
+          if (currentBal < donationAmount) {
+            return {
+              success: false,
+              newBalance: currentBal,
+              error: `Insufficient Giving Allowance. Current balance is $${currentBal.toFixed(2)}. Please top up.`,
+            };
+          }
+          const nextBal = Math.round((currentBal - donationAmount) * 100) / 100;
+          const { data: updatedRows, error: updErr } = await (supabaseAdmin as any)
+            .from("donor_profiles")
+            .update({ wallet_balance: nextBal, updated_at: new Date().toISOString() })
+            .eq("id", effectiveDonorId)
+            .gte("wallet_balance", donationAmount)
+            .select();
+          if (updErr || !updatedRows || updatedRows.length === 0) {
+            return {
+              success: false,
+              newBalance: currentBal,
+              error: "Concurrent transaction conflict on Giving Allowance. Please retry.",
+            };
+          }
+          setDemoWalletBalance(effectiveDonorId, nextBal);
+          return { success: true, newBalance: nextBal };
+        }
+        return debitDemoWallet(
+          donationAmount,
+          effectiveDonorId,
+          isDemoUser ? clientBalance : undefined
+        );
+      });
+
       if (!walletResult.success) {
-        releaseCauseFunding(reservedCauseId, reservedAmount);
+        if (reservedCauseId) releaseCauseFunding(reservedCauseId, reservedAmount);
         reservedCauseId = null;
         return NextResponse.json({ error: walletResult.error }, { status: 400 });
       }
@@ -198,8 +242,25 @@ export async function POST(request: NextRequest) {
     } else if (orderId) {
       try {
         const captureResult = await capturePayPalOrder(orderId, donationAmount);
+        // Issue 4: Enforce completed status on captured order before proceeding to payout
+        if (captureResult.status !== "COMPLETED") {
+          if (reservedCauseId) releaseCauseFunding(reservedCauseId, reservedAmount);
+          reservedCauseId = null;
+          return NextResponse.json(
+            { error: `PayPal order capture not completed (status: ${captureResult.status}). Payout cancelled.` },
+            { status: 400 }
+          );
+        }
         captureId = captureResult.captureId;
         const capturedAmount = Number(captureResult.amount || donationAmount);
+        if (capturedAmount < donationAmount) {
+          if (reservedCauseId) releaseCauseFunding(reservedCauseId, reservedAmount);
+          reservedCauseId = null;
+          return NextResponse.json(
+            { error: `Captured amount ($${capturedAmount.toFixed(2)}) is less than donation amount ($${donationAmount.toFixed(2)}).` },
+            { status: 400 }
+          );
+        }
         const excess = Math.max(0, Math.round((capturedAmount - donationAmount) * 100) / 100);
         if (excess > 0) {
           creditedExcess = excess;
@@ -232,8 +293,10 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (captureErr) {
-        releaseCauseFunding(reservedCauseId, reservedAmount);
-        reservedCauseId = null;
+        if (reservedCauseId) {
+          releaseCauseFunding(reservedCauseId, reservedAmount);
+          reservedCauseId = null;
+        }
         throw captureErr;
       }
     }
@@ -249,8 +312,10 @@ export async function POST(request: NextRequest) {
         senderItemId: donationId,
       });
     } catch (payoutErr) {
-      releaseCauseFunding(reservedCauseId, reservedAmount);
-      reservedCauseId = null;
+      if (reservedCauseId) {
+        releaseCauseFunding(reservedCauseId, reservedAmount);
+        reservedCauseId = null;
+      }
 
       // Claw back excess wallet credits if order capture exceeded donation amount
       if (creditedExcess > 0 && effectiveDonorId) {

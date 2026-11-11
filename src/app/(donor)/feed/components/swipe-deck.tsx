@@ -33,7 +33,7 @@ interface SwipeDeckProps {
   onDeductBalance: (
     amount: number,
     isFunded?: boolean,
-    stats?: { totalDonated: number; billsCleared: number; streakDays: number },
+    stats?: { totalDonated?: number; billsCleared?: number; streakDays?: number; walletBalance?: number },
     isRollback?: boolean
   ) => void;
   onResetDeck?: () => void;
@@ -212,7 +212,12 @@ export function SwipeDeck({
     }
   };
 
-  const executeDonation = async (cause: Cause, amount: number, isOptimistic = false) => {
+  const executeDonation = async (
+    cause: Cause,
+    amount: number,
+    isOptimistic = false,
+    overrideWalletBalance?: number
+  ) => {
     if (!isOptimistic) setIsProcessing(true);
     try {
       const response = await fetch("/api/paypal/capture-and-payout", {
@@ -222,7 +227,7 @@ export function SwipeDeck({
           causeId: cause.id,
           amount,
           useDemoWallet: true,
-          walletBalance,
+          walletBalance: overrideWalletBalance ?? walletBalance,
           donorId: donorId || "guest-session",
           donorName: donorName || "Kind Supporter",
         }),
@@ -270,8 +275,11 @@ export function SwipeDeck({
           } catch {}
         }
 
-        if (data.updatedDonorStats) {
-          onDeductBalance(isOptimistic ? 0 : amount, isFunded, data.updatedDonorStats);
+        if (data.updatedDonorStats || typeof data.walletBalance === "number") {
+          onDeductBalance(isOptimistic ? 0 : amount, isFunded, {
+            ...(data.updatedDonorStats || {}),
+            ...(typeof data.walletBalance === "number" ? { walletBalance: data.walletBalance } : {}),
+          });
         } else if (!isOptimistic) {
           triggerConfetti();
           onDeductBalance(amount, isFunded);
@@ -586,10 +594,11 @@ export function SwipeDeck({
         initialAmount={refillAmount}
         title="Giving Allowance Depleted"
         description="Your Giving Allowance is low. Add funds via PayPal Sandbox to continue swiping instantly."
-        onSuccess={(_amount, _newBalance) => {
+        onSuccess={(_amount, newBalance) => {
           if (pendingCause) {
             const causeToDonate = pendingCause;
             const amtToDonate = pendingDonationAmount || swipeAmount || 5.0;
+            const remainingAfterDonate = Math.max(0, Math.round((newBalance - amtToDonate) * 100) / 100);
             setPendingCause(null);
             setPendingDonationAmount(null);
             setIsRefillModalOpen(false);
@@ -597,8 +606,8 @@ export function SwipeDeck({
             setCauses((prev) => prev.filter((c) => c.id !== causeToDonate.id));
             onCauseSwiped?.(causeToDonate.id);
             triggerConfetti();
-            onDeductBalance(amtToDonate, false);
-            executeDonation(causeToDonate, amtToDonate, true);
+            onDeductBalance(amtToDonate, false, { walletBalance: remainingAfterDonate });
+            executeDonation(causeToDonate, amtToDonate, true, newBalance);
           }
         }}
       />

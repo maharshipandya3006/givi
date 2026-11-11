@@ -214,22 +214,21 @@ export async function PATCH(req: NextRequest) {
         if (clerkAuth && clerkAuth.userId) {
           userId = clerkAuth.userId;
         } else if (
-          !body.isDemo &&
           body.id !== "guest-session" &&
           body.userId !== "guest-session" &&
-          (!body.userId || (!body.userId.startsWith("guest-") && !body.userId.startsWith("demo-") && !body.userId.startsWith("judge-")))
+          (!body.userId || !body.userId.startsWith("guest-"))
         ) {
+          // Issue 7: Block unauthenticated requests attempting to overwrite judge or real accounts
           return NextResponse.json(
-            { error: "Unauthorized: authentication required to update profile" },
+            { error: "Unauthorized: authentication required to update this profile" },
             { status: 401 }
           );
         }
       } catch (err) {
         if (
-          !body.isDemo &&
           body.id !== "guest-session" &&
           body.userId !== "guest-session" &&
-          (!body.userId || (!body.userId.startsWith("guest-") && !body.userId.startsWith("demo-") && !body.userId.startsWith("judge-")))
+          (!body.userId || !body.userId.startsWith("guest-"))
         ) {
           return NextResponse.json(
             { error: "Unauthorized: session verification failed" },
@@ -243,9 +242,22 @@ export async function PATCH(req: NextRequest) {
       userId = body.userId || body.id || "guest-session";
     }
 
-    if (userId.includes("gividonor") || userId.startsWith("judge-donor")) {
+    // Issue 7: Exact and prefix matching to prevent accidental substring capture on real emails
+    if (
+      userId === "judge-donor-session" ||
+      userId.startsWith("judge-donor") ||
+      userId === "gividonor@personal.example.com" ||
+      userId === "gividonor" ||
+      userId.startsWith("gividonor-")
+    ) {
       userId = "judge-donor-session";
-    } else if (userId.includes("givibeneficiary") || userId.startsWith("judge-beneficiary")) {
+    } else if (
+      userId === "judge-beneficiary-session" ||
+      userId.startsWith("judge-beneficiary") ||
+      userId === "givibeneficiary@business.example.com" ||
+      userId === "givibeneficiary" ||
+      userId.startsWith("givibeneficiary-")
+    ) {
       userId = "judge-beneficiary-session";
     }
 

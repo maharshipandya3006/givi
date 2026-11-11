@@ -4,7 +4,7 @@ import { getActiveCauses, reserveCauseFunding, releaseCauseFunding } from "@/lib
 import { disbursePayPalPayout } from "@/lib/paypal";
 import { generateImpactToast } from "@/lib/gemini";
 import { recordRuntimeDonation } from "@/lib/ledger";
-import { debitDemoWallet, getDemoWalletBalance, topUpDemoWallet, setDemoWalletBalance, isDemoUserKey } from "@/lib/demo-wallet";
+import { debitDemoWallet, getDemoWalletBalance, topUpDemoWallet, setDemoWalletBalance, isDemoUserKey, withUserLock } from "@/lib/demo-wallet";
 import { Donation, Cause, createDefaultDonorProfile } from "@/lib/types";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -55,6 +55,13 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch {}
+    }
+    // Security (Issue 2): Reject unauthenticated claims on real user accounts
+    if (donorId && donorId.startsWith("user_") && donorId !== "user_anon" && donorId !== "user_donor_demo" && authUserId !== donorId) {
+      return NextResponse.json(
+        { error: "Authentication required to run giving agent for this donor account" },
+        { status: 401 }
+      );
     }
     const effectiveDonorId = authUserId || donorId || "user_donor_demo";
 
@@ -187,7 +194,9 @@ export async function POST(request: NextRequest) {
       );
     });
 
-    for (const cause of eligibleCauses) {
+    const causesToProcess = eligibleCauses.slice(0, 10);
+
+    for (const cause of causesToProcess) {
       if (remainingBudget <= 0) break;
 
       const remainingAsk = cause.goalAmount - cause.raisedAmount;
@@ -204,8 +213,33 @@ export async function POST(request: NextRequest) {
         cause.status = reservation.cause.status;
       }
 
-      // Debit donor wallet allowance
-      const walletDebit = debitDemoWallet(donationAmt, effectiveDonorId);
+      // Debit donor wallet allowance under user lock (Issue 1)
+      const walletDebit = await withUserLock(effectiveDonorId, async () => {
+        if (isSupabaseConfigured && !isDemoUserKey(effectiveDonorId)) {
+          const { data: dbProf } = await (supabaseAdmin as any)
+            .from("donor_profiles")
+            .select("wallet_balance")
+            .eq("id", effectiveDonorId)
+            .maybeSingle();
+          const currentBal = Number(dbProf?.wallet_balance || 0);
+          if (currentBal < donationAmt) {
+            return { success: false, newBalance: currentBal, error: "Insufficient balance" };
+          }
+          const nextBal = Math.round((currentBal - donationAmt) * 100) / 100;
+          const { data: updatedRows } = await (supabaseAdmin as any)
+            .from("donor_profiles")
+            .update({ wallet_balance: nextBal, updated_at: new Date().toISOString() })
+            .eq("id", effectiveDonorId)
+            .gte("wallet_balance", donationAmt)
+            .select();
+          if (!updatedRows || updatedRows.length === 0) {
+            return { success: false, newBalance: currentBal, error: "Concurrent debit conflict" };
+          }
+          setDemoWalletBalance(effectiveDonorId, nextBal);
+          return { success: true, newBalance: nextBal };
+        }
+        return debitDemoWallet(donationAmt, effectiveDonorId);
+      });
       if (!walletDebit.success) {
         releaseCauseFunding(cause.id, donationAmt);
         continue;
@@ -242,32 +276,34 @@ export async function POST(request: NextRequest) {
         recordRuntimeDonation(donationRecord);
         remainingBudget = Math.round((remainingBudget - donationAmt) * 100) / 100;
 
-        // Persist autonomous donation to Supabase if connected
+        // Persist autonomous donation to Supabase concurrently (Issue 14 & Issue 5)
         if (isSupabaseConfigured) {
           try {
-            await supabaseAdmin.from("donations").insert([
-              {
-                id: donationRecord.id,
-                cause_id: donationRecord.causeId,
-                donor_id: donationRecord.donorId,
-                donor_name: donationRecord.donorName,
-                amount: donationRecord.amount,
-                paypal_order_id: donationRecord.paypalOrderId,
-                paypal_payout_batch_id: donationRecord.paypalPayoutBatchId,
-                paypal_payout_item_id: donationRecord.paypalPayoutItemId,
-                is_agentic: true,
-                impact_message: donationRecord.impactMessage,
-              },
+            await Promise.all([
+              supabaseAdmin.from("donations").insert([
+                {
+                  id: donationRecord.id,
+                  cause_id: donationRecord.causeId,
+                  donor_id: donationRecord.donorId,
+                  donor_name: donationRecord.donorName,
+                  amount: donationRecord.amount,
+                  paypal_order_id: donationRecord.paypalOrderId,
+                  paypal_payout_batch_id: donationRecord.paypalPayoutBatchId,
+                  paypal_payout_item_id: donationRecord.paypalPayoutItemId,
+                  is_agentic: true,
+                  impact_message: donationRecord.impactMessage,
+                },
+              ]),
+              supabaseAdmin
+                .from("causes")
+                .update({
+                  raised_amount: cause.raisedAmount,
+                  status: cause.status,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", cause.id)
+                .lte("raised_amount", Math.max(0, cause.goalAmount - donationAmt)),
             ]);
-
-            await supabaseAdmin
-              .from("causes")
-              .update({
-                raised_amount: cause.raisedAmount,
-                status: cause.status,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", cause.id);
 
             if (effectiveDonorId && effectiveDonorId !== "user_anon") {
               const { data: donorProf } = await (supabaseAdmin as any)

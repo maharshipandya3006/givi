@@ -16,7 +16,8 @@ export function isDemoUserKey(userId: string): boolean {
     userId.startsWith("guest-") ||
     userId.startsWith("demo-") ||
     userId.startsWith("judge-") ||
-    userId.includes("gividonor")
+    userId.startsWith("gividonor") ||
+    userId === "gividonor@personal.example.com"
   );
 }
 
@@ -25,7 +26,8 @@ export function canonicalWalletUserId(userId: string): string {
     userId === "judge-donor-session" ||
     userId.startsWith("judge-donor") ||
     userId === "gividonor@personal.example.com" ||
-    userId.includes("gividonor")
+    userId === "gividonor" ||
+    userId.startsWith("gividonor-")
   ) {
     return "judge-donor-session";
   }
@@ -117,4 +119,31 @@ export function topUpDemoWallet(
 export function resetDemoWallet(userId: string = "default"): number {
   setWallet(userId, 50.0);
   return 50.0;
+}
+
+// Per-user async mutex to prevent concurrent double-spending (Issue 1)
+const userLocks: Map<string, Promise<void>> =
+  (globalThis as any).__GIVI_USER_LOCKS__ || new Map<string, Promise<void>>();
+(globalThis as any).__GIVI_USER_LOCKS__ = userLocks;
+
+export async function withUserLock<T>(userId: string, fn: () => Promise<T>): Promise<T> {
+  const targetId = canonicalWalletUserId(userId);
+  while (userLocks.has(targetId)) {
+    try {
+      await userLocks.get(targetId);
+    } catch {}
+  }
+  let resolveLock!: () => void;
+  const lockPromise = new Promise<void>((resolve) => {
+    resolveLock = resolve;
+  });
+  userLocks.set(targetId, lockPromise);
+  try {
+    return await fn();
+  } finally {
+    if (userLocks.get(targetId) === lockPromise) {
+      userLocks.delete(targetId);
+    }
+    resolveLock();
+  }
 }

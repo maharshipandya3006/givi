@@ -10,6 +10,15 @@ export type CauseCategory =
   | "climate"
   | "community";
 
+export const CAUSE_CATEGORY_OPTIONS: { id: CauseCategory; label: string }[] = [
+  { id: "utilities", label: "Heat & Utilities" },
+  { id: "medical", label: "Prescriptions" },
+  { id: "education", label: "School & Youth" },
+  { id: "food", label: "Groceries" },
+  { id: "climate", label: "Emergency Supplies" },
+  { id: "community", label: "Family Care" },
+];
+
 export type NeedType = "bill" | "aid_supply" | "community";
 
 export type CauseStatus = "active" | "funded" | "cancelled";

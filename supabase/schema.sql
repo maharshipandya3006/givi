@@ -98,3 +98,48 @@ CREATE POLICY "Users can insert causes" ON public.causes FOR INSERT WITH CHECK (
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (true);
 CREATE POLICY "System can record donations" ON public.donations FOR INSERT WITH CHECK (true);
 
+-- Atomic wallet debit function to prevent double-spending under concurrent requests (Issue 1)
+CREATE OR REPLACE FUNCTION debit_wallet(p_user_id TEXT, p_amount NUMERIC)
+RETURNS NUMERIC AS $$
+DECLARE
+  v_new_balance NUMERIC;
+BEGIN
+  UPDATE donor_profiles
+  SET wallet_balance = wallet_balance - p_amount,
+      updated_at = NOW()
+  WHERE id = p_user_id AND wallet_balance >= p_amount
+  RETURNING wallet_balance INTO v_new_balance;
+  RETURN v_new_balance;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Atomic cause funding increment to prevent over-funding races (Issue 5)
+CREATE OR REPLACE FUNCTION increment_cause_raised(p_cause_id TEXT, p_amount NUMERIC)
+RETURNS JSONB AS $$
+DECLARE
+  v_cause RECORD;
+  v_new_raised NUMERIC;
+  v_status TEXT;
+BEGIN
+  SELECT raised_amount, goal_amount INTO v_cause FROM causes WHERE id = p_cause_id FOR UPDATE;
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Cause not found');
+  END IF;
+
+  IF v_cause.raised_amount + p_amount > v_cause.goal_amount THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Overfunding: amount exceeds remaining goal');
+  END IF;
+
+  v_new_raised := v_cause.raised_amount + p_amount;
+  v_status := CASE WHEN v_new_raised >= v_cause.goal_amount THEN 'funded' ELSE 'active' END;
+
+  UPDATE causes
+  SET raised_amount = v_new_raised,
+      status = v_status,
+      updated_at = NOW()
+  WHERE id = p_cause_id;
+
+  RETURN jsonb_build_object('success', true, 'raised_amount', v_new_raised, 'status', v_status);
+END;
+$$ LANGUAGE plpgsql;
+

@@ -345,6 +345,11 @@ export async function verifyPayPalWebhookSignature(
 
   const token = await getPayPalAccessToken();
   if (token === "mock_sandbox_access_token") {
+    // Issue 6: Reject unverified webhook signatures in production if live credentials are not configured
+    if (process.env.NODE_ENV === "production") {
+      console.error("PayPal webhook verification rejected: live credentials not configured in production");
+      return false;
+    }
     // In local sandbox without live credentials, verify signature headers are well-formed
     return Boolean(params.transmissionId && params.transmissionSig && params.certUrl);
   }

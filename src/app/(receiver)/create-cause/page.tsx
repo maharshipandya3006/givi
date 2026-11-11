@@ -3,19 +3,23 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProofUploader } from "./components/proof-uploader";
-import { Channel3Search } from "./components/channel3-search";
+import { NeedCategoryTags } from "./components/need-category-tags";
 import {
   FileText,
-  ShoppingCart,
-  Users,
   ArrowRight,
-  Zap,
   Loader2,
-  Lock,
+  Mail,
+  DollarSign,
+  User,
+  MapPin,
+  MessageSquare,
 } from "lucide-react";
-import { CauseCategory, Channel3Product, NeedType, TrustScore } from "@/lib/types";
+import { CauseCategory, NeedType, TrustScore } from "@/lib/types";
 import { AuthGate } from "@/components/ui/auth-gate";
 import { useUser } from "@/lib/user-context";
+import { useCauseSubmission } from "@/lib/use-cause-submission";
+
+const CREATE_CAUSE_DRAFT_KEY = "givi_create_cause_draft";
 
 export default function CreateCausePage() {
   const router = useRouter();
@@ -28,118 +32,44 @@ export default function CreateCausePage() {
     }
   }, [userEmail, demoPersona, router]);
 
-  // Wizard state
-  const [needType, setNeedType] = useState<NeedType>("bill");
-  const [category, setCategory] = useState<CauseCategory>("utilities");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [goalAmount, setGoalAmount] = useState<string>("");
-  const [receiverName, setReceiverName] = useState(donorPrefs.displayName || "");
-  const [receiverLocation, setReceiverLocation] = useState(donorPrefs.location || "");
-  const [receiverEmail, setReceiverEmail] = useState(userEmail && userEmail !== "guest@givi.app" ? userEmail : "");
-
-  // Attachments
-  const [selectedProduct, setSelectedProduct] = useState<Channel3Product | null>(null);
-  const [uploadedProofUrl, setUploadedProofUrl] = useState<string | null>(null);
-  const [trustScore, setTrustScore] = useState<TrustScore | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleProductSelect = (product: Channel3Product) => {
-    setSelectedProduct(product);
-    setTitle(product.title);
-    setGoalAmount(product.price.toString());
-  };
-
-  const handleProofAnalysis = (result: {
-    trustScore: TrustScore;
-    extractedAmount?: number;
-    extractedVendor?: string;
-    imageBase64: string;
-  }) => {
-    setTrustScore(result.trustScore);
-    setUploadedProofUrl(result.imageBase64);
-    if (result.extractedAmount && !goalAmount) {
-      setGoalAmount(result.extractedAmount.toString());
-    }
-    if (result.extractedVendor && !title) {
-      setTitle(`${result.extractedVendor} Overdue Balance`);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !goalAmount || !receiverEmail) {
-      alert("Please fill in the title, amount, and PayPal payout email.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        title,
-        description,
-        category,
-        needType,
-        goalAmount: parseFloat(goalAmount),
-        receiverEmail: receiverEmail || userEmail,
-        receiverName: receiverName || "Community Neighbor",
-        receiverLocation: receiverLocation || "Detroit, MI",
-        receiverId: userId || "user_guest",
-        evidenceUrls: uploadedProofUrl
-          ? [uploadedProofUrl]
-          : [
-              "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
-            ],
-        redactedProofUrl:
-          uploadedProofUrl ||
-          "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
-        trustScore: trustScore || {
-          overall: 92,
-          tier: "high",
-          factors: [
-            {
-              name: "Submission Verified",
-              score: 92,
-              status: "verified",
-              details: "Direct verified enrollment",
-            },
-          ],
-          verifiedAt: new Date().toISOString(),
-        },
-        channel3Product: selectedProduct,
-      };
-
-      const res = await fetch("/api/causes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.id && typeof window !== "undefined") {
-          try {
-            const raw = localStorage.getItem("givi_my_submitted_cause_ids");
-            const existing = raw ? JSON.parse(raw) : [];
-            if (!existing.includes(data.id)) {
-              localStorage.setItem("givi_my_submitted_cause_ids", JSON.stringify([...existing, data.id]));
-            }
-          } catch {}
-        }
-        if (receiverEmail && receiverEmail.includes("@")) {
-          await updateDonorPrefs({ paypalEmail: receiverEmail });
-        }
-        router.push("/my-causes");
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to create cause");
+  // Issue 10: Shared cause submission hook
+  const {
+    category,
+    setCategory,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    goalAmount,
+    setGoalAmount,
+    receiverName,
+    setReceiverName,
+    receiverLocation,
+    setReceiverLocation,
+    receiverEmail,
+    setReceiverEmail,
+    uploadedProofUrl,
+    trustScore,
+    handleProofAnalysis,
+    submitCause,
+    isSubmitting,
+    autoSaved,
+  } = useCauseSubmission({
+    draftStorageKey: CREATE_CAUSE_DRAFT_KEY,
+    defaultEmail: userEmail && userEmail !== "guest@givi.app" ? userEmail : "",
+    defaultName: donorPrefs.displayName || "",
+    defaultLocation: donorPrefs.location || "",
+    userId,
+    onSuccess: async () => {
+      if (receiverEmail && receiverEmail.includes("@")) {
+        await updateDonorPrefs({ paypalEmail: receiverEmail });
       }
-    } catch (err) {
-      console.error("Create cause failed:", err);
-      alert("Failed to submit cause. Check your connection.");
-    } finally {
-      setIsSubmitting(false);
-    }
+      router.push("/my-causes");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    submitCause(e);
   };
 
   return (
@@ -154,7 +84,7 @@ export default function CreateCausePage() {
           Enroll a Need for Community Relief
         </h1>
         <p className="text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
-          Post an overdue utility statement, pharmacy copay, or essential retail supply. 100% of micro-donations route directly to your PayPal account.
+          Post an overdue utility statement or pharmacy copay. 100% of micro-donations route directly to your PayPal account.
         </p>
       </div>
 
@@ -164,83 +94,33 @@ export default function CreateCausePage() {
           <label className="text-xs font-bold uppercase tracking-wider text-ink-muted block mb-3 font-mono">
             Step 1 · Select Need Category
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              type="button"
-              onClick={() => setNeedType("bill")}
-              className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                needType === "bill"
-                  ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                  : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-              }`}
-            >
+          <div className="flex justify-center">
+            <div className="w-full max-w-xs p-4 rounded-2xl border-2 border-[#166534] bg-[#166534]/10 text-ink shadow-sm text-left flex flex-col justify-between">
               <FileText className="w-5 h-5 text-[#166534] mb-2" />
-              <span className="text-xs font-bold text-ink">Overdue Bill</span>
+              <span className="text-xs font-bold text-ink">Submit Bill</span>
               <span className="text-[11px] text-ink-muted mt-1">
                 Gas, electric, water, copays
               </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setNeedType("aid_supply")}
-              className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                needType === "aid_supply"
-                  ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                  : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5 text-[#166534] mb-2" />
-              <span className="text-xs font-bold text-ink">
-                Channel3 Item
-              </span>
-              <span className="text-[11px] text-ink-muted mt-1">
-                Heater, formula, winter boots
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setNeedType("community")}
-              className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                needType === "community"
-                  ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                  : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-              }`}
-            >
-              <Users className="w-5 h-5 text-[#166534] mb-2" />
-              <span className="text-xs font-bold text-ink">
-                Community Need
-              </span>
-              <span className="text-[11px] text-ink-muted mt-1">
-                Food pantry, local relief
-              </span>
-            </button>
+            </div>
           </div>
         </div>
 
-        {/* Step 2: Verification Engine (Bill Upload vs Channel3 Search) */}
+        {/* Step 2: Bill Upload & Category Tags */}
         <div className="p-6 rounded-3xl bg-surface border border-border shadow-card">
           <label className="text-xs font-bold uppercase tracking-wider text-ink-muted block mb-3 font-mono">
-            Step 2 · Document Verification or Retail Item
+            Step 2 · Submit Bill
           </label>
 
-          {needType === "bill" ? (
-            <ProofUploader
-              category={category}
-              statedAmount={parseFloat(goalAmount || "100")}
-              onAnalysisComplete={handleProofAnalysis}
-            />
-          ) : needType === "aid_supply" ? (
-            <Channel3Search
-              onSelectProduct={handleProductSelect}
-              selectedProductId={selectedProduct?.id}
-            />
-          ) : (
-            <div className="p-4 rounded-2xl bg-surface-elevated border border-border text-xs text-ink-muted">
-              Community mutual aid campaigns allow donors to chip in $5 toward collective neighborhood milestones.
-            </div>
-          )}
+          <ProofUploader
+            category={category}
+            statedAmount={parseFloat(goalAmount || "100")}
+            onAnalysisComplete={handleProofAnalysis}
+          />
+          <NeedCategoryTags
+            category={category}
+            onCategoryChange={setCategory}
+            autoSaved={autoSaved}
+          />
         </div>
 
         {/* Step 3: Details & PayPal Payout Destination */}
@@ -249,86 +129,60 @@ export default function CreateCausePage() {
             Step 3 · Beneficiary & PayPal Payout Destination
           </label>
 
-          <div>
-            <label className="text-xs font-bold text-ink block mb-1.5">
-              Cause Title
-            </label>
+          <div className="relative">
+            <FileText className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. DTE Energy Winter Heat Shutoff Notice"
-              className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
+              placeholder="Statement Title"
+              aria-label="Statement Title"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-bold text-ink block mb-1.5">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as CauseCategory)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink focus:outline-none focus:border-[#166534] transition-colors"
-              >
-                <option value="utilities">Utilities & Energy</option>
-                <option value="medical">Medical & Pharmacy</option>
-                <option value="food">Groceries & Nutrition</option>
-                <option value="education">Education</option>
-                <option value="community">Community Aid</option>
-                <option value="climate">Emergency Supplies</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-ink block mb-1.5">
-                Total Goal Amount ($)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                value={goalAmount}
-                onChange={(e) => setGoalAmount(e.target.value)}
-                placeholder="142.50"
-                className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-bold text-ink block mb-1.5">
-                Beneficiary Name (Public)
-              </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={receiverName}
                 onChange={(e) => setReceiverName(e.target.value)}
-                placeholder="e.g. Sarah M."
-                className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] transition-colors"
+                placeholder="Your Name"
+                aria-label="Your Name"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] transition-colors"
               />
             </div>
-            <div>
-              <label className="text-xs font-bold text-ink block mb-1.5">
-                Location (City, State)
-              </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={receiverLocation}
                 onChange={(e) => setReceiverLocation(e.target.value)}
-                placeholder="e.g. Detroit, MI"
-                className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] transition-colors"
+                placeholder="City, State"
+                aria-label="City, State"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] transition-colors"
               />
             </div>
+          </div>
+
+          <div className="relative">
+            <MessageSquare className="w-4 h-4 text-ink-muted absolute left-3.5 top-3 pointer-events-none" />
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief Context (1–2 sentences)"
+              aria-label="Brief Context (1–2 sentences)"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors leading-relaxed"
+            />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-ink block">
-                Recipient PayPal Email (Direct Payout Rail)
+                Your PayPal Email Address
               </label>
               <button
                 type="button"
@@ -338,40 +192,35 @@ export default function CreateCausePage() {
                 Use Judge Sandbox Receiver
               </button>
             </div>
-            <input
-              type="email"
-              required
-              value={receiverEmail}
-              onChange={(e) => setReceiverEmail(e.target.value)}
-              placeholder="e.g. yourname@example.com"
-              className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
-            />
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[10px] text-ink-muted">Sandbox preset:</span>
-              <button
-                type="button"
-                onClick={() => setReceiverEmail("givibeneficiary@business.example.com")}
-                className="px-2 py-0.5 rounded-lg bg-[#166534]/10 border border-[#166534]/20 text-[10px] font-mono text-[#166534] hover:bg-[#166534]/20 transition-colors"
-              >
-                givibeneficiary@business.example.com
-              </button>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="email"
+                required
+                value={receiverEmail}
+                onChange={(e) => setReceiverEmail(e.target.value)}
+                aria-label="Your PayPal Email Address"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
+              />
             </div>
-            <span className="text-[11px] text-ink-muted mt-1 block">
-              100% of all micro-donations are transferred directly here via PayPal Payouts API. Zero fees.
-            </span>
           </div>
 
           <div>
             <label className="text-xs font-bold text-ink block mb-1.5">
-              Brief Human Story
+              Requested Relief Goal Amount ($)
             </label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Explain the urgent circumstances so donors understand why keeping this bill current matters..."
-              className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors leading-relaxed"
-            />
+            <div className="relative">
+              <DollarSign className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="number"
+                step="0.01"
+                required
+                value={goalAmount}
+                onChange={(e) => setGoalAmount(e.target.value)}
+                aria-label="Requested Relief Goal Amount"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534] transition-colors"
+              />
+            </div>
           </div>
         </div>
 

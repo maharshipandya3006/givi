@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Cause } from "@/lib/types";
-import { getActiveCauses } from "@/lib/causes-store";
+import { getActiveCauses, filterBeneficiaryCauses } from "@/lib/causes-store";
 import { formatCurrency } from "@/lib/utils";
 import { useUser } from "@/lib/user-context";
 import { AuthGate } from "@/components/ui/auth-gate";
@@ -62,42 +62,18 @@ export default function MyCausesPage() {
       })()
     : [];
 
-  // Filter between causes submitted by this account vs all community causes
-  const userCauses = causes.filter((c) => {
-    if (submittedLocalIds.includes(c.id)) return true;
-    if (userId && userId !== "guest-session" && c.receiverId === userId) return true;
+  // Filter between causes submitted by this account vs all community causes (Issue 9)
+  const isJudge =
+    userId === "judge-beneficiary-session" ||
+    userEmail.toLowerCase() === "givibeneficiary@business.example.com" ||
+    donorPrefs?.paypalEmail?.toLowerCase() === "givibeneficiary@business.example.com";
 
-    // Distinct showcase state for Judge Beneficiary: pre-seed verified requests ready for demo inspection
-    const isJudgeBeneficiary =
-      userId === "judge-beneficiary-session" ||
-      userEmail.toLowerCase() === "givibeneficiary@business.example.com" ||
-      donorPrefs?.paypalEmail?.toLowerCase() === "givibeneficiary@business.example.com";
-
-    if (isJudgeBeneficiary && (c.id === "cause-dte-heat-01" || c.id === "cause-channel3-formula-04")) {
-      return true;
-    }
-
-    if (
-      userEmail &&
-      userEmail !== "guest@givi.app" &&
-      userEmail.toLowerCase() !== "givibeneficiary@business.example.com" &&
-      c.receiverEmail?.toLowerCase() === userEmail.toLowerCase()
-    ) {
-      return true;
-    }
-
-    if (
-      donorPrefs?.paypalEmail &&
-      donorPrefs.paypalEmail.toLowerCase() !== "givibeneficiary@business.example.com" &&
-      c.receiverEmail?.toLowerCase() === donorPrefs.paypalEmail.toLowerCase()
-    ) {
-      return true;
-    }
-
-    if ((userId === "guest-session" || !userId) && (c.receiverId === "guest-session" || c.receiverId === "user_guest")) return true;
-    // Fallback: match any newly enrolled timestamp-based cause in the local session
-    if (c.receiverId === "user_guest" && /^cause-\d{10,}/.test(c.id)) return true;
-    return false;
+  const userCauses = filterBeneficiaryCauses(causes, {
+    userId,
+    userEmail,
+    paypalEmail: donorPrefs?.paypalEmail,
+    isJudge,
+    submittedLocalIds,
   });
   const displayedCauses = viewScope === "user" ? userCauses : causes;
 

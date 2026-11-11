@@ -266,9 +266,9 @@ const MarqueeItem = () => (
   <div className="flex items-center space-x-10 px-6 font-medium">
     <span>100% Direct PayPal Payouts</span> <span className="text-[#166534]">✦</span>
     <span>0% Platform Take Fee</span> <span className="text-[#166534]">✦</span>
-    <span>Gemini Vision OCR Verification</span> <span className="text-[#166534]">✦</span>
-    <span>$5 Micro-Relief Auto-Capping</span> <span className="text-[#166534]">✦</span>
-    <span>Real-Time AG Grid Public Ledger</span> <span className="text-[#166534]">✦</span>
+    <span>Gemini Vision Verification</span> <span className="text-[#166534]">✦</span>
+    <span>Aid in Every Swipe</span> <span className="text-[#166534]">✦</span>
+    <span>Real Time AG Grid Public Ledger</span> <span className="text-[#166534]">✦</span>
     <span>Autonomous AI Giving Agent</span> <span className="text-[#166534]">✦</span>
   </div>
 );

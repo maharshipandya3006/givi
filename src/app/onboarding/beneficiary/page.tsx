@@ -4,23 +4,24 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FileText,
-  ShoppingCart,
-  Users,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
   Zap,
   Loader2,
-  Lock,
-  CheckCircle2,
+  Mail,
+  DollarSign,
+  User,
   MapPin,
+  MessageSquare,
 } from "lucide-react";
 import { ProofUploader } from "@/app/(receiver)/create-cause/components/proof-uploader";
-import { Channel3Search } from "@/app/(receiver)/create-cause/components/channel3-search";
-import { CauseCategory, Channel3Product, NeedType, TrustScore } from "@/lib/types";
+import { NeedCategoryTags } from "@/app/(receiver)/create-cause/components/need-category-tags";
+import { CauseCategory, NeedType, TrustScore } from "@/lib/types";
 import { useUser } from "@/lib/user-context";
-import { formatCurrency } from "@/lib/utils";
+import { useCauseSubmission } from "@/lib/use-cause-submission";
 import confetti from "canvas-confetti";
+
+const DRAFT_STORAGE_KEY = "givi_beneficiary_draft";
 
 export default function BeneficiaryOnboardingPage() {
   const router = useRouter();
@@ -34,122 +35,51 @@ export default function BeneficiaryOnboardingPage() {
   }, [userEmail, demoPersona, router]);
 
   const [step, setStep] = useState<number>(1);
-  const [needType, setNeedType] = useState<NeedType>("bill");
-  const [category, setCategory] = useState<CauseCategory>("utilities");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [goalAmount, setGoalAmount] = useState<string>("");
-  const [receiverName, setReceiverName] = useState("");
-  const [receiverLocation, setReceiverLocation] = useState("");
-  const [receiverEmail, setReceiverEmail] = useState("");
 
-  const [selectedProduct, setSelectedProduct] = useState<Channel3Product | null>(null);
-  const [uploadedProofUrl, setUploadedProofUrl] = useState<string | null>(null);
-  const [trustScore, setTrustScore] = useState<TrustScore | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleProductSelect = (product: Channel3Product) => {
-    setSelectedProduct(product);
-    setTitle(product.title);
-    setGoalAmount(product.price.toString());
-  };
-
-  const handleProofAnalysis = (result: {
-    trustScore: TrustScore;
-    extractedAmount?: number;
-    extractedVendor?: string;
-    imageBase64: string;
-  }) => {
-    setTrustScore(result.trustScore);
-    setUploadedProofUrl(result.imageBase64);
-    if (result.extractedAmount && !goalAmount) {
-      setGoalAmount(result.extractedAmount.toString());
-    }
-    if (result.extractedVendor && !title) {
-      setTitle(`${result.extractedVendor} Overdue Balance`);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !goalAmount || !receiverEmail) {
-      alert("Please fill in the title, amount, and PayPal payout email.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        title,
-        description:
-          description ||
-          "Urgent emergency statement posted for verified community relief.",
-        category,
-        needType,
-        goalAmount: parseFloat(goalAmount),
-        receiverEmail: receiverEmail || userEmail,
-        receiverName: receiverName || "Community Member",
-        receiverLocation: receiverLocation || "United States",
-        receiverId: userId || "user_guest",
-        evidenceUrls: uploadedProofUrl
-          ? [uploadedProofUrl]
-          : [
-              "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-            ],
-        redactedProofUrl: uploadedProofUrl,
-        trustScore: trustScore || {
-          overall: 94,
-          tier: "high",
-          factors: [
-            {
-              name: "Submission Verified",
-              score: 94,
-              status: "verified",
-              details: "Direct verified beneficiary enrollment",
-            },
-          ],
-          verifiedAt: new Date().toISOString(),
-        },
-        channel3Product: selectedProduct,
-      };
-
-      const res = await fetch("/api/causes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.id && typeof window !== "undefined") {
-          try {
-            const raw = localStorage.getItem("givi_my_submitted_cause_ids");
-            const existing = raw ? JSON.parse(raw) : [];
-            if (!existing.includes(data.id)) {
-              localStorage.setItem("givi_my_submitted_cause_ids", JSON.stringify([...existing, data.id]));
-            }
-          } catch {}
-        }
+  // Issue 10: Shared cause submission hook
+  const {
+    category,
+    setCategory,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    goalAmount,
+    setGoalAmount,
+    receiverName,
+    setReceiverName,
+    receiverLocation,
+    setReceiverLocation,
+    receiverEmail,
+    setReceiverEmail,
+    uploadedProofUrl,
+    trustScore,
+    handleProofAnalysis,
+    submitCause,
+    isSubmitting,
+    autoSaved,
+  } = useCauseSubmission({
+    draftStorageKey: DRAFT_STORAGE_KEY,
+    defaultEmail: userEmail && userEmail !== "guest@givi.app" ? userEmail : "",
+    userId,
+    onSuccess: async () => {
+      if (receiverEmail && receiverEmail.includes("@")) {
         await updateDonorPrefs({ paypalEmail: receiverEmail });
-        setRole("beneficiary");
-        setBeneficiaryOnboarded(true);
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ["#10b981", "#34d399", "#ecfdf5", "#f59e0b"],
-        });
-        router.push("/my-causes");
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to submit cause.");
       }
-    } catch (err) {
-      console.error("Beneficiary submission failed:", err);
-      alert("Failed to submit cause. Check your connection.");
-    } finally {
-      setIsSubmitting(false);
-    }
+      setRole("beneficiary");
+      setBeneficiaryOnboarded(true);
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#10b981", "#34d399", "#ecfdf5", "#f59e0b"],
+      });
+      router.push("/my-causes");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    submitCause(e);
   };
 
   return (
@@ -164,7 +94,7 @@ export default function BeneficiaryOnboardingPage() {
             {step === 1
               ? "Need Category"
               : step === 2
-              ? "Document / Supply"
+              ? "Upload Bill"
               : step === 3
               ? "Context & Location"
               : "PayPal Rail"}
@@ -189,63 +119,16 @@ export default function BeneficiaryOnboardingPage() {
               Select the category of your urgent need. Givi connects you directly with community micro-donors with 0% platform fees.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            <div className="flex justify-center mb-8">
               <button
                 type="button"
-                onClick={() => {
-                  setNeedType("bill");
-                  setCategory("utilities");
-                }}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                  needType === "bill"
-                    ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                    : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-                }`}
+                onClick={() => setStep(2)}
+                className="w-full max-w-xs p-5 rounded-2xl border-2 border-[#166534] bg-[#166534]/10 text-ink shadow-sm text-left transition-all flex flex-col justify-between"
               >
                 <FileText className="w-5 h-5 text-[#166534] mb-2" />
-                <span className="text-xs font-bold text-ink">Overdue Bill</span>
+                <span className="text-sm font-bold text-ink">Submit Bill</span>
                 <span className="text-[11px] text-ink-muted mt-1 leading-tight">
                   Gas, electric, water, copays
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setNeedType("aid_supply");
-                  setCategory("climate");
-                }}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                  needType === "aid_supply"
-                    ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                    : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-                }`}
-              >
-                <ShoppingCart className="w-5 h-5 text-[#166534] mb-2" />
-                <span className="text-xs font-bold text-ink">
-                  Retail Supply
-                </span>
-                <span className="text-[11px] text-ink-muted mt-1 leading-tight">
-                  Heaters, baby formula, boots
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setNeedType("community");
-                  setCategory("food");
-                }}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                  needType === "community"
-                    ? "bg-[#166534]/10 border-2 border-[#166534] text-ink shadow-sm"
-                    : "bg-surface-elevated border-border text-ink-muted hover:text-ink hover:border-border-strong"
-                }`}
-              >
-                <Users className="w-5 h-5 text-[#166534] mb-2" />
-                <span className="text-xs font-bold text-ink">Food / Aid</span>
-                <span className="text-[11px] text-ink-muted mt-1 leading-tight">
-                  Family groceries & nutrition
                 </span>
               </button>
             </div>
@@ -261,33 +144,27 @@ export default function BeneficiaryOnboardingPage() {
           </div>
         )}
 
-        {/* Step 2: Document Upload or Channel3 Search */}
+        {/* Step 2: Bill Upload & Category Tags */}
         {step === 2 && (
           <div className="w-full rounded-3xl bg-surface border border-border p-6 sm:p-8 shadow-card flex flex-col animate-in fade-in duration-300">
             <h2 className="text-2xl font-black text-ink tracking-tight mb-2">
-              Verify Statement or Select Product
+              Submit Bill
             </h2>
             <p className="text-xs text-ink-muted mb-6 leading-relaxed">
               Upload a photo of your overdue statement.
             </p>
 
             <div className="mb-8">
-              {needType === "bill" ? (
-                <ProofUploader
-                  category={category}
-                  statedAmount={parseFloat(goalAmount || "100")}
-                  onAnalysisComplete={handleProofAnalysis}
-                />
-              ) : needType === "aid_supply" ? (
-                <Channel3Search
-                  onSelectProduct={handleProductSelect}
-                  selectedProductId={selectedProduct?.id}
-                />
-              ) : (
-                <div className="p-4 rounded-2xl bg-surface-elevated border border-border text-xs text-ink-muted">
-                  Community grocery relief allows neighbors to chip in $5 toward family food baskets.
-                </div>
-              )}
+              <ProofUploader
+                category={category}
+                statedAmount={parseFloat(goalAmount || "100")}
+                onAnalysisComplete={handleProofAnalysis}
+              />
+              <NeedCategoryTags
+                category={category}
+                onCategoryChange={setCategory}
+                autoSaved={autoSaved}
+              />
             </div>
 
             <div className="flex items-center gap-3">
@@ -321,57 +198,53 @@ export default function BeneficiaryOnboardingPage() {
             </p>
 
             <div className="space-y-4 mb-8">
-              <div>
-                <label className="text-xs font-bold text-ink block mb-1.5">
-                  Headline / Statement Title
-                </label>
+              <div className="relative">
+                <FileText className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. DTE Energy Winter Heat Shutoff Notice"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                  placeholder="Statement Title"
+                  aria-label="Statement Title"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-ink block mb-1.5">
-                    Your Name (First name + initial)
-                  </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={receiverName}
                     onChange={(e) => setReceiverName(e.target.value)}
-                    placeholder="e.g. Sarah M."
-                    className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                    placeholder="Your Name"
+                    aria-label="Your Name"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-bold text-ink block mb-1.5">
-                    City, State
-                  </label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={receiverLocation}
                     onChange={(e) => setReceiverLocation(e.target.value)}
-                    placeholder="e.g. Detroit, MI"
-                    className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                    placeholder="City, State"
+                    aria-label="City, State"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-ink block mb-1.5">
-                  Brief Context (1–2 sentences)
-                </label>
+              <div className="relative">
+                <MessageSquare className="w-4 h-4 text-ink-muted absolute left-3.5 top-3 pointer-events-none" />
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="e.g. Disconnect notice received after reduced working hours. Mother of two toddlers."
-                  className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                  placeholder="Brief Context (1–2 sentences)"
+                  aria-label="Brief Context (1–2 sentences)"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
                 />
               </div>
             </div>
@@ -421,42 +294,35 @@ export default function BeneficiaryOnboardingPage() {
                     Use Judge Sandbox Receiver
                   </button>
                 </div>
-                <input
-                  type="email"
-                  required
-                  value={receiverEmail}
-                  onChange={(e) => setReceiverEmail(e.target.value)}
-                  placeholder="e.g. yourname@example.com"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
-                />
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[10px] text-ink-muted">Sandbox preset:</span>
-                  <button
-                    type="button"
-                    onClick={() => setReceiverEmail("givibeneficiary@business.example.com")}
-                    className="px-2 py-0.5 rounded-lg bg-[#166534]/10 border border-[#166534]/20 text-[10px] font-mono text-[#166534] hover:bg-[#166534]/20 transition-colors"
-                  >
-                    givibeneficiary@business.example.com
-                  </button>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="email"
+                    required
+                    value={receiverEmail}
+                    onChange={(e) => setReceiverEmail(e.target.value)}
+                    aria-label="Your PayPal Email Address"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                  />
                 </div>
-                <span className="text-[11px] text-ink-muted mt-1 block">
-                  Funds transfer automatically via PayPal Payouts API v1.
-                </span>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-ink block mb-1.5">
                   Requested Relief Goal Amount ($)
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={goalAmount}
-                  onChange={(e) => setGoalAmount(e.target.value)}
-                  placeholder="142.50"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
-                />
+                <div className="relative">
+                  <DollarSign className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={goalAmount}
+                    onChange={(e) => setGoalAmount(e.target.value)}
+                    aria-label="Requested Relief Goal Amount"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-surface-elevated border border-border text-xs text-ink font-mono placeholder-ink-dim focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-[#166534]"
+                  />
+                </div>
               </div>
             </div>
 

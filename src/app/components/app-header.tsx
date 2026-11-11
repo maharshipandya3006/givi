@@ -28,8 +28,9 @@ export function AppHeader() {
       }
     } catch (e) {
       console.warn("Sign-out warning:", e);
+    } finally {
       if (typeof window !== "undefined") {
-        window.location.href = "/";
+        window.location.replace("/");
       }
     }
   };
@@ -97,18 +98,6 @@ export function AppHeader() {
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>Request Relief</span>
-                </Link>
-
-                <Link
-                  href="/explore"
-                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
-                    isActive("/explore")
-                      ? "bg-[#166534] text-white shadow-xs font-bold"
-                      : "text-ink/80 hover:text-ink hover:bg-surface"
-                  }`}
-                >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>Explore</span>
                 </Link>
 
                 <Link
@@ -217,7 +206,7 @@ export function AppHeader() {
           )
         ) : !showInAppNav ? (
           <div className="flex items-center gap-2">
-            {isSignedIn && !isPaypalSuccessPage && (
+            {(isSignedIn || isOnboardingPage) && !isPaypalSuccessPage && (
               <button
                 type="button"
                 onClick={handleSignOut}
@@ -252,6 +241,17 @@ export function AppHeader() {
               <ShieldCheck className="w-3.5 h-3.5 text-[#166534]" />
               <span>Ledger</span>
             </Link>
+
+            {/* Sign out icon next to Ledger */}
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex items-center justify-center p-2 rounded-full bg-surface-elevated hover:bg-surface text-ink-muted hover:text-ink border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-xs cursor-pointer"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
       </div>

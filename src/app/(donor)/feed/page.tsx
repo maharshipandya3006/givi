@@ -279,13 +279,16 @@ function FeedContent() {
                 setAllCauses((prev) => prev.filter((c) => c.id !== causeId));
               }}
               onDeductBalance={async (amt, isFunded, stats, isRollback) => {
-                const next = isRollback
+                const hasAuthoritativeWallet = typeof stats?.walletBalance === "number";
+                const next = hasAuthoritativeWallet
+                  ? Math.max(0, Math.round(stats!.walletBalance! * 100) / 100)
+                  : isRollback
                   ? Math.round((walletBalance + Math.abs(amt)) * 100) / 100
                   : amt !== 0
                   ? Math.max(0, Math.round((walletBalance - amt) * 100) / 100)
                   : walletBalance;
                 await updateDonorPrefs({
-                  ...(amt !== 0 ? { walletBalance: next } : {}),
+                  ...(amt !== 0 || hasAuthoritativeWallet ? { walletBalance: next } : {}),
                   ...(isRollback
                     ? {}
                     : {

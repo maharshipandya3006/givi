@@ -742,15 +742,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (clerkInstance && typeof clerkInstance.signOut === "function") {
-        await clerkInstance.signOut({ redirectUrl: "/" });
-        return;
+        await Promise.race([
+          clerkInstance.signOut(),
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
       }
     } catch (err) {
       console.warn("Clerk signOut error:", err);
     }
 
     if (typeof window !== "undefined") {
-      window.location.href = "/";
+      window.location.replace("/");
     }
   }, [clerkInstance]);
 

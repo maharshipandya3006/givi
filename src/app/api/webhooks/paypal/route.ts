@@ -109,13 +109,40 @@ export async function POST(request: NextRequest) {
       );
 
       // Automatic recovery: Restore cause funding deficit and refund donor wallet
-      const donation =
+      let donation =
         record ||
         runtimeDonations.find(
           (d) =>
             (senderItemId && d.id === senderItemId) ||
             (payoutBatchId && d.paypalPayoutBatchId === payoutBatchId)
         );
+
+      // Issue 6: If server restarted and donation is not in memory, query Supabase donations table
+      if (!donation && isSupabaseConfigured && (senderItemId || payoutBatchId)) {
+        try {
+          let q = (supabaseAdmin as any).from("donations").select("*");
+          if (senderItemId) q = q.eq("id", senderItemId);
+          else if (payoutBatchId) q = q.eq("paypal_payout_batch_id", payoutBatchId);
+          const { data: dbDonation } = await q.maybeSingle();
+          if (dbDonation) {
+            donation = {
+              id: dbDonation.id,
+              causeId: dbDonation.cause_id,
+              donorId: dbDonation.donor_id,
+              donorName: dbDonation.donor_name,
+              amount: Number(dbDonation.amount || 0),
+              paypalOrderId: dbDonation.paypal_order_id,
+              paypalPayoutBatchId: dbDonation.paypal_payout_batch_id,
+              paypalPayoutItemId: dbDonation.paypal_payout_item_id,
+              isAgentic: dbDonation.is_agentic,
+              impactMessage: dbDonation.impact_message,
+              createdAt: dbDonation.created_at,
+            };
+          }
+        } catch (dbErr) {
+          console.warn("Could not query Supabase for webhook recovery:", dbErr);
+        }
+      }
 
       if (donation) {
         const donationAmount = Number(donation.amount || 0);

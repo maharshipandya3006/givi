@@ -44,15 +44,6 @@ export function MobileNav() {
           <span>New Need</span>
         </Link>
         <Link
-          href="/explore"
-          className={`flex flex-col items-center gap-1 text-[11px] transition-colors focus-visible:outline-none ${
-            isActive("/explore") ? "text-[#166534] font-bold" : "text-ink-muted hover:text-ink"
-          }`}
-        >
-          <Compass className="w-5 h-5" />
-          <span>Explore</span>
-        </Link>
-        <Link
           href="/profile"
           className={`flex flex-col items-center gap-1 text-[11px] transition-colors focus-visible:outline-none ${
             isActive("/profile") ? "text-[#166534] font-bold" : "text-ink-muted hover:text-ink"

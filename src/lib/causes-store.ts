@@ -110,3 +110,50 @@ export function releaseCauseFunding(id: string, amount: number): void {
   }
   cause.updatedAt = new Date().toISOString();
 }
+
+export interface BeneficiaryFilterContext {
+  userId?: string | null;
+  userEmail?: string | null;
+  paypalEmail?: string | null;
+  isJudge?: boolean;
+  submittedLocalIds?: string[];
+}
+
+/**
+ * Single source of truth for matching beneficiary causes across My Causes & Profile (Issue 9).
+ * Prevents cross-user guest cause leaks by matching strictly to authenticated ownership,
+ * configured payout email, or this browser's submittedLocalIds.
+ */
+export function filterBeneficiaryCauses(
+  causes: Cause[],
+  context: BeneficiaryFilterContext
+): Cause[] {
+  const { userId, userEmail, paypalEmail, isJudge, submittedLocalIds = [] } = context;
+  return causes.filter((c) => {
+    if (submittedLocalIds.includes(c.id)) return true;
+    if (userId && userId !== "guest-session" && c.receiverId === userId) return true;
+
+    if (isJudge && (c.id === "cause-dte-heat-01" || c.id === "cause-channel3-formula-04")) {
+      return true;
+    }
+
+    if (
+      userEmail &&
+      userEmail !== "guest@givi.app" &&
+      userEmail.toLowerCase() !== "givibeneficiary@business.example.com" &&
+      c.receiverEmail?.toLowerCase() === userEmail.toLowerCase()
+    ) {
+      return true;
+    }
+
+    if (
+      paypalEmail &&
+      paypalEmail.toLowerCase() !== "givibeneficiary@business.example.com" &&
+      c.receiverEmail?.toLowerCase() === paypalEmail.toLowerCase()
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+}

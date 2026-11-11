@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search,
   ShieldCheck,
@@ -17,7 +18,14 @@ import { formatCurrency } from "@/lib/utils";
 import { useUser } from "@/lib/user-context";
 
 export default function ExplorePage() {
-  const { toggleBookmark, isBookmarked, donorPrefs } = useUser();
+  const router = useRouter();
+  const { role, toggleBookmark, isBookmarked, donorPrefs } = useUser();
+
+  useEffect(() => {
+    if (role === "beneficiary") {
+      router.replace("/my-causes");
+    }
+  }, [role, router]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [causes, setCauses] = useState<Cause[]>(() =>
