@@ -1,7 +1,6 @@
 # Givi — Swipe-to-Donate Micro-Relief Platform
 
 > **Built for the PayPal AI Hackathon (Social Impact & Agentic Commerce Tracks)**  
-> *Inspired by Brandon Powers' (`@bpow33`) viral prototype "A Little Help" / "Swipe a Bill" (391K+ likes).*
 
 ---
 
