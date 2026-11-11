@@ -43,9 +43,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isExplicitDemo = Boolean(donorId && isDemoUserKey(donorId));
     const effectiveDonorId =
-      authUserId ||
-      (donorId && donorId !== "user_anon" ? donorId : "guest-session");
+      isExplicitDemo
+        ? donorId
+        : authUserId || (donorId && donorId !== "user_anon" ? donorId : "guest-session");
 
     // Issue 1: Require payment authorization
     if (!useDemoWallet && !orderId) {
@@ -56,8 +58,8 @@ export async function POST(request: NextRequest) {
     }
 
     let donationAmount = parseFloat(amount || "5.00");
-    if (isNaN(donationAmount) || donationAmount < 0.01) {
-      return NextResponse.json({ error: "Invalid donation amount (minimum $0.01)" }, { status: 400 });
+    if (isNaN(donationAmount) || !Number.isFinite(donationAmount) || donationAmount < 0.01 || donationAmount > 10000) {
+      return NextResponse.json({ error: "Invalid donation amount (minimum $0.01, maximum $10,000.00)" }, { status: 400 });
     }
 
     // 1. Fetch cause details
@@ -373,11 +375,27 @@ export async function POST(request: NextRequest) {
             }
           } catch {}
         }
+        const fallbackStore: Map<string, any> = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__;
+        if (fallbackStore?.has(debitedWalletUserId)) {
+          const prev = Number(fallbackStore.get(debitedWalletUserId).wallet_balance || 0);
+          fallbackStore.get(debitedWalletUserId).wallet_balance = Math.round((prev + donationAmount) * 100) / 100;
+        }
       } else if (captureId && captureId !== "WALLET_DEBIT") {
         try {
           await refundPayPalCapture(captureId, donationAmount + creditedExcess);
         } catch (refundErr) {
           console.error("Critical: PayPal refund failed after payout failure:", refundErr);
+          // Persist unrefunded capture audit log so customer funds are strictly traceable (capped at 100)
+          (globalThis as any).__GIVI_UNREFUNDED_CAPTURES__ = (globalThis as any).__GIVI_UNREFUNDED_CAPTURES__ || [];
+          const unrefundedCaptures: any[] = (globalThis as any).__GIVI_UNREFUNDED_CAPTURES__;
+          if (unrefundedCaptures.length >= 100) unrefundedCaptures.shift();
+          unrefundedCaptures.push({
+            captureId,
+            amount: donationAmount + creditedExcess,
+            donorId: effectiveDonorId,
+            failedAt: new Date().toISOString(),
+            error: refundErr instanceof Error ? refundErr.message : String(refundErr),
+          });
         }
       }
       throw payoutErr;

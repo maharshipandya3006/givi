@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     } = body;
 
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount < 0.01) {
-      return NextResponse.json({ error: "Invalid amount specified (minimum $0.01)" }, { status: 400 });
+    if (isNaN(parsedAmount) || !Number.isFinite(parsedAmount) || parsedAmount < 0.01 || parsedAmount > 10000) {
+      return NextResponse.json({ error: "Invalid amount specified (range $0.01 - $10,000.00)" }, { status: 400 });
     }
 
     const order = await createPayPalOrder({

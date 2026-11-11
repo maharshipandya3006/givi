@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    const effectiveDonorId = authUserId || donorId || "guest-session";
+    const isExplicitDemo = Boolean(donorId && (isDemoUserKey(donorId) || donorId.startsWith("judge-")));
+    const effectiveDonorId = isExplicitDemo ? donorId : (authUserId || donorId || "guest-session");
 
     // Resolve user's human name for transaction attribution
     let effectiveDonorName =
@@ -258,6 +259,29 @@ export async function POST(request: NextRequest) {
             if (dbRemaining < donationAmt || dbCause.status === "funded") {
               releaseCauseFunding(cause.id, donationAmt);
               topUpDemoWallet(donationAmt, effectiveDonorId);
+              if (isSupabaseConfigured && !isDemoUserKey(effectiveDonorId)) {
+                try {
+                  const { data: dbProf } = await (supabaseAdmin as any)
+                    .from("donor_profiles")
+                    .select("wallet_balance")
+                    .eq("id", effectiveDonorId)
+                    .maybeSingle();
+                  const curr = Number(dbProf?.wallet_balance || 0);
+                  const refunded = Math.round((curr + donationAmt) * 100) / 100;
+                  await (supabaseAdmin as any)
+                    .from("donor_profiles")
+                    .update({ wallet_balance: refunded, updated_at: new Date().toISOString() })
+                    .eq("id", effectiveDonorId);
+                  setDemoWalletBalance(effectiveDonorId, refunded);
+                } catch (refundErr) {
+                  console.error("Failed to refund Supabase wallet on concurrent funded cause:", refundErr);
+                }
+              }
+              const fallbackStore: Map<string, any> = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__;
+              if (fallbackStore?.has(effectiveDonorId)) {
+                const prev = Number(fallbackStore.get(effectiveDonorId).wallet_balance || 0);
+                fallbackStore.get(effectiveDonorId).wallet_balance = Math.round((prev + donationAmt) * 100) / 100;
+              }
               continue;
             }
           }

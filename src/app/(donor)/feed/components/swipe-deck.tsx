@@ -51,13 +51,7 @@ export function SwipeDeck({
   onResetDeck,
   onCauseSwiped,
 }: SwipeDeckProps) {
-  const [causes, setCauses] = useState<Cause[]>(() =>
-    initialCauses.filter(
-      (c) =>
-        c.status !== "funded" &&
-        Math.round((c.goalAmount - c.raisedAmount) * 100) / 100 > 0.01
-    )
-  );
+  const [causes, setCauses] = useState<Cause[]>(() => initialCauses);
   const [activeToast, setActiveToast] = useState<ImpactToastData | null>(null);
   const [isFullyFundedToast, setIsFullyFundedToast] = useState(false);
   const [inspectingCause, setInspectingCause] = useState<Cause | null>(null);

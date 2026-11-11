@@ -341,6 +341,21 @@ export function WalletFundingModal({
       return;
     }
 
+    const isDemoKey =
+      !userId ||
+      userId === "default" ||
+      userId === "guest-session" ||
+      userId === "user_anon" ||
+      userId.startsWith("guest-") ||
+      userId.startsWith("demo-") ||
+      userId.startsWith("judge-") ||
+      userId.startsWith("gividonor");
+
+    if (!isDemoKey) {
+      // Authenticated users route cards through PayPal's secure card processor
+      return handlePayPalSubmit(e);
+    }
+
     setIsProcessing(true);
     setErrorMessage(null);
 

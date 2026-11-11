@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart, Receipt, ShieldCheck, ArrowRight, Zap, Sparkles } from "lucide-react";
@@ -9,8 +9,17 @@ import { AuthGate } from "@/components/ui/auth-gate";
 
 export default function OnboardingIndexPage() {
   const router = useRouter();
-  const { setRole, role } = useUser();
+  const { setRole, role, isClerkSignedIn, demoPersona } = useUser();
   const [selectedRole, setSelectedRole] = useState<UserRole>(role || "donor");
+
+  const isJudgeMode = demoPersona === "judge_donor" || demoPersona === "judge_beneficiary";
+
+  // Authenticated Clerk users bypass onboarding and go directly to their saved dashboard
+  useEffect(() => {
+    if (isClerkSignedIn && !isJudgeMode) {
+      router.replace(role === "beneficiary" ? "/my-causes" : "/feed");
+    }
+  }, [isClerkSignedIn, isJudgeMode, role, router]);
 
   const handleContinue = (chosenRole: UserRole) => {
     setRole(chosenRole);

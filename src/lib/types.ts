@@ -210,7 +210,7 @@ export function createDefaultDonorProfile(id: string = "guest-session", email: s
     total_donated: 0.0,
     bills_cleared: 0,
     streak_days: 0,
-    onboarded: false,
+    onboarded: id.startsWith("user_"),
     payment_preference: "wallet",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

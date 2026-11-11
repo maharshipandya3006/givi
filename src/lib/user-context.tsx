@@ -34,6 +34,7 @@ export interface UserContextType {
   userEmail: string;
   userName?: string;
   isSignedIn: boolean;
+  isClerkSignedIn: boolean;
   isLoaded: boolean;
   isDemoUser: boolean;
   isJudgeDonor: boolean;
@@ -208,6 +209,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return false;
   });
 
+  useEffect(() => {
+    if (isClerkSignedIn) {
+      setIsOnboarded(true);
+      setDonorOnboardedState(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("givi_donor_onboarded", "true");
+      }
+    }
+  }, [isClerkSignedIn]);
+
   const [donorPrefs, setDonorPrefs] = useState<DonorPreferences>(() => {
     const savedPersona = typeof window !== "undefined" ? localStorage.getItem("givi_demo_persona") : null;
     const isJudgeDonorInit = savedPersona === "judge_donor" || isJudgeDonorAuth;
@@ -265,9 +276,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const isAuthenticSession = Boolean(
       isClerkSignedIn || isDemoUser || demoPersona === "judge_donor" || demoPersona === "judge_beneficiary"
     );
-    const onboardedFlag = isAuthenticSession && (
-      Boolean(profile.onboarded) ||
-      (typeof window !== "undefined" && (localStorage.getItem("givi_donor_onboarded") === "true" || localStorage.getItem("givi_demo_session") === "true"))
+    const onboardedFlag = Boolean(
+      isClerkSignedIn ||
+      (isAuthenticSession && (
+        Boolean(profile.onboarded) ||
+        (typeof window !== "undefined" && (localStorage.getItem("givi_donor_onboarded") === "true" || localStorage.getItem("givi_demo_session") === "true"))
+      ))
     );
     setIsOnboarded(onboardedFlag);
     if (profile.role === "beneficiary") {
@@ -289,9 +303,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           Number(profile.bills_cleared || 0)
         );
         const judgeCustomName =
-          (profile.display_name && profile.display_name !== "Kind Supporter" && profile.display_name !== "Supporter" && profile.display_name !== "Judge Donor" ? profile.display_name : "") ||
-          (prev.displayName && prev.displayName !== "Kind Supporter" && prev.displayName !== "Judge Donor" ? prev.displayName : "") ||
-          (typeof window !== "undefined" ? localStorage.getItem("givi_judge_donor_name") || localStorage.getItem("givi_display_name") : "") ||
+          (isCustomGuestUsername(profile.display_name) ? profile.display_name : "") ||
+          (isCustomGuestUsername(prev.displayName) ? prev.displayName : "") ||
+          (typeof window !== "undefined" && isCustomGuestUsername(localStorage.getItem("givi_judge_donor_name")) ? localStorage.getItem("givi_judge_donor_name")! : "") ||
+          (typeof window !== "undefined" && isCustomGuestUsername(localStorage.getItem("givi_display_name")) ? localStorage.getItem("givi_display_name")! : "") ||
           "Judge Donor";
 
         return {
@@ -567,7 +582,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const savedJudgeName = typeof window !== "undefined"
         ? localStorage.getItem("givi_judge_donor_name") || localStorage.getItem("givi_display_name") || ""
         : "";
-      const effectiveJudgeName = savedJudgeName && savedJudgeName !== "Kind Supporter" ? savedJudgeName : "Judge Donor";
+      const effectiveJudgeName = isCustomGuestUsername(savedJudgeName) ? savedJudgeName : "Judge Donor";
       if (typeof window !== "undefined") {
         localStorage.setItem("givi_display_name", effectiveJudgeName);
         localStorage.setItem("givi_demo_role", "donor");
@@ -971,6 +986,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         userEmail: activeUserEmail,
         userName: donorPrefs.displayName || (activeUserName !== "Kind Supporter" ? activeUserName : "") || "Kind Supporter",
         isSignedIn: isUserAuthenticated,
+        isClerkSignedIn,
         isLoaded: isAuthReady,
         isDemoUser,
         isJudgeDonor: isJudgeDonorAuth,

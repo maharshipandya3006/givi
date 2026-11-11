@@ -25,14 +25,21 @@ const DRAFT_STORAGE_KEY = "givi_beneficiary_draft";
 
 export default function BeneficiaryOnboardingPage() {
   const router = useRouter();
-  const { setBeneficiaryOnboarded, setRole, userId, userEmail, updateDonorPrefs, demoPersona } = useUser();
+  const { setBeneficiaryOnboarded, setRole, userId, userEmail, updateDonorPrefs, demoPersona, isClerkSignedIn, role } = useUser();
+
+  const isJudgeMode = demoPersona === "judge_donor" || demoPersona === "judge_beneficiary";
 
   useEffect(() => {
+    // Authenticated Clerk users bypass onboarding directly to my-causes (or feed)
+    if (isClerkSignedIn && !isJudgeMode) {
+      router.replace(role === "beneficiary" ? "/my-causes" : "/feed");
+      return;
+    }
     // maharshipandya006@gmail.com is strictly locked to donor role
     if (userEmail?.toLowerCase().includes("maharshipandya006") && !demoPersona) {
       router.replace("/feed");
     }
-  }, [userEmail, demoPersona, router]);
+  }, [isClerkSignedIn, isJudgeMode, role, userEmail, demoPersona, router]);
 
   const [step, setStep] = useState<number>(1);
 

@@ -165,6 +165,24 @@ export async function POST(request: NextRequest) {
                 .eq("id", cause.id);
             } catch {}
           }
+        } else if (!cause && isSupabaseConfigured && donation.causeId && donationAmount > 0) {
+          try {
+            const { data: dbC } = await (supabaseAdmin as any)
+              .from("causes")
+              .select("raised_amount, status")
+              .eq("id", donation.causeId)
+              .maybeSingle();
+            if (dbC) {
+              const newRaised = Math.max(0, Math.round((Number(dbC.raised_amount || 0) - donationAmount) * 100) / 100);
+              await (supabaseAdmin as any)
+                .from("causes")
+                .update({
+                  raised_amount: newRaised,
+                  status: "active",
+                })
+                .eq("id", donation.causeId);
+            }
+          } catch {}
         }
 
         // 2. Refund donor wallet
@@ -186,6 +204,11 @@ export async function POST(request: NextRequest) {
                   .eq("id", donation.donorId);
               }
             } catch {}
+          }
+          const fallbackStore: Map<string, any> = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__;
+          if (fallbackStore?.has(donation.donorId)) {
+            const prev = Number(fallbackStore.get(donation.donorId).wallet_balance || 0);
+            fallbackStore.get(donation.donorId).wallet_balance = Math.round((prev + donationAmount) * 100) / 100;
           }
         }
       }

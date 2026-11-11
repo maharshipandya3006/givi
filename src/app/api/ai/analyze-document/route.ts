@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const parsedAmount = parseFloat(statedAmount);
+    const cleanedAmountStr = String(statedAmount || "").replace(/[^0-9.-]+/g, "");
+    const parsedAmount = parseFloat(cleanedAmountStr);
     const validAmount = Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : 100.0;
 
     const analysis = await analyzeProofDocument({

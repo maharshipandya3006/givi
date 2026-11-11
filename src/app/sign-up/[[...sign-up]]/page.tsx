@@ -20,8 +20,8 @@ export default function SignUpPage() {
             footerActionLink: "text-[#166534] hover:underline",
           },
         }}
-        fallbackRedirectUrl="/onboarding"
-        forceRedirectUrl="/onboarding"
+        fallbackRedirectUrl="/feed"
+        forceRedirectUrl="/feed"
         signInUrl="/sign-in"
       />
     </div>

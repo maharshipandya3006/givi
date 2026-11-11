@@ -79,14 +79,14 @@ export function AuthCard() {
           await clerkSignIn.signIn.authenticateWithRedirect({
             strategy: "oauth_google",
             redirectUrl: "/sso-callback",
-            redirectUrlComplete: "/onboarding",
+            redirectUrlComplete: selectedRole === "beneficiary" ? "/my-causes" : "/feed",
             continueSignUp: true,
           });
         } else if (clerkSignUp?.signUp) {
           await clerkSignUp.signUp.authenticateWithRedirect({
             strategy: "oauth_google",
             redirectUrl: "/sso-callback",
-            redirectUrlComplete: "/onboarding",
+            redirectUrlComplete: selectedRole === "beneficiary" ? "/my-causes" : "/feed",
             continueSignIn: true,
           });
         }
@@ -131,10 +131,10 @@ export function AuthCard() {
       console.warn("Could not sync profile post-auth:", e);
     }
 
-    if (selectedRole === "donor") {
-      router.push(tab === "signup" ? "/onboarding/donor" : "/feed");
+    if (selectedRole === "beneficiary") {
+      router.push("/my-causes");
     } else {
-      router.push(tab === "signup" ? "/onboarding/beneficiary" : "/my-causes");
+      router.push("/feed");
     }
   };
 

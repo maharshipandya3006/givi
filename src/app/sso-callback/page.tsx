@@ -13,7 +13,7 @@ export default function SSOCallbackPage() {
   const { role, isOnboarded } = useUser();
   const [showManualLink, setShowManualLink] = useState(false);
 
-  const targetDashboard = isOnboarded ? (role === "beneficiary" ? "/my-causes" : "/feed") : "/onboarding";
+  const targetDashboard = role === "beneficiary" ? "/my-causes" : "/feed";
 
   // Reactive instant redirect once Clerk session is confirmed
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function SSOCallbackPage() {
           signUpForceRedirectUrl={targetDashboard}
           signInFallbackRedirectUrl={targetDashboard}
           signUpFallbackRedirectUrl={targetDashboard}
-          continueSignUpUrl="/onboarding"
+          continueSignUpUrl={targetDashboard}
         />
       </div>
 

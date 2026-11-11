@@ -84,7 +84,26 @@ const CAUSE_OPTIONS: CauseOption[] = [
 
 export default function DonorOnboardingPage() {
   const router = useRouter();
-  const { updateDonorPrefs, activateGuestProfile, setDonorOnboarded, setRole, enableDemoSession, userId, donorPrefs } = useUser();
+  const {
+    updateDonorPrefs,
+    activateGuestProfile,
+    setDonorOnboarded,
+    setRole,
+    enableDemoSession,
+    userId,
+    donorPrefs,
+    isClerkSignedIn,
+    demoPersona,
+  } = useUser();
+
+  const isJudgeMode = demoPersona === "judge_donor" || demoPersona === "judge_beneficiary";
+
+  // Authenticated Clerk users bypass onboarding and go directly to their feed
+  useEffect(() => {
+    if (isClerkSignedIn && !isJudgeMode) {
+      router.replace("/feed");
+    }
+  }, [isClerkSignedIn, isJudgeMode, router]);
 
   const [step, setStep] = useState<number>(1);
   const [selectedInterests, setSelectedInterests] = useState<CauseCategory[]>([

@@ -115,9 +115,14 @@ export function isLocationMatch(causeLocation: string, donorLocation: string): b
   const cLower = causeLocation.toLowerCase().trim();
   const dLower = donorLocation.toLowerCase().trim();
 
-  // Substring matching (e.g. "Austin" in "Austin, TX")
-  if (cLower.includes(dLower) || dLower.includes(cLower)) {
+  // Direct match or word matching for multi-character locations (>3 chars to avoid "us"/"in" false positives)
+  if (cLower === dLower) {
     return true;
+  }
+  if (cLower.length > 3 && dLower.length > 3) {
+    if (cLower.includes(dLower) || dLower.includes(cLower)) {
+      return true;
+    }
   }
 
   // State code match

@@ -382,14 +382,16 @@ export async function GET(req: NextRequest) {
         memProfile.bills_cleared = Math.max(Number(memProfile.bills_cleared || 0), 9);
       }
 
-      // Reconcile client fallback stats if server in-memory store was restarted
-      const fallbackBills = parseInt(req.nextUrl.searchParams.get("fallbackBillsCleared") || "0", 10);
-      const fallbackTotal = parseFloat(req.nextUrl.searchParams.get("fallbackTotalDonated") || "0");
-      if (!isNaN(fallbackBills) && fallbackBills > 0) {
-        memProfile.bills_cleared = Math.max(Number(memProfile.bills_cleared || 0), fallbackBills);
-      }
-      if (!isNaN(fallbackTotal) && fallbackTotal > 0) {
-        memProfile.total_donated = Math.max(Number(memProfile.total_donated || 0), Math.round(fallbackTotal * 100) / 100);
+      // Reconcile client fallback stats if server in-memory store was restarted (strictly demo sessions)
+      if (isDemoUserKey(userId)) {
+        const fallbackBills = parseInt(req.nextUrl.searchParams.get("fallbackBillsCleared") || "0", 10);
+        const fallbackTotal = parseFloat(req.nextUrl.searchParams.get("fallbackTotalDonated") || "0");
+        if (!isNaN(fallbackBills) && fallbackBills > 0 && fallbackBills <= 1000) {
+          memProfile.bills_cleared = Math.max(Number(memProfile.bills_cleared || 0), fallbackBills);
+        }
+        if (!isNaN(fallbackTotal) && Number.isFinite(fallbackTotal) && fallbackTotal > 0 && fallbackTotal <= 10000) {
+          memProfile.total_donated = Math.max(Number(memProfile.total_donated || 0), Math.round(fallbackTotal * 100) / 100);
+        }
       }
     }
 
@@ -501,6 +503,20 @@ export async function PATCH(req: NextRequest) {
       if (ALLOWED_FIELDS.has(key)) {
         // Prevent generic fallback names from overwriting custom user names
         if (key === "display_name" && (val === "Kind Supporter" || val === "Applicant")) {
+          continue;
+        }
+        if (key === "default_swipe_amount") {
+          const num = typeof val === "number" ? val : parseFloat(String(val));
+          if (Number.isFinite(num)) {
+            sanitizedUpdates[key] = Math.min(100, Math.max(1, Math.round(num * 100) / 100));
+          }
+          continue;
+        }
+        if (key === "monthly_budget") {
+          const num = typeof val === "number" ? val : parseFloat(String(val));
+          if (Number.isFinite(num)) {
+            sanitizedUpdates[key] = Math.min(10000, Math.max(0, Math.round(num * 100) / 100));
+          }
           continue;
         }
         sanitizedUpdates[key] = val;

@@ -50,7 +50,7 @@ export function JudgeDemoPill() {
   };
 
   return (
-    <aside aria-label="Judge Sandbox Assistant" className="fixed bottom-4 right-4 z-40 flex flex-col items-end selection:bg-[#166534]/20">
+    <aside aria-label="Judge Sandbox Assistant" className="fixed bottom-20 md:bottom-4 right-4 z-40 flex flex-col items-end selection:bg-[#166534]/20">
       {/* Expanded Credential Panel */}
       {isOpen && (
         <div className="mb-3 w-80 sm:w-96 rounded-2xl bg-surface/95 backdrop-blur-md border border-border shadow-2xl p-4 text-xs space-y-3 animate-in slide-in-from-bottom-2 duration-200">

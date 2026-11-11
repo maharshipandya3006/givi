@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-  } catch {}
+  } catch { }
 
   const entries = aggregateLeaderboardTransactions(
     transactions,
@@ -176,45 +176,47 @@ export async function GET(request: NextRequest) {
     { isWeekly, causeCategoryMap }
   );
 
-  // Ensure unified Judge Donor baseline reflects active judge demo account ($456.93 showcase + agent giving)
-  try {
-    const fallbackStore = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__ as Map<string, any> | undefined;
-    const judgeProfile = fallbackStore?.get("judge-donor-session");
-    const judgeProfileTotal = Number(judgeProfile?.total_donated || judgeProfile?.totalDonated || 0);
-    const judgeWallet = typeof (globalThis as any).__GIVI_USER_WALLETS__?.get === "function"
-      ? (globalThis as any).__GIVI_USER_WALLETS__.get("judge-donor-session") ?? 50
-      : 50;
-    const judgeAgentSpent = judgeWallet < 33 ? Math.max(0, 33 - judgeWallet) : 0;
-    const judgeTargetTotal = Math.max(judgeProfileTotal, Math.round((456.93 + judgeAgentSpent) * 100) / 100);
+  // Ensure unified Judge Donor baseline reflects active judge demo account ($456.93 showcase + agent giving) in All-Time view
+  if (!isWeekly) {
+    try {
+      const fallbackStore = (globalThis as any).__GIVI_FALLBACK_DONOR_STORE__ as Map<string, any> | undefined;
+      const judgeProfile = fallbackStore?.get("judge-donor-session");
+      const judgeProfileTotal = Number(judgeProfile?.total_donated || judgeProfile?.totalDonated || 0);
+      const judgeWallet = typeof (globalThis as any).__GIVI_USER_WALLETS__?.get === "function"
+        ? (globalThis as any).__GIVI_USER_WALLETS__.get("judge-donor-session") ?? 50
+        : 50;
+      const judgeAgentSpent = judgeWallet < 33 ? Math.max(0, 33 - judgeWallet) : 0;
+      const judgeTargetTotal = Math.max(judgeProfileTotal, Math.round((456.93 + judgeAgentSpent) * 100) / 100);
 
-    const customJudgeName =
-      judgeProfile?.display_name &&
-      isCustomGuestUsername(judgeProfile.display_name)
-        ? judgeProfile.display_name
-        : undefined;
+      const customJudgeName =
+        judgeProfile?.display_name &&
+          isCustomGuestUsername(judgeProfile.display_name)
+          ? judgeProfile.display_name
+          : undefined;
 
-    let judgeEntry = entries.find((e) => e.id === "judge-donor-session");
-    if (!judgeEntry) {
-      judgeEntry = {
-        rank: 1,
-        id: "judge-donor-session",
-        displayName: customJudgeName || "Judge Donor",
-        totalDonated: judgeTargetTotal,
-        causeCount: Math.max(Number(judgeProfile?.bills_cleared || 9), 9),
-        isAnonymous: false,
-        badge: getGiverBadge(judgeTargetTotal),
-        categories: ["utilities", "climate", "food"],
-      };
-      entries.push(judgeEntry);
-    } else {
-      if (customJudgeName) {
-        judgeEntry.displayName = customJudgeName;
+      let judgeEntry = entries.find((e) => e.id === "judge-donor-session");
+      if (!judgeEntry) {
+        judgeEntry = {
+          rank: 1,
+          id: "judge-donor-session",
+          displayName: customJudgeName || "Judge Donor",
+          totalDonated: judgeTargetTotal,
+          causeCount: Math.max(Number(judgeProfile?.bills_cleared || 9), 9),
+          isAnonymous: false,
+          badge: getGiverBadge(judgeTargetTotal),
+          categories: ["utilities", "climate", "food"],
+        };
+        entries.push(judgeEntry);
+      } else {
+        if (customJudgeName) {
+          judgeEntry.displayName = customJudgeName;
+        }
+        judgeEntry.totalDonated = Math.max(judgeEntry.totalDonated, judgeTargetTotal);
+        judgeEntry.causeCount = Math.max(judgeEntry.causeCount, 9);
+        judgeEntry.badge = getGiverBadge(judgeEntry.totalDonated);
       }
-      judgeEntry.totalDonated = Math.max(judgeEntry.totalDonated, judgeTargetTotal);
-      judgeEntry.causeCount = Math.max(judgeEntry.causeCount, 9);
-      judgeEntry.badge = getGiverBadge(judgeEntry.totalDonated);
-    }
-  } catch {}
+    } catch { }
+  }
 
   entries.sort((a, b) => b.totalDonated - a.totalDonated);
   entries.forEach((entry, idx) => {

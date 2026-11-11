@@ -13,15 +13,15 @@ export function checkRateLimit(
   const store = rateLimitStores.get(namespace)!;
   const now = Date.now();
 
-  if (store.size > 1000) {
+  if (store.size > 100) {
     for (const [k, v] of store.entries()) {
       if (now > v.resetAt) store.delete(k);
     }
-    while (store.size > 1000) {
-      const oldestKey = store.keys().next().value;
-      if (oldestKey) store.delete(oldestKey);
-      else break;
-    }
+  }
+  while (store.size > 1000) {
+    const oldestKey = store.keys().next().value;
+    if (oldestKey) store.delete(oldestKey);
+    else break;
   }
 
   const record = store.get(key);

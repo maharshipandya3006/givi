@@ -13,6 +13,10 @@ interface CachedToken {
 
 let tokenCache: CachedToken | null = null;
 
+export function clearPayPalTokenCache(): void {
+  tokenCache = null;
+}
+
 /**
  * Fetches or returns cached OAuth2 Bearer token from PayPal Sandbox.
  */
@@ -38,6 +42,7 @@ export async function getPayPalAccessToken(): Promise<string> {
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const errorText = await response.text();
     throw new Error(`Failed to authenticate with PayPal: ${response.status} ${errorText}`);
   }
@@ -110,6 +115,7 @@ export async function createPayPalOrder(params: {
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const error = await response.json();
     throw new Error(`PayPal Order Creation Failed: ${JSON.stringify(error)}`);
   }
@@ -173,6 +179,7 @@ export async function capturePayPalOrder(
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const error = await response.json().catch(() => ({}));
     console.error("PayPal Order Capture Failed:", error);
     throw new Error("PayPal order capture failed");
@@ -265,6 +272,7 @@ export async function disbursePayPalPayout(params: {
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const error = await response.json().catch(() => ({}));
     // Regional restriction: PayPal blocks Payouts API in certain developer account countries (e.g. India)
     if (
@@ -332,6 +340,7 @@ export async function refundPayPalCapture(
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const error = await response.json();
     throw new Error(`PayPal Capture Refund Failed: ${JSON.stringify(error)}`);
   }
@@ -396,6 +405,7 @@ export async function verifyPayPalWebhookSignature(
   });
 
   if (!response.ok) {
+    if (response.status === 401) clearPayPalTokenCache();
     const errorText = await response.text();
     console.error(`PayPal Webhook verification failed with HTTP ${response.status}:`, errorText);
     return false;

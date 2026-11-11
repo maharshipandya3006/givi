@@ -17,17 +17,18 @@ export async function POST(request: NextRequest) {
     const { orderId, amount, isDemo = false, userId: requestUserId } = body;
 
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount < 1.0) {
+    if (isNaN(parsedAmount) || !Number.isFinite(parsedAmount) || parsedAmount < 1.0 || parsedAmount > 5000.0) {
       return NextResponse.json(
-        { error: "Invalid top-up amount. Minimum is $1.00." },
+        { error: "Invalid top-up amount. Minimum is $1.00 (maximum $5,000.00)." },
         { status: 400 }
       );
     }
 
     // Resolve caller identity
     let effectiveUserId = requestUserId || "guest-session";
+    const isExplicitDemo = Boolean(requestUserId && (isDemoUserKey(requestUserId) || requestUserId.startsWith("judge-")));
     const clerkSecret = process.env.CLERK_SECRET_KEY;
-    if (clerkSecret && !clerkSecret.includes("REPLACE")) {
+    if (!isExplicitDemo && clerkSecret && !clerkSecret.includes("REPLACE")) {
       try {
         const clerkAuth = await auth();
         if (clerkAuth?.userId) {
