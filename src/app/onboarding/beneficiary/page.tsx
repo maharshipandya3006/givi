@@ -268,7 +268,7 @@ export default function BeneficiaryOnboardingPage() {
               Verify Statement or Select Product
             </h2>
             <p className="text-xs text-ink-muted mb-6 leading-relaxed">
-              Upload a photo of your overdue statement. Gemini Vision automatically verifies the balance and masks private account numbers.
+              Upload a photo of your overdue statement.
             </p>
 
             <div className="mb-8">
