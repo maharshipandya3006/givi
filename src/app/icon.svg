@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="givi-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#15803d" />
+      <stop offset="50%" stop-color="#166534" />
+      <stop offset="100%" stop-color="#14532d" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="22" fill="url(#givi-bg)" />
+  <text
+    x="32"
+    y="42"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="34"
+    font-weight="900"
+    letter-spacing="-1.5"
+  >g.</text>
+</svg>
+

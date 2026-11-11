@@ -7,9 +7,8 @@ import { MobileNav } from "./components/mobile-nav";
 import { JudgeDemoPill } from "@/components/ui/judge-demo-pill";
 
 export const metadata: Metadata = {
-  title: "Givi — Swipe-to-Donate Micro-Relief Platform",
-  description:
-    "Direct, transparent micro-donations powered by PayPal Orders & Payouts, Google Gemini AI verification, and zero platform fees.",
+  title: "givi. Swipe to Donate",
+  description: "givi. Swipe to Donate",
 };
 
 const rawClerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
