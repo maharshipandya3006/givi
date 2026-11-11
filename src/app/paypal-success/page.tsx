@@ -86,8 +86,22 @@ export default function PayPalSuccessPage() {
             } catch {}
           }
 
-          // Also set localStorage for privacy browsers / stripped openers
+          // Persist balance locally so full-page redirects reflect it immediately on return
           try {
+            if (typeof data.newBalance === "number") {
+              localStorage.setItem("givi_wallet_balance", String(data.newBalance));
+              const effectiveId = userIdParam || localStorage.getItem("givi_guest_id") || "";
+              if (effectiveId.startsWith("guest-u-")) {
+                const rawArchive = localStorage.getItem(`guest_archive:${effectiveId}`);
+                if (rawArchive) {
+                  const parsed = JSON.parse(rawArchive);
+                  if (parsed?.prefs) {
+                    parsed.prefs.walletBalance = data.newBalance;
+                    localStorage.setItem(`guest_archive:${effectiveId}`, JSON.stringify(parsed));
+                  }
+                }
+              }
+            }
             localStorage.setItem("givi_paypal_order_captured", JSON.stringify(payload));
           } catch {}
 

@@ -957,3 +957,17 @@ graph TD
    - `npm run build`: 28/28 routes compiled successfully.
 
 ---
+
+## Turn 32: Global Humanizer Skill & Plugin Installation
+
+### User Request
+> `/ponytail https://github.com/blader/humanizer/tree/main download this globally on antigravity`
+
+### Actions & Implementation
+1. Cloned repository `blader/humanizer` from GitHub into `/tmp/humanizer`.
+2. Verified package structure (`SKILL.md`, `AGENTS.md`, `agents/`, `scripts/`, `package.json`, `.claude-plugin/`).
+3. Installed globally to Antigravity Customizations:
+   - **Global Skill:** `~/.gemini/config/skills/humanizer/` (instantly registered on-demand skill).
+   - **Global Plugin:** `~/.gemini/config/plugins/humanizer/` with `plugin.json` manifest and `skills/humanizer/SKILL.md`.
+4. Cleaned up `/tmp/humanizer` temporary files.
+5. The `humanizer` skill is now permanently available across all workspaces for rewriting AI-sounding text, removing AI tells (not-X-but-Y contrasts, forced triads, staged openers, sales fluff, bold labels), and producing authentic human prose.

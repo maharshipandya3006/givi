@@ -35,7 +35,10 @@ export async function GET(req: NextRequest) {
     let userName: string = "Kind Supporter";
 
     const clientRequestedUserId = req.nextUrl.searchParams.get("userId");
-    const isExplicitDemoRequest = clientRequestedUserId && (clientRequestedUserId.startsWith("judge-") || clientRequestedUserId.startsWith("demo-"));
+    const isExplicitDemoRequest = Boolean(
+      clientRequestedUserId &&
+        (isDemoUserKey(clientRequestedUserId) || clientRequestedUserId.startsWith("judge-"))
+    );
 
     // 1. Try Clerk server auth if configured and not an explicit judge/demo request
     const clerkSecret = process.env.CLERK_SECRET_KEY;
@@ -263,11 +266,12 @@ export async function GET(req: NextRequest) {
         }
 
         if (data && isEmptyCanonicalGuest) {
+          const syncedBalance = Math.max(Number(data.wallet_balance ?? 0), getDemoWalletBalance(userId));
           const recentTransactions = await fetchDonorRecentTransactions(userId, lookupName);
           return NextResponse.json({
-            profile: { ...data, role: requestedRole },
+            profile: { ...data, role: requestedRole, wallet_balance: syncedBalance },
             recentTransactions,
-            restored: recentTransactions.length > 0,
+            restored: recentTransactions.length > 0 || syncedBalance > 0,
             source: "supabase",
           });
         }
@@ -275,6 +279,12 @@ export async function GET(req: NextRequest) {
         // Provision a fresh role-specific record in Supabase
         const initialName = isCustomGuestUsername(lookupName) ? lookupName : userName;
         const freshProfile = getDefault(userId, userEmail, initialName);
+        if (!isBeneficiary && isDemoUserKey(userId)) {
+          (freshProfile as any).wallet_balance = Math.max(
+            Number((freshProfile as any).wallet_balance ?? 0),
+            getDemoWalletBalance(userId)
+          );
+        }
         const { role: _role, ...dbProfile } = freshProfile;
         const { data: inserted, error: insertError } = await (supabaseAdmin as any)
           .from(tableName)
@@ -283,13 +293,16 @@ export async function GET(req: NextRequest) {
           .single();
 
         if (!insertError && inserted) {
+          const syncedBalance = !isBeneficiary
+            ? (isDemoUserKey(userId) ? Math.max(Number(inserted.wallet_balance ?? 0), getDemoWalletBalance(userId)) : Number(inserted.wallet_balance ?? 0))
+            : 0;
           const recentTransactions = !isBeneficiary
             ? await fetchDonorRecentTransactions(userId, lookupName)
             : [];
           return NextResponse.json({
-            profile: { ...inserted, role: requestedRole },
+            profile: { ...inserted, role: requestedRole, ...(!isBeneficiary ? { wallet_balance: syncedBalance } : {}) },
             recentTransactions,
-            restored: recentTransactions.length > 0,
+            restored: recentTransactions.length > 0 || syncedBalance > 0,
             source: "supabase_created",
           });
         }

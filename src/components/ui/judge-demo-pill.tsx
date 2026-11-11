@@ -15,6 +15,8 @@ import {
   Lock,
   Zap,
   ExternalLink,
+  UserCheck,
+  RotateCcw,
 } from "lucide-react";
 import { useUser } from "@/lib/user-context";
 
@@ -22,17 +24,58 @@ export function JudgeDemoPill() {
   const router = useRouter();
   const {
     switchJudgePersona,
+    demoPersona,
+    isJudgeDonor,
+    isJudgeBeneficiary,
+    donorPrefs,
+    rechargeWallet,
+    refreshProfile,
     setDonorOnboarded,
     setBeneficiaryOnboarded,
     updateDonorPrefs,
   } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const flashNotice = (msg: string) => {
+    setActionNotice(msg);
+    setTimeout(() => setActionNotice(null), 3000);
+  };
+
+  const handleQuickActivate = async (targetRole: "judge_donor" | "judge_beneficiary") => {
+    if (switchJudgePersona) {
+      switchJudgePersona(targetRole);
+    }
+    if (targetRole === "judge_donor") {
+      if (typeof window !== "undefined") {
+        const currentJudgeWallet = parseFloat(localStorage.getItem("givi_judge_donor_wallet") || "50");
+        if (isNaN(currentJudgeWallet) || currentJudgeWallet <= 0) {
+          localStorage.setItem("givi_judge_donor_wallet", "50");
+        }
+      }
+      await refreshProfile();
+      flashNotice("Active: Judge Donor ($50 loaded)");
+    } else {
+      flashNotice("Active: Judge Beneficiary");
+      router.push("/my-causes");
+    }
+  };
+
+  const handleResetAllowance = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("givi_judge_donor_wallet", "50");
+      localStorage.setItem("givi_wallet_balance", "50");
+    }
+    await rechargeWallet(50, 50);
+    await refreshProfile();
+    flashNotice("Allowance reset to $50.00!");
   };
 
   const handleRestartOnboarding = async (targetRole: "donor" | "beneficiary" = "donor") => {
@@ -49,11 +92,14 @@ export function JudgeDemoPill() {
     setIsOpen(false);
   };
 
+  const isDonorActive = isJudgeDonor || demoPersona === "judge_donor";
+  const isBeneficiaryActive = isJudgeBeneficiary || demoPersona === "judge_beneficiary";
+
   return (
     <aside aria-label="Judge Sandbox Assistant" className="fixed bottom-20 md:bottom-4 right-4 z-40 flex flex-col items-end selection:bg-[#166534]/20">
       {/* Expanded Credential Panel */}
       {isOpen && (
-        <div className="mb-3 w-80 sm:w-96 rounded-2xl bg-surface/95 backdrop-blur-md border border-border shadow-2xl p-4 text-xs space-y-3 animate-in slide-in-from-bottom-2 duration-200">
+        <div className="mb-3 w-84 sm:w-96 rounded-2xl bg-surface/95 backdrop-blur-md border border-border shadow-2xl p-4 text-xs space-y-3 animate-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between pb-2 border-b border-border">
             <div className="flex items-center gap-1.5 font-bold text-ink">
               <Sparkles className="w-4 h-4 text-[#166534]" />
@@ -67,13 +113,80 @@ export function JudgeDemoPill() {
             </button>
           </div>
 
+          {/* Active Persona Indicator */}
+          <div className="p-2.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${isDonorActive ? "bg-emerald-500 animate-pulse" : isBeneficiaryActive ? "bg-blue-500" : "bg-ink-muted"}`} />
+              <div>
+                <div className="font-bold text-ink text-[11px] flex items-center gap-1">
+                  {isDonorActive
+                    ? "Judge Donor Account"
+                    : isBeneficiaryActive
+                    ? "Judge Beneficiary Account"
+                    : "Guest Session (Unauthenticated)"}
+                </div>
+                <div className="text-[10px] text-ink-muted">
+                  {isDonorActive
+                    ? `Allowance: $${(donorPrefs.walletBalance || 50).toFixed(2)} Available`
+                    : isBeneficiaryActive
+                    ? "Verified Receiver Dashboard"
+                    : "$0.00 Wallet · Click Quick Switch below"}
+                </div>
+              </div>
+            </div>
+            {isDonorActive && (
+              <button
+                type="button"
+                onClick={handleResetAllowance}
+                title="Reset Allowance to $50.00"
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-[#166534] dark:text-emerald-400 font-bold text-[10px] border border-emerald-500/20 transition-colors"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset $50</span>
+              </button>
+            )}
+          </div>
+
+          {actionNotice && (
+            <div className="px-2.5 py-1.5 rounded-lg bg-[#166534]/15 border border-[#166534]/30 text-[#166534] dark:text-emerald-300 text-[11px] font-medium animate-in fade-in">
+              ✓ {actionNotice}
+            </div>
+          )}
+
+          {/* 1-Click Quick Switch Strip */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleQuickActivate("judge_donor")}
+              className={`flex-1 py-2 px-2.5 rounded-xl font-bold text-[11px] border flex items-center justify-center gap-1.5 transition-all ${
+                isDonorActive
+                  ? "bg-[#166534] text-white border-[#166534] shadow-sm"
+                  : "bg-surface-elevated hover:bg-surface-highlight text-ink border-border"
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>{isDonorActive ? "Judge Donor ($50 Active)" : "Quick Switch: Donor ($50)"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickActivate("judge_beneficiary")}
+              className={`flex-1 py-2 px-2.5 rounded-xl font-bold text-[11px] border flex items-center justify-center gap-1.5 transition-all ${
+                isBeneficiaryActive
+                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                  : "bg-surface-elevated hover:bg-surface-highlight text-ink border-border"
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>{isBeneficiaryActive ? "Receiver (Active)" : "Quick Switch: Receiver"}</span>
+            </button>
+          </div>
+
           <p className="text-[11px] text-ink-muted leading-relaxed">
             Quick-copy credentials to test PayPal Sandbox checkout without typing.
           </p>
 
           {/* Donor Credentials */}
           <div className="p-2.5 rounded-xl bg-surface-elevated border border-border-subtle space-y-2">
-            {/* Donor Mail ID */}
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
@@ -100,7 +213,6 @@ export function JudgeDemoPill() {
               </code>
             </div>
 
-            {/* Donor Password */}
             <div className="pt-1.5 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
@@ -153,7 +265,6 @@ export function JudgeDemoPill() {
 
           {/* Beneficiary Credentials */}
           <div className="p-2.5 rounded-xl bg-surface-elevated border border-border-subtle space-y-2">
-            {/* Beneficiary Mail ID */}
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
@@ -180,7 +291,6 @@ export function JudgeDemoPill() {
               </code>
             </div>
 
-            {/* Beneficiary Password */}
             <div className="pt-1.5 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-ink text-[11px] flex items-center gap-1">
@@ -214,7 +324,7 @@ export function JudgeDemoPill() {
               className="flex-1 py-2 px-3 rounded-xl bg-surface-elevated hover:bg-surface-highlight text-ink font-bold text-[11px] border border-border flex items-center justify-center gap-1.5 transition-colors"
             >
               <RefreshCw className="w-3 h-3 text-[#166534]" />
-              <span>Onboard New Donor</span>
+              <span>Test Donor Onboarding</span>
             </button>
             <button
               type="button"
@@ -222,7 +332,7 @@ export function JudgeDemoPill() {
               className="flex-1 py-2 px-3 rounded-xl bg-surface-elevated hover:bg-surface-highlight text-ink font-bold text-[11px] border border-border flex items-center justify-center gap-1.5 transition-colors"
             >
               <RefreshCw className="w-3 h-3 text-[#166534]" />
-              <span>Onboard Receiver</span>
+              <span>Test Receiver Onboarding</span>
             </button>
           </div>
 
@@ -264,9 +374,11 @@ export function JudgeDemoPill() {
       >
         <Sparkles className="w-4 h-4 text-[#166534]" />
         <span>Judge Demo Kit</span>
+        {isDonorActive && (
+          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+        )}
         {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-ink-muted" /> : <ChevronUp className="w-3.5 h-3.5 text-ink-muted" />}
       </button>
     </aside>
   );
 }
-

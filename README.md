@@ -12,7 +12,7 @@
 
 ---
 
-## ⚡ Architecture Overview
+## Architecture Overview
 
 Givi is engineered to eliminate the fundamental structural inefficiencies of legacy charitable platforms: multi-week escrow delays, opaque 5–15% administrative deductions, and abstract organizational fundraising pools. 
 
@@ -57,7 +57,7 @@ By disaggregating crisis relief into discrete, verifiable atomic liabilities (e.
 
 ---
 
-## 🛤️ Dual-Persona Onboarding & User Journeys
+## Dual-Persona Onboarding & User Journeys
 
 Givi utilizes a frictionless, 4-step onboarding architecture for both sides of the marketplace, ensuring immediate readiness without bureaucratic friction.
 
@@ -78,7 +78,7 @@ Asking for help shouldn't require degrading essays or week-long wait times. Givi
 
 ---
 
-## 🛠️ The Judge & Demo Sandbox Kit
+## Judge & Demo Sandbox Kit
 
 Mounted persistently in the application layout as `<JudgeDemoPill />`, the **Judge & Demo Sandbox Kit** is an interactive testing and evaluation harness engineered specifically to eliminate environment friction, sign-up barriers, and mock payment hurdles.
 
@@ -86,7 +86,7 @@ Mounted persistently in the application layout as `<JudgeDemoPill />`, the **Jud
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                     JUDGE & DEMO SANDBOX ASSISTANT                              │
 │                                                                                 │
-│  [✦ Judge Demo Kit] ──▶ Expands to Floating Evaluation Suite                    │
+│  [Judge Demo Kit] ──▶ Expands to Floating Evaluation Suite                      │
 │                                                                                 │
 │  ├─ 1. Persona Hot-Swapping                                                     │
 │  │     • [Judge Donor]: Pre-funded $50 wallet, $456.93 baseline ledger history, │
@@ -117,7 +117,31 @@ Mounted persistently in the application layout as `<JudgeDemoPill />`, the **Jud
 
 ---
 
-## 🔄 End-to-End System Flows
+## PayPal Developer Platform Integration (Sandbox)
+
+All payment operations run against `https://api-m.sandbox.paypal.com` (`src/lib/paypal.ts`):
+
+* **(i) OAuth2 Token API (`/v1/oauth2/token`):** Handles client-credentials token negotiation with in-memory caching and automatic token refresh on `401`.
+* **(ii) Orders API v2 (`/v2/checkout/orders` & `/v2/checkout/orders/{id}/capture`):** Powers the upfront Giving Allowance preload as well as direct single-cause checkouts. Donors preload an allowance pool (e.g. $50) in one checkout interaction so they can swipe right without approving separate micro-charges each time. `/api/paypal/create-order` supplies the sandbox approval URL, and `/api/paypal/wallet/topup` captures the order with replay protection (`recordCapturedOrder`).
+* **(iii) Payouts API v1 (`/v1/payments/payouts`):** Immediately disburses 100% of each donation directly to the recipient's PayPal email when a donor swipes right ($5), super-swipes a full bill, or triggers the Autonomous Giving Agent. Every payout includes an idempotency header (`PayPal-Request-Id: payout-idemp-${senderItemId}`) to guarantee zero double-disbursements.
+* **(iv) Captures Refund API v2 (`/v2/payments/captures/{id}/refund`):** Automated rollback safety net. If a beneficiary payout fails (e.g. invalid or blocked email), the system automatically refunds the donor's captured charge.
+* **(v) Webhooks API v1 (`/v1/notifications/verify-webhook-signature`):** In `/api/webhooks/paypal`, validates cryptographic transmission signatures before processing asynchronous events (`PAYMENT.PAYOUTS-ITEM.SUCCEEDED`) and committing settlement hashes to the ledger.
+* **(vi) Sandbox Evaluation Accounts (`<JudgeDemoPill />`):** Pre-configured testing buttons map to active sandbox buyer (`gividonor@personal.example.com`) and merchant receiver (`givibeneficiary@business.example.com` / `relief.beneficiary@personal.example.com`) accounts for evaluation.
+
+---
+
+## Google Gemini AI Integration
+
+Givi runs **`gemini-1.5-flash`** (configurable via `GEMINI_MODEL`) through the official `@google/generative-ai` SDK (`src/lib/gemini.ts`):
+
+* **(i) Document OCR & Fraud Screening (`/api/ai/analyze-document`):** When someone uploads a bill or pharmacy copay, Gemini parses the document to extract the provider name, balance due, and statement date. It checks standard bill layouts, flags suspicious formatting, verifies date freshness (<60 days), and generates a 0–100% Trust Score.
+* **(ii) PII Redaction Shield:** Gemini identifies sensitive account numbers, meter IDs, and residential addresses on uploaded files so they are masked before publishing the card to the public deck.
+* **(iii) Low-Latency Impact Toasts (`generateImpactToast`):** Generates a concise, context-aware celebration sentence after each donation. To keep the swipe deck feeling snappy at 60fps, Gemini is raced against an 800ms timeout that drops into pre-built category messages if the network slows down.
+* **(iv) Autonomous Giving Agent (`/api/agent/run`):** Runs donor-defined giving policies. It checks pending causes against user-set thresholds (minimum trust score, category whitelists, max grant per cause, and budget ceilings) to disburse relief automatically without manual swiping.
+
+---
+
+## End-to-End System Flows
 
 ### 1. Multimodal Document Ingestion & Verification Pipeline
 When a relief recipient submits an overdue notice or medical statement (`/create-cause`):
@@ -195,7 +219,7 @@ $$\text{Eligibility}(C) = \left( \text{TrustScore}(C) \ge \tau \right) \land \le
 
 ---
 
-## 📊 Live Transparency & Audit Ledger (`/transparency`)
+## Live Transparency & Audit Ledger (`/transparency`)
 
 Every completed settlement records an immutable entry in the system ledger. The public transparency portal is built using **AG Grid Community v33** for enterprise-scale streaming performance:
 
@@ -205,7 +229,7 @@ Every completed settlement records an immutable entry in the system ledger. The 
 
 ---
 
-## 🏛️ Technology Stack & Engineering Specifications
+## Technology Stack & Engineering Specifications
 
 | Layer | Technology | Specification / Usage |
 | :--- | :--- | :--- |
@@ -224,7 +248,25 @@ Every completed settlement records an immutable entry in the system ledger. The 
 
 ---
 
-## 🚀 Quick Start (Local Setup)
+## Hackathon Sponsor Integrations
+
+I integrated four official hackathon sponsor tools into Givi to cover auditability, physical goods, cloud hosting, and external developer contracts:
+
+* **(i) AG Grid (`ag-grid-community`, `ag-grid-react` v33):**  
+  I used AG Grid to build the public transparency ledger at `/transparency`. It handles streaming micro-transactions with virtualized scrolling, instant filtering by category and trust score, live PayPal payout batch hash lookups, and one-click CSV export for tax-deductible donor receipts.
+
+* **(ii) Channel3 (E-Commerce Catalog API):**  
+  I integrated Channel3 so beneficiaries aren't limited to requesting cash for utility bills. Its catalog indexes verified retail products across 25,000+ merchants, letting families request essential physical supplies (like space heaters or baby formula) tied to live merchant SKUs that donors can fund directly.
+
+* **(iii) Render (Cloud Hosting):**  
+  I deployed the production application on Render using declarative infrastructure-as-code (`render.yaml`). It hosts the full-stack Next.js 15 App Router app, edge API routes, and background payout reconciliation workers.
+
+* **(iv) APIMatic & Postman (API Documentation & Testing Contracts):**  
+  I used APIMatic to generate the machine-readable OpenAPI specs (`/openapi.json`) and developer reference at `/developers`. The contract can be imported directly into Postman, allowing clinics, utility providers, and relief partners to test and integrate directly with Givi's verification and PayPal payout rails.
+
+---
+
+## Quick Start (Local Setup)
 
 ### 1. Prerequisites
 - Node.js `v20.x` or later
@@ -273,7 +315,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. The **Judge
 
 ---
 
-## 🧪 Test Suite & Quality Verification
+## Test Suite & Quality Verification
 
 The test harness evaluates security guardrails, auto-capping edge cases, race conditions, and ledger attribution:
 
@@ -281,7 +323,7 @@ The test harness evaluates security guardrails, auto-capping edge cases, race co
 npm test
 ```
 
-### Coverage Highlights (78 Test Specifications Passing)
+### Coverage Highlights (92 Test Specifications Passing)
 - **Financial Auto-Capping:** Enforces sub-cent threshold constraints when remaining bill goal is under $5.00.
 - **Idempotency Verification:** Asserts that duplicate transaction tokens cannot trigger dual payout executions.
 - **Security & Anti-Spoofing:** Validates that client payloads cannot tamper with donor balances, total stats, or trust scores.
@@ -291,7 +333,7 @@ npm test
 
 ---
 
-## 🔌 API & Integration Contracts
+## API & Integration Contracts
 
 Givi provides an OpenAPI 3.0 specification accessible at `/developers`, allowing utility providers, mutual aid funds, and hospital networks to submit debt relief cases programmatically:
 
@@ -305,5 +347,5 @@ Givi provides an OpenAPI 3.0 specification accessible at `/developers`, allowing
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the MIT License.

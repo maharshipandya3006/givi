@@ -36,5 +36,6 @@ yarn-error.log*
 # Agent & tool scratch caches
 .hallmark/
 .impeccable/
-docs/appleskill.md
+docs/
+context/
 

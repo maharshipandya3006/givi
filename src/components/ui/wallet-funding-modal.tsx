@@ -206,7 +206,6 @@ export function WalletFundingModal({
         isCapturingRef.current = true;
         cleanup();
         await rechargeWallet(loadedAmount, newBalance);
-        await refreshProfile();
         triggerCelebration(loadedAmount, newBalance);
       };
 
@@ -232,7 +231,6 @@ export function WalletFundingModal({
           }
 
           await rechargeWallet(amount, topupData.newBalance);
-          await refreshProfile();
           triggerCelebration(amount, topupData.newBalance);
         } catch (captureErr: unknown) {
           isCapturingRef.current = false;
@@ -249,10 +247,12 @@ export function WalletFundingModal({
         } else if (event.data?.type === "PAYPAL_ORDER_APPROVED") {
           finishCaptureFallback(event.data.orderId || orderId);
         } else if (event.data?.type === "PAYPAL_CAPTURE_FAILED") {
+          isCapturingRef.current = false;
           cleanup();
           setErrorMessage(event.data.error || "PayPal payment verification failed.");
           setIsProcessing(false);
         } else if (event.data?.type === "PAYPAL_ORDER_CANCELLED") {
+          isCapturingRef.current = false;
           cleanup();
           setIsProcessing(false);
         }
@@ -273,11 +273,13 @@ export function WalletFundingModal({
         } else if (e.key === "givi_paypal_capture_failed" && e.newValue) {
           try {
             const data = JSON.parse(e.newValue);
+            isCapturingRef.current = false;
             cleanup();
             setErrorMessage(data.error || "PayPal payment verification failed.");
             setIsProcessing(false);
           } catch {}
         } else if (e.key === "givi_paypal_order_cancelled") {
+          isCapturingRef.current = false;
           cleanup();
           setIsProcessing(false);
         }
@@ -307,13 +309,16 @@ export function WalletFundingModal({
         } catch {}
 
         if (popup && popup.closed) {
+          const wasCapturing = isCapturingRef.current;
           cleanup();
           setIsProcessing(false);
+          if (!wasCapturing) {
+            refreshProfile();
+          }
         }
       }, 500);
 
       const cleanup = () => {
-        isCapturingRef.current = false;
         clearInterval(popupPoll);
         window.removeEventListener("message", messageHandler);
         window.removeEventListener("storage", storageHandler);
@@ -376,7 +381,6 @@ export function WalletFundingModal({
       }
 
       await rechargeWallet(amount, data.newBalance);
-      await refreshProfile();
       triggerCelebration(amount, data.newBalance);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Card payment failed";

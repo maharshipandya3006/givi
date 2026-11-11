@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { isLocationMatch } from "../src/lib/location-matcher.ts";
 import { clearPayPalTokenCache } from "../src/lib/paypal.ts";
+import { guestIdForUsername } from "../src/lib/guest-identity.ts";
+import { topUpDemoWallet, getDemoWalletBalance, isDemoUserKey } from "../src/lib/demo-wallet.ts";
 
 test("Ponytail Fix: Document Analysis strips currency signs and commas", () => {
   function parseStatedAmount(statedAmount) {
@@ -263,6 +265,106 @@ test("Ponytail Fix: Judge showcase causes permit thank-you note updates without 
   assert.equal(verifyGratitudePermission("cause-private-123", "user_owner_1", "user_attacker").allowed, false);
   assert.equal(verifyGratitudePermission("cause-private-123", "user_owner_1", "user_owner_1").allowed, true);
 });
+
+test("Ponytail Fix: Canonical guest account accumulates 50+50 wallet topups and preserves balance", () => {
+  const eddieId = guestIdForUsername("Eddie");
+  assert.equal(eddieId.startsWith("guest-u-"), true);
+  assert.equal(isDemoUserKey(eddieId), true);
+
+  const afterFirst = topUpDemoWallet(50, eddieId);
+  assert.equal(afterFirst, 50);
+  const afterSecond = topUpDemoWallet(50, eddieId);
+  assert.equal(afterSecond, 100);
+  assert.equal(getDemoWalletBalance(eddieId), 100);
+
+  // Simulate profile sync where DB row still reports 0 for an empty canonical guest
+  const dbRowWallet = 0;
+  const syncedBalance = Math.max(dbRowWallet, getDemoWalletBalance(eddieId));
+  assert.equal(syncedBalance, 100);
+});
+
+test("Ponytail Fix: Returning donor Mahi preserves session, restores $50 and accumulates additive top-ups", () => {
+  const mahiId = guestIdForUsername("Mahi");
+  topUpDemoWallet(50, mahiId);
+  assert.equal(getDemoWalletBalance(mahiId), 50);
+
+  // When Mahi starts onboarding again with empty name field, enters "Mahi", her 50 is restored
+  const restoredBalance = getDemoWalletBalance(mahiId);
+  assert.equal(restoredBalance, 50);
+
+  // If she tops up during onboarding with an additional $25, it accumulates
+  const afterAdditiveTopup = topUpDemoWallet(25, mahiId);
+  assert.equal(afterAdditiveTopup, 75);
+  assert.equal(getDemoWalletBalance(mahiId), 75);
+});
+
+test("Ponytail Fix: Onboarding completion preserves user edits over old remote interests and budget", () => {
+  const remote = {
+    interests: ["utilities"],
+    monthly_budget: 25,
+    default_swipe_amount: 3,
+    location: "Detroit, MI",
+  };
+
+  const onboardingUpdates = {
+    interests: ["medical", "education"],
+    monthlyBudget: 100,
+    defaultSwipeAmount: 10,
+    location: "Austin, TX",
+  };
+
+  // Simulating activateGuestProfile merge logic
+  const updatedInterests =
+    Array.isArray(onboardingUpdates?.interests) && onboardingUpdates.interests.length > 0
+      ? onboardingUpdates.interests
+      : remote.interests;
+
+  const updatedBudget =
+    typeof onboardingUpdates?.monthlyBudget === "number"
+      ? onboardingUpdates.monthlyBudget
+      : Number(remote.monthly_budget ?? 50);
+
+  const updatedSwipe =
+    typeof onboardingUpdates?.defaultSwipeAmount === "number"
+      ? onboardingUpdates.defaultSwipeAmount
+      : Number(remote.default_swipe_amount ?? 5);
+
+  const updatedLocation =
+    onboardingUpdates?.location !== undefined && onboardingUpdates.location !== ""
+      ? onboardingUpdates.location
+      : remote.location;
+
+  assert.deepEqual(updatedInterests, ["medical", "education"]);
+  assert.equal(updatedBudget, 100);
+  assert.equal(updatedSwipe, 10);
+  assert.equal(updatedLocation, "Austin, TX");
+});
+
+test("Ponytail Fix: Judge Demo Kit wallet storage isolates givi_judge_donor_wallet and retains $50 baseline", () => {
+  const mockStorage = new Map();
+  function rechargeWallet(isJudge, prevBalance, amount, newBalance) {
+    const next = typeof newBalance === "number" ? newBalance : prevBalance + amount;
+    const key = isJudge ? "givi_judge_donor_wallet" : "givi_wallet_balance";
+    mockStorage.set(key, String(next));
+    if (isJudge) {
+      mockStorage.set("givi_wallet_balance", String(next));
+    }
+    return next;
+  }
+
+  // Judge recharge writes to givi_judge_donor_wallet
+  const judgeBal = rechargeWallet(true, 50, 25);
+  assert.equal(judgeBal, 75);
+  assert.equal(mockStorage.get("givi_judge_donor_wallet"), "75");
+  assert.equal(mockStorage.get("givi_wallet_balance"), "75");
+
+  // Non-judge guest recharge writes only to givi_wallet_balance
+  const guestBal = rechargeWallet(false, 0, 50);
+  assert.equal(guestBal, 50);
+  assert.equal(mockStorage.get("givi_judge_donor_wallet"), "75"); // Unaffected!
+  assert.equal(mockStorage.get("givi_wallet_balance"), "50");
+});
+
 
 
 

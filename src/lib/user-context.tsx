@@ -52,7 +52,7 @@ export interface UserContextType {
   activateGuestProfile: (
     username: string,
     options?: { fromOnboarding?: boolean; onboardingUpdates?: Partial<DonorPreferences> }
-  ) => Promise<{ restored: boolean; userId: string }>;
+  ) => Promise<{ restored: boolean; userId: string; preferences?: Partial<DonorPreferences> }>;
   toggleBookmark: (causeId: string) => Promise<void>;
   isBookmarked: (causeId: string) => boolean;
   rechargeWallet: (amount: number, newBalance?: number) => Promise<void>;
@@ -352,6 +352,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (typeof window !== "undefined") {
         localStorage.setItem("givi_wallet_balance", resolvedBalance.toString());
+        if (isJudgeDonorAuth) {
+          localStorage.setItem("givi_judge_donor_wallet", resolvedBalance.toString());
+        }
       }
 
       const cachedBills = typeof window !== "undefined" ? parseInt(localStorage.getItem("givi_bills_cleared") || "0", 10) : 0;
@@ -586,6 +589,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined") {
         localStorage.setItem("givi_display_name", effectiveJudgeName);
         localStorage.setItem("givi_demo_role", "donor");
+        localStorage.setItem("givi_judge_donor_wallet", cachedJudgeBal.toString());
       }
       setDonorPrefs((prev) => ({
         ...prev,
@@ -623,8 +627,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("givi_display_name", "Maharshi Pandya");
         }
       }
-      refreshProfile();
     }
+    refreshProfile();
   };
 
   const updateDonorPrefs = async (updates: Partial<DonorPreferences>) => {
@@ -708,7 +712,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const activateGuestProfile = async (
     username: string,
     options: { fromOnboarding?: boolean; onboardingUpdates?: Partial<DonorPreferences> } = {}
-  ): Promise<{ restored: boolean; userId: string }> => {
+  ): Promise<{ restored: boolean; userId: string; preferences?: Partial<DonorPreferences> }> => {
     const trimmed = username.trim();
     const shouldRestoreFresh = Boolean(
       options.fromOnboarding ||
@@ -781,27 +785,68 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           setIsDemoUser(true);
           setIsOnboarded(true);
           setDonorOnboardedState(true);
-          setDonorPrefs((prev) => ({
-            ...prev,
+          const updatedInterests =
+            Array.isArray(options.onboardingUpdates?.interests) && options.onboardingUpdates.interests.length > 0
+              ? options.onboardingUpdates.interests
+              : (Array.isArray(remote.interests) && remote.interests.length > 0
+                ? remote.interests
+                : ["utilities", "medical"]);
+
+          const updatedBudget =
+            typeof options.onboardingUpdates?.monthlyBudget === "number"
+              ? options.onboardingUpdates.monthlyBudget
+              : Number(remote.monthly_budget ?? 50);
+
+          const updatedSwipeAmount =
+            typeof options.onboardingUpdates?.defaultSwipeAmount === "number"
+              ? options.onboardingUpdates.defaultSwipeAmount
+              : Number(remote.default_swipe_amount ?? 5);
+
+          const updatedLocation =
+            options.onboardingUpdates?.location !== undefined && options.onboardingUpdates.location !== ""
+              ? options.onboardingUpdates.location
+              : (remote.location || "");
+
+          const updatedImpactRadius =
+            options.onboardingUpdates?.impactRadius || remote.impact_radius || "urgent";
+
+          const updatedIsAnonymous =
+            options.onboardingUpdates?.isAnonymous !== undefined
+              ? options.onboardingUpdates.isAnonymous
+              : Boolean(remote.is_anonymous);
+
+          const restoredPrefs: Partial<DonorPreferences> = {
             displayName: trimmed,
-            location: restoredLocation,
+            location: updatedLocation,
             walletBalance: restoredWallet,
             totalDonated: restoredTotal,
             billsCleared: restoredBills,
             streakDays: restoredStreak,
-            monthlyBudget: Number(remote.monthly_budget ?? options.onboardingUpdates?.monthlyBudget ?? prev.monthlyBudget),
-            defaultSwipeAmount: Number(remote.default_swipe_amount ?? options.onboardingUpdates?.defaultSwipeAmount ?? prev.defaultSwipeAmount),
-            interests: Array.isArray(remote.interests) && remote.interests.length > 0
-              ? remote.interests
-              : (options.onboardingUpdates?.interests || prev.interests),
-            bookmarkedCauseIds: Array.isArray(remote.bookmarked_cause_ids) ? remote.bookmarked_cause_ids : prev.bookmarkedCauseIds,
-            impactRadius: remote.impact_radius || options.onboardingUpdates?.impactRadius || prev.impactRadius,
-            isAnonymous: Boolean(remote.is_anonymous),
+            monthlyBudget: updatedBudget,
+            defaultSwipeAmount: updatedSwipeAmount,
+            interests: updatedInterests,
+            bookmarkedCauseIds: Array.isArray(remote.bookmarked_cause_ids) ? remote.bookmarked_cause_ids : [],
+            impactRadius: updatedImpactRadius,
+            isAnonymous: updatedIsAnonymous,
             onboarded: true,
+          };
+
+          setDonorPrefs((prev) => ({
+            ...prev,
+            ...restoredPrefs,
           }));
 
-          await patchCanonical({ display_name: trimmed, onboarded: true });
-          return { restored: true, userId: canonicalId };
+          await patchCanonical({
+            display_name: trimmed,
+            onboarded: true,
+            interests: updatedInterests,
+            monthly_budget: updatedBudget,
+            default_swipe_amount: updatedSwipeAmount,
+            location: updatedLocation,
+            impact_radius: updatedImpactRadius,
+            is_anonymous: updatedIsAnonymous,
+          });
+          return { restored: true, userId: canonicalId, preferences: restoredPrefs };
         }
       }
     } catch {}
@@ -827,9 +872,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setIsDemoUser(true);
             setIsOnboarded(true);
             setDonorOnboardedState(true);
-            setDonorPrefs({ ...DEFAULT_DONOR_PREFS, ...archivedPrefs, displayName: trimmed, onboarded: true });
+            const mergedArchived: Partial<DonorPreferences> = {
+              ...DEFAULT_DONOR_PREFS,
+              ...archivedPrefs,
+              ...(options.onboardingUpdates || {}),
+              displayName: trimmed,
+              walletBalance: Math.max(Number(archivedPrefs.walletBalance || 0), donorPrefs.walletBalance || 0),
+              onboarded: true,
+            };
+            setDonorPrefs((prev) => ({ ...prev, ...mergedArchived }));
             await patchCanonical({ display_name: trimmed, onboarded: true });
-            return { restored: true, userId: canonicalId };
+            return { restored: true, userId: canonicalId, preferences: mergedArchived };
           }
         }
       } catch {}
@@ -892,7 +945,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
     if (typeof window !== "undefined") {
-      localStorage.setItem("givi_wallet_balance", nextBalance.toString());
+      const isJudge = demoPersona === "judge_donor" || isJudgeDonorAuth;
+      localStorage.setItem(isJudge ? "givi_judge_donor_wallet" : "givi_wallet_balance", nextBalance.toString());
+      if (isJudge) {
+        localStorage.setItem("givi_wallet_balance", nextBalance.toString());
+      }
     }
   };
 
