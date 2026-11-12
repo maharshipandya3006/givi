@@ -1,6 +1,8 @@
 # givi — Direct Relief & Micro Donation Engine
 
 > **Meet givi: Look at it as Tinder for community relief donations. Swipe right to fund verified needs with just $5 or swipe up to pay in full. Real bills. Direct relief. Zero friction. 0% fees, 100% local impact.**
+<img width="1600" height="640" alt="image" src="https://github.com/user-attachments/assets/27b0f6a9-9e64-42b9-8c65-c6fbd799f4a9" />
+
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.1.7-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0.0-blue?style=flat-square&logo=react)](https://react.dev/)
