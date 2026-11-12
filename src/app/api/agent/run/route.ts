@@ -9,6 +9,7 @@ import { Donation, Cause, createDefaultDonorProfile } from "@/lib/types";
 import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface AgentRunLog {
+  id?: string;
   causeId: string;
   causeTitle: string;
   amount: number;
@@ -419,6 +420,7 @@ export async function POST(request: NextRequest) {
         }
 
         executionLogs.push({
+          id: donationRecord.id,
           causeId: cause.id,
           causeTitle: cause.title,
           amount: donationAmt,

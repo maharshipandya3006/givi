@@ -27,12 +27,21 @@ export default function TransparencyPage() {
           } catch {}
         }
 
-        // Merge and de-duplicate by id, prioritizing local recent items on top
+        // Merge and de-duplicate by id and PayPal payout batch ID, prioritizing local recent items on top
         const seen = new Set<string>();
+        const seenBatch = new Set<string>();
         const merged: TransparencyRecord[] = [];
         for (const item of [...localLogs, ...remoteLogs]) {
-          if (!seen.has(item.id)) {
+          const hasBatch =
+            item.paypalPayoutBatchId &&
+            !item.paypalPayoutBatchId.startsWith("BATCH-DEMO-") &&
+            seenBatch.has(item.paypalPayoutBatchId);
+
+          if (!seen.has(item.id) && !hasBatch) {
             seen.add(item.id);
+            if (item.paypalPayoutBatchId && !item.paypalPayoutBatchId.startsWith("BATCH-DEMO-")) {
+              seenBatch.add(item.paypalPayoutBatchId);
+            }
             merged.push(item);
           }
         }

@@ -66,13 +66,22 @@ export async function GET() {
     }
   }
 
-  // De-duplicate records by id
+  // De-duplicate records by id and PayPal payout batch ID
   const seenIds = new Set<string>();
+  const seenBatchIds = new Set<string>();
   const allRecords: TransparencyRecord[] = [];
 
   for (const record of [...dbRecords, ...dynamicLogs, ...HISTORICAL_AUDIT_LOGS]) {
-    if (!seenIds.has(record.id)) {
+    const hasDuplicateBatch =
+      record.paypalPayoutBatchId &&
+      !record.paypalPayoutBatchId.startsWith("BATCH-DEMO-") &&
+      seenBatchIds.has(record.paypalPayoutBatchId);
+
+    if (!seenIds.has(record.id) && !hasDuplicateBatch) {
       seenIds.add(record.id);
+      if (record.paypalPayoutBatchId && !record.paypalPayoutBatchId.startsWith("BATCH-DEMO-")) {
+        seenBatchIds.add(record.paypalPayoutBatchId);
+      }
       allRecords.push(record);
     }
   }

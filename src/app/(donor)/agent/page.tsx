@@ -74,7 +74,7 @@ export default function AgentPage() {
 
         // Record agent disbursements into account's recent swipe history (Issue 5)
         const agentSwipes = (data.payoutsExecuted || []).map((p: any, idx: number) => ({
-          id: p.payoutBatchId ? `agent-${p.payoutBatchId}-${idx}` : `agent-swipe-${Date.now()}-${idx}`,
+          id: p.id || (p.payoutBatchId ? `agent-${p.payoutBatchId}-${idx}` : `agent-swipe-${Date.now()}-${idx}`),
           causeId: p.causeId,
           causeTitle: p.causeTitle || p.title || "Direct Relief Grant",
           title: p.causeTitle || p.title || "Direct Relief Grant",

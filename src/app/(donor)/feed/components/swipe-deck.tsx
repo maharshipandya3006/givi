@@ -402,7 +402,7 @@ export function SwipeDeck({
                 preventSwipe={["down"]}
                 swipeRequirementType="position"
                 swipeThreshold={75}
-                className={`absolute inset-0 flex justify-center items-center select-none ${
+                className={`absolute inset-0 flex justify-center items-center select-none touch-none ${
                   isTop
                     ? "z-30 cursor-grab active:cursor-grabbing"
                     : isSecond

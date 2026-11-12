@@ -96,6 +96,16 @@ const globalLedger: Donation[] =
 export const runtimeDonations: Donation[] = globalLedger;
 
 export function recordRuntimeDonation(donation: Donation): void {
+  // Prevent duplicate insertion if already recorded by ID or PayPal Payout Batch ID
+  const isDuplicate = runtimeDonations.some(
+    (d) =>
+      d.id === donation.id ||
+      (d.paypalPayoutBatchId &&
+        donation.paypalPayoutBatchId &&
+        d.paypalPayoutBatchId === donation.paypalPayoutBatchId)
+  );
+  if (isDuplicate) return;
+
   runtimeDonations.unshift(donation);
   if (runtimeDonations.length > MAX_RUNTIME_DONATIONS) {
     runtimeDonations.pop();

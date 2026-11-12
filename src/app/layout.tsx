@@ -4,7 +4,7 @@ import "./globals.css";
 import { UserProvider } from "@/lib/user-context";
 import { AppHeader } from "./components/app-header";
 import { MobileNav } from "./components/mobile-nav";
-import { JudgeDemoPill } from "@/components/ui/judge-demo-pill";
+import { PayPalSandboxPill } from "@/components/ui/paypal-sandbox-pill";
 
 export const metadata: Metadata = {
   title: "givi. Swipe to Donate",
@@ -34,8 +34,8 @@ export default function RootLayout({
             {/* Mobile Bottom Dock (Hidden on Landing Page) */}
             <MobileNav />
 
-            {/* Hackathon Judge Sandbox Assistant Pill */}
-            <JudgeDemoPill />
+            {/* PayPal Sandbox Credentials Assistant */}
+            <PayPalSandboxPill />
           </UserProvider>
         </body>
       </html>

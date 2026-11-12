@@ -119,7 +119,7 @@ export function CauseCard({ cause, onInspect, isLocalNeighbor = false }: CauseCa
         </div>
 
         {isPdfDoc || imgError ? (
-          <div className="relative z-10 w-full h-full flex flex-col items-center justify-center bg-surface-elevated text-ink gap-2.5 p-6">
+          <div className="pointer-events-none select-none relative z-10 w-full h-full flex flex-col items-center justify-center bg-surface-elevated text-ink gap-2.5 p-6">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[#166534]">
               <Receipt className="w-8 h-8" />
             </div>
@@ -136,8 +136,9 @@ export function CauseCard({ cause, onInspect, isLocalNeighbor = false }: CauseCa
             alt={cause.title}
             loading="eager"
             decoding="async"
+            draggable={false}
             onError={() => setImgError(true)}
-            className="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            className="pointer-events-none select-none relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
         )}
 
