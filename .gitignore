@@ -25,6 +25,7 @@ yarn-error.log*
 # OS Files
 .DS_Store
 *.pem
+*.zip
 
 # Local IDE / Vercel
 .vercel
